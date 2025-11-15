@@ -4,13 +4,12 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 
 import java.util.List;
 
 @Entity
 @Data
-@Table(name = "dorm")
+@Table(name = "dorms")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Dorm {
