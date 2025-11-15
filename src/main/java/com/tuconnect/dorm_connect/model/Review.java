@@ -4,23 +4,27 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-
-import java.util.List;
 
 @Entity
 @Data
-@Table(name = "dorm")
+@Table(name = "review")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Dorm {
+public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private Integer rating;
 
-    @OneToMany(mappedBy = "dorm")
-    private List<Review> reviews;
+    private String comment;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "dorm_id")
+    private Dorm dorm;
 }
