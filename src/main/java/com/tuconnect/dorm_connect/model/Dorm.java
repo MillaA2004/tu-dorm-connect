@@ -22,6 +22,12 @@ public class Dorm {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private Double price;
+
     @OneToMany(mappedBy = "dorm")
     private List<Review> reviews;
+
+    @OneToMany(mappedBy = "dorm")
+    private List<User> livingPeople;
 }

@@ -37,4 +37,8 @@ public class User {
 
     @ManyToMany(mappedBy = "participants")
     private List<Event> events;
+
+    @ManyToOne
+    @JoinColumn(name = "dorm_id")
+    private Dorm dorm;
 }
