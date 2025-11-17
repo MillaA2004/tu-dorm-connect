@@ -22,6 +22,8 @@ public class Event {
 
     private String title;
 
+    private String description;
+
     @Column(name = "date_time")
     private LocalDateTime dateTime;
 
