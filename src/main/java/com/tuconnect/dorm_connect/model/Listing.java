@@ -2,6 +2,7 @@ package com.tuconnect.dorm_connect.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "listings")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Listing {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
