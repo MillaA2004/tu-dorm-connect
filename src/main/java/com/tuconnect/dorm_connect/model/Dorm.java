@@ -22,4 +22,9 @@ public class Dorm {
 
     @OneToMany(mappedBy = "dorm")
     private List<Review> reviews;
+
+    public Dorm(String name)
+    {
+        this.name = name;
+    }
 }
