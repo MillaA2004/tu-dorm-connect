@@ -2,6 +2,7 @@ package com.tuconnect.dorm_connect.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "reviews")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
