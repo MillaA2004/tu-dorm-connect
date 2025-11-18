@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 
 @Profile("dev")
@@ -35,6 +36,8 @@ public class ReviewSeeder implements CommandLineRunner {
             Review review = Review.builder()
                     .rating(5)
                     .comment("Quiet and clean, great for studying.")
+                    .categoryScoresJson("{\"cleanliness\":5,\"noise\":2,\"staff\":4}")
+                    .createdAt(LocalDateTime.now().minusDays(1))
                     .user(user)
                     .dorm(dorm)
                     .build();

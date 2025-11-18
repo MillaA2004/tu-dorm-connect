@@ -34,7 +34,10 @@ public class EventSeeder implements CommandLineRunner {
             Event event = Event.builder()
                     .title("Dorm Clean-Up Day")
                     .description("Join us to clean and decorate Block 3!")
+                    .location("Block 3 Courtyard")
                     .dateTime(LocalDateTime.now().plusDays(2))
+                    .capacity(30)
+                    .createdAt(LocalDateTime.now())
                     .organizer(user1)
                     .participants(List.of(user1, user2))
                     .build();
