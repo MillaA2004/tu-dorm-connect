@@ -19,12 +19,27 @@ public class Listing {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String title;
+
     private String description;
+
+    @Column(name = "price_range")
+    private String priceRange;
+
+    @Column(name = "preferences_json", columnDefinition = "TEXT")
+    private String preferencesJson;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "dorm_id")
+    private Dorm dorm;
 }

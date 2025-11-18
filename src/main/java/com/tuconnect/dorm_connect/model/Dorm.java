@@ -22,6 +22,14 @@ public class Dorm {
     @Column(nullable = false)
     private String name;
 
+    private String address;
+
+    @Column(name = "block_number")
+    private String blockNumber;
+
+    @Column(name = "amenities_json", columnDefinition = "TEXT")
+    private String amenitiesJson;
+
     @Column(nullable = false)
     private Double price;
 
@@ -30,4 +38,7 @@ public class Dorm {
 
     @OneToMany(mappedBy = "dorm")
     private List<User> livingPeople;
+
+    @OneToMany(mappedBy = "dorm")
+    private List<Listing> listings;
 }

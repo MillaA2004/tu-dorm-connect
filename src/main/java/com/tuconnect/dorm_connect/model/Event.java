@@ -24,8 +24,15 @@ public class Event {
 
     private String description;
 
+    private String location;
+
     @Column(name = "date_time")
     private LocalDateTime dateTime;
+
+    private Integer capacity;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "organizer_id")
