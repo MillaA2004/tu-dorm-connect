@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @Table(name = "reviews")
@@ -21,6 +23,12 @@ public class Review {
     private Integer rating;
 
     private String comment;
+
+    @Column(name = "category_scores_json", columnDefinition = "TEXT")
+    private String categoryScoresJson;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

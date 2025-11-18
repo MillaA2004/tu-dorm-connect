@@ -23,17 +23,31 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @Column(name = "password_hash")
+    private String passwordHash;
+
+    private String name;
+
+    @Column(name = "faculty_number")
+    private String facultyNumber;
+
     private String interests;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    // Relationships
+    @ManyToOne
+    @JoinColumn(name = "dorm_id")
+    private Dorm dorm;
+
     @OneToMany(mappedBy = "user")
     private List<Listing> listings;
 
     @OneToMany(mappedBy = "user")
     private List<Review> reviews;
+
+    @OneToMany(mappedBy = "organizer")
+    private List<Event> organizedEvents;
 
     @ManyToMany(mappedBy = "participants")
     private List<Event> events;

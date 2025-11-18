@@ -22,11 +22,23 @@ public class Dorm {
     @Column(nullable = false)
     private String name;
 
+    private String address;
+
+    @Column(name = "block_number")
+    private String blockNumber;
+
+    @Column(name = "amenities_json", columnDefinition = "TEXT")
+    private String amenitiesJson;
+
+    @Column(nullable = false)
+    private Double price;
+
     @OneToMany(mappedBy = "dorm")
     private List<Review> reviews;
 
-    public Dorm(String name)
-    {
-        this.name = name;
-    }
+    @OneToMany(mappedBy = "dorm")
+    private List<User> livingPeople;
+
+    @OneToMany(mappedBy = "dorm")
+    private List<Listing> listings;
 }
