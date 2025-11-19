@@ -1,10 +1,7 @@
 package com.tuconnect.dorm_connect.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,26 +12,38 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Setter
+@Getter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long userId;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
+
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(name = "password_hash")
-    private String passwordHash;
+    @Column(nullable = false)
+    private String password;
 
-    private String name;
+    @Column(name = "image_url", nullable = true)
+    private String profileImageUrl;
 
-    @Column(name = "faculty_number")
-    private String facultyNumber;
+    @Column(nullable = false)
+    private String major;
 
-    private String interests;
+    @Column(nullable = false)
+    private Integer year;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private Roles role;
+
 
     @ManyToOne
     @JoinColumn(name = "dorm_id")
