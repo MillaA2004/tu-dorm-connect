@@ -2,7 +2,8 @@ package com.tuconnect.dorm_connect.controller;
 
 import com.tuconnect.dorm_connect.dto.DormDTO;
 import com.tuconnect.dorm_connect.service.DormService;
-import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,10 +11,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/dorms")
-@RequiredArgsConstructor
 public class DormController {
 
     private final DormService dormService;
+    @Autowired
+public DormController(DormService dormService) {
+    this.dormService = dormService;
+}
 
     // Get all dorms
     @GetMapping
