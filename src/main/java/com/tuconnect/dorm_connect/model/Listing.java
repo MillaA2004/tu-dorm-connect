@@ -26,8 +26,8 @@ public class Listing {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "price_range")
-    private String priceRange;
+    @Column(name = "price", nullable = false)
+    private Double price;
 
     @Column(name = "preferences_json", columnDefinition = "TEXT")
     private String preferencesJson;
