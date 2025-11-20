@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 
 @Profile("dev")
-@Component
 @RequiredArgsConstructor
 @Order(3)
 public class ReviewSeeder implements CommandLineRunner {

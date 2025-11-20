@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @Profile("dev")
-@Component
 @RequiredArgsConstructor
 @Order(4)
 public class EventSeeder implements CommandLineRunner {

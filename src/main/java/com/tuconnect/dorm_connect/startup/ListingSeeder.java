@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 
 @Profile("dev")
-@Component
 @RequiredArgsConstructor
 @Order(2)
 public class ListingSeeder implements CommandLineRunner {

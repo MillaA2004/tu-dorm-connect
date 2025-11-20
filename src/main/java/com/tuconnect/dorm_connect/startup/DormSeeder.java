@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Profile("dev")
-@Component
 @RequiredArgsConstructor
 @Order(0)
 public class DormSeeder implements CommandLineRunner {
