@@ -11,7 +11,7 @@ public record ListingResponseDTO(
         Long dormId,
         String dormName,
         Long userId,
-        String username,
+        //String username,
         Boolean isActive,
         LocalDateTime createdAt,
         LocalDateTime expiresAt
