@@ -6,7 +6,6 @@ import com.tuconnect.dorm_connect.model.Roles;
 import com.tuconnect.dorm_connect.model.User;
 import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -18,7 +17,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
 
-    @Autowired
+
     public UserServiceImpl(UserRepository userRepository,UserMapper userMapper) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
