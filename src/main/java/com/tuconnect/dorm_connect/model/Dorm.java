@@ -33,6 +33,12 @@ public class Dorm {
     @Column(nullable = false)
     private Double price;
 
+    @Column
+    private Double latitude;
+
+    @Column
+    private Double longitude;
+
     @OneToMany(mappedBy = "dorm")
     private List<Review> reviews;
 
