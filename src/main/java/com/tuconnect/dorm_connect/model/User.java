@@ -17,7 +17,7 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long id;
 
     @Column(nullable = false)
     private String firstName;
@@ -55,9 +55,15 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Review> reviews;
 
-    @OneToMany(mappedBy = "organizer")
-    private List<Event> organizedEvents;
+//    @OneToMany(mappedBy = "organizer")
+//    private List<Event> organizedEvents;
+//
+//    @ManyToMany(mappedBy = "participants")
+//    private List<Event> events;
+@OneToMany(mappedBy = "creator")
+private List<Event> organizedEvents;
 
     @ManyToMany(mappedBy = "participants")
     private List<Event> events;
+
 }

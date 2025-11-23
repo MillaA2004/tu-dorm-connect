@@ -1,20 +1,21 @@
 package com.tuconnect.dorm_connect.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
 @Table(name = "events")
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Setter
+@Getter
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,9 +23,10 @@ public class Event {
 
     private String title;
 
+    @Column(length = 2000)
     private String description;
 
-    private String location;
+    private String address;
 
     @Column(name = "date_time")
     private LocalDateTime dateTime;
@@ -34,15 +36,25 @@ public class Event {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @ManyToOne
-    @JoinColumn(name = "organizer_id")
-    private User organizer;
+
+    @Column(name = "event_type")
+    private String eventType;
+
+
+    private Double latitude;
+
+    private Double longitude;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id")
+    private User creator;
+
 
     @ManyToMany
     @JoinTable(
-            name = "events_participants",
+            name = "event_participants",
             joinColumns = @JoinColumn(name = "event_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> participants;
+    private Set<User> participants = new HashSet<>();
 }
