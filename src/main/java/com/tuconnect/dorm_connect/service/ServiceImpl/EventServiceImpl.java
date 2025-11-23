@@ -108,7 +108,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     public List<EventResponseDTO> getAllEventsCreatedByUser(Long userId) {
-        return eventRepository.findAllByCreator_UserId(userId)
+        return eventRepository.findAllByCreator_Id(userId)
                 .stream()
                 .map(eventMapper::toDTO)
                 .toList();
@@ -117,7 +117,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     public List<EventResponseDTO> getAllEventsAUserParticipatesIn(Long userId) {
-        return eventRepository.findAllByParticipants_UserId(userId)
+        return eventRepository.findAllByParticipants_Id(userId)
                 .stream()
                 .map(eventMapper::toDTO)
                 .toList();
