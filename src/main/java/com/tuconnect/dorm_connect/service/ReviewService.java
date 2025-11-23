@@ -1,16 +1,23 @@
 package com.tuconnect.dorm_connect.service;
 
-import com.tuconnect.dorm_connect.dto.ReviewDTO;
+import com.tuconnect.dorm_connect.dto.ReviewRequestDTO;
+import com.tuconnect.dorm_connect.dto.ReviewResponseDTO;
 
 import java.util.List;
 
 public interface ReviewService {
-    List<ReviewDTO> getAllReviews();
-    ReviewDTO getReviewById(Long id);
-    ReviewDTO createReview(ReviewDTO reviewDTO);
-    ReviewDTO updateReview(Long id, ReviewDTO updatedReviewDTO);
+
+    List<ReviewResponseDTO> getAllReviews();
+
+    ReviewResponseDTO getReviewById(Long id);
+
+    ReviewResponseDTO createReview(ReviewRequestDTO dto);
+
+    ReviewResponseDTO updateReview(Long id, ReviewRequestDTO dto);
+
     void deleteReview(Long id);
 
-    List<ReviewDTO> getReviewsByDorm(Long dormId);
-    List<ReviewDTO> getReviewsByUser(Long userId);
+    List<ReviewResponseDTO> getReviewsByDorm(Long dormId);
+
+    List<ReviewResponseDTO> getReviewsByUser(Long userId);
 }

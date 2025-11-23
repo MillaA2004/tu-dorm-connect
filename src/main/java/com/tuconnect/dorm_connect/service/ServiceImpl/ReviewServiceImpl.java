@@ -1,20 +1,16 @@
 package com.tuconnect.dorm_connect.service.ServiceImpl;
 
-import com.tuconnect.dorm_connect.dto.ReviewDTO;
+import com.tuconnect.dorm_connect.dto.ReviewRequestDTO;
+import com.tuconnect.dorm_connect.dto.ReviewResponseDTO;
 import com.tuconnect.dorm_connect.mapper.ReviewMapper;
-import com.tuconnect.dorm_connect.model.Dorm;
 import com.tuconnect.dorm_connect.model.Review;
-import com.tuconnect.dorm_connect.model.User;
 import com.tuconnect.dorm_connect.repository.ReviewRepository;
 import com.tuconnect.dorm_connect.service.ReviewService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ReviewServiceImpl implements ReviewService {
@@ -22,91 +18,80 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReviewMapper reviewMapper;
 
-    @Autowired
     public ReviewServiceImpl(ReviewRepository reviewRepository, ReviewMapper reviewMapper) {
         this.reviewRepository = reviewRepository;
         this.reviewMapper = reviewMapper;
     }
 
     @Override
-    public List<ReviewDTO> getAllReviews() {
-        return reviewRepository.findAll()
-                .stream()
-                .map(reviewMapper::toDTO)
-                .collect(Collectors.toList());
-    }
+    public ReviewResponseDTO createReview(ReviewRequestDTO dto) {
 
-    @Override
-    public ReviewDTO getReviewById(Long id) {
-        Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found"));
-        return reviewMapper.toDTO(review);
-    }
+        if (dto.userId() == null)
+            throw new IllegalArgumentException("userId is required");
 
-    @Override
-    public ReviewDTO createReview(ReviewDTO dto) {
+        if (dto.dormId() == null)
+            throw new IllegalArgumentException("dormId is required");
 
-        // Проверка: userId и dormId са задължителни
-        if (dto.userId() == null) {
-            throw new RuntimeException("Cannot create review: userId is required");
-        }
-        if (dto.dormId() == null) {
-            throw new RuntimeException("Cannot create review: dormId is required");
-        }
-
-        Review review = new Review();
-        review.setRating(dto.rating());
-        review.setComment(dto.comment());
-        review.setCategoryScoresJson(dto.categoryScoresJson());
+        Review review = reviewMapper.toEntity(dto);
         review.setCreatedAt(LocalDateTime.now());
 
-        // Set user relation
-        User user = new User();
-        user.setUserId(dto.userId());
-        review.setUser(user);
+        Review saved = reviewRepository.save(review);
 
-        // Set dorm relation
-        Dorm dorm = new Dorm();
-        dorm.setId(dto.dormId());
-        review.setDorm(dorm);
-
-        Review savedReview = reviewRepository.save(review);
-
-        return reviewMapper.toDTO(savedReview);
-    }
-
-    @Override
-    public ReviewDTO updateReview(Long id, ReviewDTO updatedReviewDTO) {
-        Review existing = reviewRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found"));
-
-        Review updatedEntity = reviewMapper.toEntity(updatedReviewDTO);
-        updatedEntity.setId(existing.getId());
-
-        Review saved = reviewRepository.save(updatedEntity);
         return reviewMapper.toDTO(saved);
     }
 
     @Override
-    public void deleteReview(Long id) {
-        Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found"));
-        reviewRepository.delete(review);
+    public ReviewResponseDTO updateReview(Long id, ReviewRequestDTO dto) {
+
+        Review existing = reviewRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Review not found"));
+
+        Review updated = reviewMapper.toEntity(dto);
+        updated.setId(existing.getId());
+        updated.setCreatedAt(existing.getCreatedAt()); // запазваме createdAt
+
+        Review saved = reviewRepository.save(updated);
+
+        return reviewMapper.toDTO(saved);
     }
 
     @Override
-    public List<ReviewDTO> getReviewsByDorm(Long dormId) {
+    public ReviewResponseDTO getReviewById(Long id) {
+        Review rev = reviewRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Review not found"));
+
+        return reviewMapper.toDTO(rev);
+    }
+
+    @Override
+    public List<ReviewResponseDTO> getAllReviews() {
+        return reviewRepository.findAll()
+                .stream()
+                .map(reviewMapper::toDTO)
+                .toList();
+    }
+
+    @Override
+    public void deleteReview(Long id) {
+        Review rev = reviewRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Review not found"));
+
+        reviewRepository.delete(rev);
+    }
+
+    @Override
+    public List<ReviewResponseDTO> getReviewsByDorm(Long dormId) {
         return reviewRepository.findByDormId(dormId)
                 .stream()
                 .map(reviewMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
-    public List<ReviewDTO> getReviewsByUser(Long userId) {
+    public List<ReviewResponseDTO> getReviewsByUser(Long userId) {
         return reviewRepository.findByUserUserId(userId)
                 .stream()
                 .map(reviewMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

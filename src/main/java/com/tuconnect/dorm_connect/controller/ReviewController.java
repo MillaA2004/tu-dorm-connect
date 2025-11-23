@@ -1,9 +1,9 @@
 package com.tuconnect.dorm_connect.controller;
 
-import com.tuconnect.dorm_connect.dto.ReviewDTO;
+import com.tuconnect.dorm_connect.dto.ReviewRequestDTO;
+import com.tuconnect.dorm_connect.dto.ReviewResponseDTO;
 import com.tuconnect.dorm_connect.service.ReviewService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,68 +12,48 @@ import java.util.List;
 @RequestMapping("/api/reviews")
 public class ReviewController {
 
-    private final ReviewService reviewService;
+    private final ReviewService service;
 
-    @Autowired
-    public ReviewController(ReviewService reviewService) {
-        this.reviewService = reviewService;
+    public ReviewController(ReviewService service) {
+        this.service = service;
     }
 
-    // -------------------------
-    // GET ALL
-    // -------------------------
     @GetMapping
-    public List<ReviewDTO> getAllReviews() {
-        return reviewService.getAllReviews();
+    public ResponseEntity<List<ReviewResponseDTO>> getAll() {
+        return ResponseEntity.ok(service.getAllReviews());
     }
 
-    // -------------------------
-    // GET BY ID
-    // -------------------------
     @GetMapping("/{id}")
-    public ReviewDTO getReviewById(@PathVariable Long id) {
-        return reviewService.getReviewById(id);
+    public ResponseEntity<ReviewResponseDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getReviewById(id));
     }
 
-    // -------------------------
-    // CREATE REVIEW
-    // -------------------------
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ReviewDTO createReview(@RequestBody ReviewDTO dto) {
-        return reviewService.createReview(dto);
+    public ResponseEntity<ReviewResponseDTO> create(@RequestBody ReviewRequestDTO dto) {
+        return ResponseEntity.ok(service.createReview(dto));
     }
 
-    // -------------------------
-    // UPDATE REVIEW
-    // -------------------------
     @PutMapping("/{id}")
-    public ReviewDTO updateReview(@PathVariable Long id, @RequestBody ReviewDTO updatedReviewDTO) {
-        return reviewService.updateReview(id, updatedReviewDTO);
+    public ResponseEntity<ReviewResponseDTO> update(
+            @PathVariable Long id,
+            @RequestBody ReviewRequestDTO dto
+    ) {
+        return ResponseEntity.ok(service.updateReview(id, dto));
     }
 
-    // -------------------------
-    // DELETE REVIEW
-    // -------------------------
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteReview(@PathVariable Long id) {
-        reviewService.deleteReview(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.deleteReview(id);
+        return ResponseEntity.noContent().build();
     }
 
-    // -------------------------
-    // GET REVIEWS BY DORM
-    // -------------------------
     @GetMapping("/dorm/{dormId}")
-    public List<ReviewDTO> getReviewsByDorm(@PathVariable Long dormId) {
-        return reviewService.getReviewsByDorm(dormId);
+    public ResponseEntity<List<ReviewResponseDTO>> getByDorm(@PathVariable Long dormId) {
+        return ResponseEntity.ok(service.getReviewsByDorm(dormId));
     }
 
-    // -------------------------
-    // GET REVIEWS BY USER
-    // -------------------------
     @GetMapping("/user/{userId}")
-    public List<ReviewDTO> getReviewsByUser(@PathVariable Long userId) {
-        return reviewService.getReviewsByUser(userId);
+    public ResponseEntity<List<ReviewResponseDTO>> getByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(service.getReviewsByUser(userId));
     }
 }

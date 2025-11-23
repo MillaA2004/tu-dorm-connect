@@ -1,15 +1,14 @@
 package com.tuconnect.dorm_connect.service.ServiceImpl;
 
-import com.tuconnect.dorm_connect.dto.DormDTO;
+
+import com.tuconnect.dorm_connect.dto.DormRequestDTO;
+import com.tuconnect.dorm_connect.dto.DormResponseDTO;
 import com.tuconnect.dorm_connect.mapper.DormMapper;
 import com.tuconnect.dorm_connect.model.Dorm;
 import com.tuconnect.dorm_connect.repository.DormRepository;
 import com.tuconnect.dorm_connect.service.DormService;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -19,75 +18,61 @@ public class DormServiceImpl implements DormService {
     private final DormRepository dormRepository;
     private final DormMapper dormMapper;
 
-    @Autowired
+    
     public DormServiceImpl(DormRepository dormRepository, DormMapper dormMapper) {
         this.dormRepository = dormRepository;
         this.dormMapper = dormMapper;
     }
 
     @Override
-    public List<DormDTO> getAllDorms() {
-        return dormRepository.findAll()
-                .stream()
+    public List<DormResponseDTO> getAllDorms() {
+        return dormRepository.findAll().stream()
                 .map(dormMapper::toDTO)
                 .toList();
     }
 
     @Override
-    public DormDTO getDormById(Long id) {
+    public DormResponseDTO getDormById(Long id) {
         Dorm dorm = dormRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Dorm not found with ID: " + id));
-
+                .orElseThrow(() -> new RuntimeException("Dorm not found"));
         return dormMapper.toDTO(dorm);
     }
 
     @Override
-    public DormDTO createDorm(DormDTO dto) {
-
-        Dorm dorm = new Dorm();
-        dorm.setName(dto.name());
-        dorm.setAddress(dto.address());
-        dorm.setBlockNumber(dto.blockNumber());
-        dorm.setAmenitiesJson(dto.amenitiesJson());
-        dorm.setPrice(dto.price());
-
+    public DormResponseDTO createDorm(DormRequestDTO dto) {
+        Dorm dorm = dormMapper.toEntity(dto);
         Dorm saved = dormRepository.save(dorm);
         return dormMapper.toDTO(saved);
     }
 
     @Override
-    public DormDTO updateDorm(Long id, DormDTO updatedDTO) {
+    public DormResponseDTO updateDorm(Long id, DormRequestDTO dto) {
+        Dorm existing = dormRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Dorm not found"));
 
-        Dorm existingDorm = dormRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dorm not found with ID: " + id));
+        Dorm updated = dormMapper.toEntity(dto);
+        updated.setId(existing.getId());
 
-        existingDorm.setName(updatedDTO.name());
-        existingDorm.setAddress(updatedDTO.address());
-        existingDorm.setBlockNumber(updatedDTO.blockNumber());
-        existingDorm.setAmenitiesJson(updatedDTO.amenitiesJson());
-        existingDorm.setPrice(updatedDTO.price());
-
-        Dorm saved = dormRepository.save(existingDorm);
+        Dorm saved = dormRepository.save(updated);
         return dormMapper.toDTO(saved);
     }
 
     @Override
     public void deleteDorm(Long id) {
-        Dorm existingDorm = dormRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dorm not found with ID: " + id));
-
-        dormRepository.delete(existingDorm);
+        Dorm dorm = dormRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Dorm not found"));
+        dormRepository.delete(dorm);
     }
 
     @Override
-    public DormDTO getDormByName(String name) {
+    public DormResponseDTO getDormByName(String name) {
         Dorm dorm = dormRepository.findByName(name)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dorm not found"));
+                .orElseThrow(() -> new RuntimeException("Dorm not found"));
         return dormMapper.toDTO(dorm);
     }
 
     @Override
-    public List<DormDTO> getDormsByPriceMax(Double maxPrice) {
+    public List<DormResponseDTO> getDormsByPriceMax(Double maxPrice) {
         return dormRepository.findByPriceLessThanEqual(maxPrice)
                 .stream()
                 .map(dormMapper::toDTO)
@@ -95,7 +80,7 @@ public class DormServiceImpl implements DormService {
     }
 
     @Override
-    public List<DormDTO> getDormsByBlock(String blockNumber) {
+    public List<DormResponseDTO> getDormsByBlock(String blockNumber) {
         return dormRepository.findByBlockNumber(blockNumber)
                 .stream()
                 .map(dormMapper::toDTO)
@@ -103,7 +88,7 @@ public class DormServiceImpl implements DormService {
     }
 
     @Override
-    public List<DormDTO> searchDorms(String keyword) {
+    public List<DormResponseDTO> searchDorms(String keyword) {
         return dormRepository.findByNameContainingIgnoreCase(keyword)
                 .stream()
                 .map(dormMapper::toDTO)
@@ -111,7 +96,7 @@ public class DormServiceImpl implements DormService {
     }
 
     @Override
-    public List<DormDTO> getDormsByPriceRange(Double minPrice, Double maxPrice) {
+    public List<DormResponseDTO> getDormsByPriceRange(Double minPrice, Double maxPrice) {
         return dormRepository.findByPriceBetween(minPrice, maxPrice)
                 .stream()
                 .map(dormMapper::toDTO)

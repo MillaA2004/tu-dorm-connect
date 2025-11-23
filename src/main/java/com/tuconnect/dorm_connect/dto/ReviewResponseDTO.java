@@ -2,7 +2,7 @@ package com.tuconnect.dorm_connect.dto;
 
 import java.time.LocalDateTime;
 
-public record ReviewDTO(
+public record ReviewResponseDTO(
         Long id,
         Integer rating,
         String comment,
