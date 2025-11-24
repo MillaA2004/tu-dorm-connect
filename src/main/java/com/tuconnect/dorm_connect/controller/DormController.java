@@ -1,6 +1,7 @@
 package com.tuconnect.dorm_connect.controller;
 
-import com.tuconnect.dorm_connect.dto.DormDTO;
+import com.tuconnect.dorm_connect.dto.DormRequestDTO;
+import com.tuconnect.dorm_connect.dto.DormResponseDTO;
 import com.tuconnect.dorm_connect.service.DormService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,72 +15,63 @@ import java.util.List;
 public class DormController {
 
     private final DormService dormService;
-    @Autowired
-public DormController(DormService dormService) {
-    this.dormService = dormService;
-}
 
-    // Get all dorms
+    @Autowired
+    public DormController(DormService dormService) {
+        this.dormService = dormService;
+    }
+
     @GetMapping
-    public ResponseEntity<List<DormDTO>> getAllDorms() {
+    public ResponseEntity<List<DormResponseDTO>> getAllDorms() {
         return ResponseEntity.ok(dormService.getAllDorms());
     }
 
-    // Get dorm by ID
     @GetMapping("/{id}")
-    public ResponseEntity<DormDTO> getDormById(@PathVariable Long id) {
+    public ResponseEntity<DormResponseDTO> getDormById(@PathVariable Long id) {
         return ResponseEntity.ok(dormService.getDormById(id));
     }
 
-    // Create new dorm
     @PostMapping
-    public ResponseEntity<DormDTO> createDorm(@RequestBody DormDTO dormDTO) {
-        return ResponseEntity.ok(dormService.createDorm(dormDTO));
+    public ResponseEntity<DormResponseDTO> createDorm(@RequestBody DormRequestDTO dto) {
+        return ResponseEntity.ok(dormService.createDorm(dto));
     }
 
-    // Update dorm
     @PutMapping("/{id}")
-    public ResponseEntity<DormDTO> updateDorm(
+    public ResponseEntity<DormResponseDTO> updateDorm(
             @PathVariable Long id,
-            @RequestBody DormDTO updatedDormDTO
+            @RequestBody DormRequestDTO dto
     ) {
-        return ResponseEntity.ok(dormService.updateDorm(id, updatedDormDTO));
+        return ResponseEntity.ok(dormService.updateDorm(id, dto));
     }
 
-    // Delete dorm
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDorm(@PathVariable Long id) {
         dormService.deleteDorm(id);
         return ResponseEntity.noContent().build();
     }
 
-    // Search by name
     @GetMapping("/search")
-    public ResponseEntity<DormDTO> getDormByName(@RequestParam String name) {
+    public ResponseEntity<DormResponseDTO> getDormByName(@RequestParam String name) {
         return ResponseEntity.ok(dormService.getDormByName(name));
     }
 
-    // Filter: max price
     @GetMapping("/filter/price-max")
-    public ResponseEntity<List<DormDTO>> getDormsByPriceMax(@RequestParam Double maxPrice) {
+    public ResponseEntity<List<DormResponseDTO>> getDormsByPriceMax(@RequestParam Double maxPrice) {
         return ResponseEntity.ok(dormService.getDormsByPriceMax(maxPrice));
     }
 
-    // Filter: block number
     @GetMapping("/filter/block")
-    public ResponseEntity<List<DormDTO>> getDormsByBlock(@RequestParam String block) {
+    public ResponseEntity<List<DormResponseDTO>> getDormsByBlock(@RequestParam String block) {
         return ResponseEntity.ok(dormService.getDormsByBlock(block));
     }
 
-    // Search keyword
     @GetMapping("/search/keyword")
-    public ResponseEntity<List<DormDTO>> searchDorms(@RequestParam String q) {
+    public ResponseEntity<List<DormResponseDTO>> searchDorms(@RequestParam String q) {
         return ResponseEntity.ok(dormService.searchDorms(q));
     }
 
-    // Filter: price range
     @GetMapping("/filter/price-range")
-    public ResponseEntity<List<DormDTO>> getDormsByPriceRange(
+    public ResponseEntity<List<DormResponseDTO>> getDormsByPriceRange(
             @RequestParam Double min,
             @RequestParam Double max
     ) {

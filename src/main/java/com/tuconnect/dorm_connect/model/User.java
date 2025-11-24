@@ -55,15 +55,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Review> reviews;
 
-//    @OneToMany(mappedBy = "organizer")
-//    private List<Event> organizedEvents;
-//
-//    @ManyToMany(mappedBy = "participants")
-//    private List<Event> events;
-@OneToMany(mappedBy = "creator")
-private List<Event> organizedEvents;
+    @OneToMany(mappedBy = "creator")
+    private List<Event> organizedEvents;
 
     @ManyToMany(mappedBy = "participants")
     private List<Event> events;
-
 }

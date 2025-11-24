@@ -131,17 +131,14 @@ public class EventServiceImpl implements EventService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
-        // 1) already joined check
         if (event.getParticipants().contains(user)) {
             throw new IllegalArgumentException("User already joined this event.");
         }
 
-        // 2) capacity check (if capacity is set)
         if (event.getCapacity() != null && event.getParticipants().size() >= event.getCapacity()) {
             throw new IllegalStateException("Event is full.");
         }
 
-        // maintain both sides of relation
         event.getParticipants().add(user);
         if (user.getEvents() != null && !user.getEvents().contains(event)) {
             user.getEvents().add(event);
@@ -171,6 +168,4 @@ public class EventServiceImpl implements EventService {
         Event saved = eventRepository.save(event);
         return eventMapper.toDTO(saved);
     }
-
-
 }
