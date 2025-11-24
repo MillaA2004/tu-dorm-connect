@@ -89,7 +89,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public List<ReviewResponseDTO> getReviewsByUser(Long userId) {
-        return reviewRepository.findByUserUserId(userId)
+        return reviewRepository.findByUserId(userId)
                 .stream()
                 .map(reviewMapper::toDTO)
                 .toList();

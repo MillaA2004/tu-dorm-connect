@@ -17,8 +17,7 @@ public interface ReviewMapper {
     @Mapping(target = "dorm", ignore = true)
     Review toEntity(ReviewRequestDTO dto);
 
-    // Entity → ResponseDTO
-    @Mapping(target = "userId", source = "user.userId")
+    @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "dormId", source = "dorm.id")
     ReviewResponseDTO toDTO(Review entity);
 
@@ -26,7 +25,7 @@ public interface ReviewMapper {
     default void setRelations(ReviewRequestDTO dto, @MappingTarget Review entity) {
         if (dto.userId() != null) {
             User user = new User();
-            user.setUserId(dto.userId());
+            user.setId(dto.userId());
             entity.setUser(user);
         }
         if (dto.dormId() != null) {

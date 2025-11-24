@@ -13,7 +13,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByDormId(Long dormId);
 
     // всички ревюта за даден user
-    List<Review> findByUserUserId(Long userId);
+    List<Review> findByUserId(Long userId);
 
     // всички ревюта с даден рейтинг
     List<Review> findByRating(Integer rating);
