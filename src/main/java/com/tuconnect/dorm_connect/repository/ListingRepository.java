@@ -14,19 +14,23 @@ import java.util.List;
 @Repository
 public interface ListingRepository extends JpaRepository<Listing, Long> {
     boolean existsByUserIdAndIsActiveTrue(Long userId);
+
     List<Listing> findByIsActiveTrueAndExpiresAtAfter(LocalDateTime now);
 
-    Page<Listing> findByUserId(Long userId, Pageable pageable);
+    List<Listing> findByUserIdAndIsActiveTrueAndExpiresAtAfter(
+            Long userId,
+            LocalDateTime now
+    );
 
-    Page<Listing> findByDormIdAndIsActiveTrueAndExpiresAtAfter(
+    List<Listing> findByDormIdAndIsActiveTrueAndExpiresAtAfter(
             Long dormId,
-            LocalDateTime now,
-            Pageable pageable
+            LocalDateTime now
     );
 
     @Query("SELECT l FROM Listing l WHERE " +
             "(LOWER(l.title) LIKE %:keyword% OR LOWER(l.description) LIKE %:keyword%) " +
             "AND l.isActive = true AND l.expiresAt > :now")
+
     Page<Listing> searchByKeyword(
             @Param("keyword") String keyword,
             @Param("now") LocalDateTime now,

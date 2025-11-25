@@ -2,14 +2,10 @@ package com.tuconnect.dorm_connect.controller;
 
 import com.tuconnect.dorm_connect.dto.Listing.ListingRequestDTO;
 import com.tuconnect.dorm_connect.dto.Listing.ListingResponseDTO;
-import com.tuconnect.dorm_connect.mapper.ListingMapper;
-import com.tuconnect.dorm_connect.model.Listing;
 import com.tuconnect.dorm_connect.service.ListingService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -41,6 +37,16 @@ public class ListingController {
     public ResponseEntity<ListingResponseDTO> getListingById(
             @PathVariable @Positive Long id){
         return new ResponseEntity<>(listingService.getListingById(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<ListingResponseDTO>> getListingsByUserId(@RequestParam Long userId) {
+        return ResponseEntity.ok(listingService.getListingsByUserId(userId));
+    }
+
+    @GetMapping("/dorm/{dormId}")
+    public ResponseEntity<List<ListingResponseDTO>> getListingsByDorm(@PathVariable Long dormId) {
+        return ResponseEntity.ok(listingService.getListingsByDorm(dormId));
     }
 
     @PutMapping("/{id}")

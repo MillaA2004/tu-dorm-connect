@@ -59,6 +59,19 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
+    public List<ListingResponseDTO> getListingsByUserId(Long userId){
+        List<Listing> listings = listingRepository.findByUserIdAndIsActiveTrueAndExpiresAtAfter(userId, LocalDateTime.now());
+        return listingMapper.toResponseDTOList(listings);
+    }
+
+    @Override
+    public List<ListingResponseDTO> getListingsByDorm(Long dormId){
+        List<Listing> listings = listingRepository
+                .findByDormIdAndIsActiveTrueAndExpiresAtAfter(dormId, LocalDateTime.now());
+        return listingMapper.toResponseDTOList(listings);
+    }
+
+    @Override
     @Transactional
     public ListingResponseDTO updateListing(Long id, ListingRequestDTO dto, Long currentUserId) {
         Listing listing = listingRepository.findById(id)
