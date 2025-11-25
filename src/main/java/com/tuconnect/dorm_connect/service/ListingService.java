@@ -5,13 +5,15 @@ import com.tuconnect.dorm_connect.dto.Listing.ListingResponseDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface ListingService {
 
     ListingResponseDTO createListing(ListingRequestDTO dto);
 
     ListingResponseDTO getListingById(Long id);
 
-    //Page<ListingResponseDTO> getActiveListings(Pageable pageable);
+    List<ListingResponseDTO> getActiveListings();
 
     //Page<ListingResponseDTO> getMyListings(Long userId, Pageable pageable);
 

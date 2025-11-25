@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 public interface ListingRepository extends JpaRepository<Listing, Long> {
     boolean existsByUserIdAndIsActiveTrue(Long userId);
-    Page<Listing> findByIsActiveTrueAndExpiresAtAfter(LocalDateTime now, Pageable pageable);
+    List<Listing> findByIsActiveTrueAndExpiresAtAfter(LocalDateTime now);
 
     Page<Listing> findByUserId(Long userId, Pageable pageable);
 

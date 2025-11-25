@@ -12,15 +12,11 @@ import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.ListingService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -56,15 +52,11 @@ public class ListingServiceImpl implements ListingService {
         return listingMapper.toResponseDTO(listing);
     }
 
-//    @Override
-//    public Page<ListingResponseDTO> getActiveListings(Pageable pageable) {
-//        Page<Listing> listings = listingRepository.findByIsActiveTrueAndExpiresAtAfter(
-//                LocalDateTime.now(),
-//                pageable
-//        );
-//
-//        return listings.map(listingMapper::toResponseDTO);
-//    }
+    @Override
+    public List<ListingResponseDTO> getActiveListings() {
+        List<Listing> listings = listingRepository.findByIsActiveTrueAndExpiresAtAfter(LocalDateTime.now());
+        return listingMapper.toResponseDTOList(listings);
+    }
 
     @Override
     @Transactional

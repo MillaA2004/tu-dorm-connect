@@ -8,10 +8,14 @@ import com.tuconnect.dorm_connect.service.ListingService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +30,11 @@ public class ListingController {
             @Valid @RequestBody ListingRequestDTO listingRequestDTO) {
         ListingResponseDTO saved = listingService.createListing(listingRequestDTO);
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<ListingResponseDTO>> getActiveListings() {
+        return ResponseEntity.ok(listingService.getActiveListings());
     }
 
     @GetMapping("/{id}")
