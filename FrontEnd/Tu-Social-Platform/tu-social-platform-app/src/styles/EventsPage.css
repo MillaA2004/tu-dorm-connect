@@ -1,0 +1,124 @@
+.events-page {
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 2rem 3rem;
+  display: flex;
+  justify-content: center;
+  background: #ffffff;
+ 
+}
+
+
+.events-page__content {
+  width: 100%;
+  max-width: 900px;
+  padding-top: 4%;
+}
+
+
+.events-title {
+  margin: 0 0 1.25rem 0;
+  font-size: 2.25rem;
+  font-weight: 700;
+}
+
+
+.events-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.events-actions__btn {
+  padding: 0.65rem 1.4rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.events-actions__btn--primary {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.events-actions__btn--primary.events-actions__btn--active {
+  background: linear-gradient(135deg, rgb(37, 99, 235), rgb(56, 189, 248));
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
+}
+
+.events-actions__btn--secondary {
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #d4d4d8;
+}
+
+
+.events-form-wrapper {
+  margin-bottom: 2rem;
+}
+
+
+.events-search {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.events-search__left {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.events-search__input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid #d4d4d8;
+  font-size: 0.9rem;
+}
+
+.events-search__button {
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, rgb(37, 99, 235), rgb(56, 189, 248));
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.events-search__select {
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1px solid #d4d4d8;
+  background: #ffffff;
+  color: #111827;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.event-card {
+  width: 100%;
+}
+
