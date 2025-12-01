@@ -1,6 +1,7 @@
 package com.tuconnect.dorm_connect.mapper;
 
 import com.tuconnect.dorm_connect.dto.User.UserDTO;
+import com.tuconnect.dorm_connect.dto.User.UserSummaryDTO;
 import com.tuconnect.dorm_connect.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -23,4 +24,6 @@ public interface UserMapper {
     User toEntity(UserDTO dto);
 
     UserDTO toDTO(User user);
+
+    UserSummaryDTO toSummaryDTO(User user);
 }
