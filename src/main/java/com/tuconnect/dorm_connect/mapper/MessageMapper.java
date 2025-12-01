@@ -13,7 +13,7 @@ public interface MessageMapper {
 
 
     @Mapping(target = "chatId", source = "chat.chatId")
-    @Mapping(target = "userId", source = "sender.userId")
+    @Mapping(target = "userId", source = "sender.id")
     MessageDTO toDto(Message message);
 
 

@@ -1,8 +1,8 @@
 package com.tuconnect.dorm_connect.service.ServiceImpl;
 
 
-import com.tuconnect.dorm_connect.dto.DormRequestDTO;
-import com.tuconnect.dorm_connect.dto.DormResponseDTO;
+import com.tuconnect.dorm_connect.dto.Dorm.DormRequestDTO;
+import com.tuconnect.dorm_connect.dto.Dorm.DormResponseDTO;
 import com.tuconnect.dorm_connect.mapper.DormMapper;
 import com.tuconnect.dorm_connect.model.Dorm;
 import com.tuconnect.dorm_connect.repository.DormRepository;

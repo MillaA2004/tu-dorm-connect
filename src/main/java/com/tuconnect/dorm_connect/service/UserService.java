@@ -1,6 +1,6 @@
 package com.tuconnect.dorm_connect.service;
 
-import com.tuconnect.dorm_connect.dto.UserDTO;
+import com.tuconnect.dorm_connect.dto.User.UserDTO;
 
 import java.util.Optional;
 

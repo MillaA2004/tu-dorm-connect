@@ -1,6 +1,6 @@
 package com.tuconnect.dorm_connect.service.ServiceImpl;
 
-import com.tuconnect.dorm_connect.dto.UserDTO;
+import com.tuconnect.dorm_connect.dto.User.UserDTO;
 import com.tuconnect.dorm_connect.mapper.UserMapper;
 import com.tuconnect.dorm_connect.model.Roles;
 import com.tuconnect.dorm_connect.model.User;
