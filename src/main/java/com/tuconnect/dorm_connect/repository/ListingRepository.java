@@ -30,7 +30,6 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
     @Query("SELECT l FROM Listing l WHERE " +
             "(LOWER(l.title) LIKE %:keyword% OR LOWER(l.description) LIKE %:keyword%) " +
             "AND l.isActive = true AND l.expiresAt > :now")
-
     Page<Listing> searchByKeyword(
             @Param("keyword") String keyword,
             @Param("now") LocalDateTime now,

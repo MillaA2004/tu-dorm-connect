@@ -6,6 +6,10 @@ import com.tuconnect.dorm_connect.service.ListingService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -66,5 +70,15 @@ public class ListingController {
 
         listingService.deleteListing(id, currentUserId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<ListingResponseDTO>> searchListings(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long dormId,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<ListingResponseDTO> listings = listingService.searchListings(keyword, dormId, pageable);
+        return ResponseEntity.ok(listings);
     }
 }

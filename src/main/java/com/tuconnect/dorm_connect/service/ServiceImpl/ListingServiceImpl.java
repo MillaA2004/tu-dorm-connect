@@ -12,6 +12,8 @@ import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.ListingService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -106,36 +108,24 @@ public class ListingServiceImpl implements ListingService {
         listingRepository.save(listing);
     }
 
-//    @Override
-//    public Page<ListingResponseDTO> searchListings(String keyword, Long dormId, Pageable pageable) {
-//        Page<Listing> listings;
-//
-//        if (keyword != null && dormId != null) {
-//            listings = listingRepository.searchByKeywordAndDorm(
-//                    keyword.toLowerCase(),
-//                    dormId,
-//                    LocalDateTime.now(),
-//                    pageable
-//            );
-//        } else if (keyword != null) {
-//            listings = listingRepository.searchByKeyword(
-//                    keyword.toLowerCase(),
-//                    LocalDateTime.now(),
-//                    pageable
-//            );
-//        } else if (dormId != null) {
-//            listings = listingRepository.findByDormIdAndIsActiveTrueAndExpiresAtAfter(
-//                    dormId,
-//                    LocalDateTime.now(),
-//                    pageable
-//            );
-//        } else {
-//            listings = listingRepository.findByIsActiveTrueAndExpiresAtAfter(
-//                    LocalDateTime.now(),
-//                    pageable
-//            );
-//        }
-//
-//        return listings.map(listingMapper::toResponseDTO);
-//    }
+    @Override
+    public Page<ListingResponseDTO> searchListings(String keyword, Long dormId, Pageable pageable) {
+        Page<Listing> listings = null;
+
+        if (keyword != null && dormId != null) {
+            listings = listingRepository.searchByKeywordAndDorm(
+                    keyword.toLowerCase(),
+                    dormId,
+                    LocalDateTime.now(),
+                    pageable
+            );
+        } else if (keyword != null) {
+            listings = listingRepository.searchByKeyword(
+                    keyword.toLowerCase(),
+                    LocalDateTime.now(),
+                    pageable
+            );
+        }
+        return listings.map(listingMapper::toResponseDTO);
+    }
 }
