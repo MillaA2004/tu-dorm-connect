@@ -1,0 +1,74 @@
+package com.tuconnect.dorm_connect.controller;
+
+import com.tuconnect.dorm_connect.dto.Chat.ChatDTO;
+import com.tuconnect.dorm_connect.dto.Chat.AddMemberRequest;
+import com.tuconnect.dorm_connect.dto.Chat.CreateDirectChatRequest;
+import com.tuconnect.dorm_connect.dto.Chat.CreateGroupChatRequest;
+import com.tuconnect.dorm_connect.service.ChatService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/chats")
+public class ChatController {
+
+    private final ChatService chatService;
+
+    @Autowired
+    public ChatController(ChatService chatService) {
+        this.chatService = chatService;
+    }
+
+
+    @GetMapping
+    public List<ChatDTO> getChatsForUser(@RequestParam Long userId) {
+        return chatService.getChatsForUser(userId);
+    }
+
+
+    @GetMapping("/{chatId}")
+    public ChatDTO getChatById(@PathVariable Long chatId,
+                               @RequestParam Long userId) {
+        chatService.assertUserInChat(userId, chatId);
+        return chatService.getChatById(chatId);
+    }
+
+
+    @PostMapping("/direct")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ChatDTO createDirectChat(@Valid @RequestBody CreateDirectChatRequest request) {
+        return chatService.createDirectChat(request.currentUserId(), request.otherUserId());
+    }
+
+
+    @PostMapping("/group")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ChatDTO createGroupChat(@Valid @RequestBody CreateGroupChatRequest request) {
+        return chatService.createGroupChat(
+                request.currentUserId(),
+                request.name(),
+                request.memberIds()
+        );
+    }
+
+
+    @PostMapping("/{chatId}/members")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void addMember(@PathVariable Long chatId,
+                          @Valid @RequestBody AddMemberRequest request) {
+        chatService.addMember(chatId, request.userId(), request.chatRole());
+    }
+
+
+    @DeleteMapping("/{chatId}/members/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeMember(@PathVariable Long chatId,
+                             @PathVariable Long userId) {
+        chatService.removeMember(chatId, userId);
+    }
+}
+
