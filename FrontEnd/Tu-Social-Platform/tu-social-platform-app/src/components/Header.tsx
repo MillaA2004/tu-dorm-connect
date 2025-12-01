@@ -22,7 +22,7 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
   };
 
   const handleLogout = () => {
-    // TODO: add real logout logic if you have tokens / API, then navigate
+    
     navigate('/login');
   };
 

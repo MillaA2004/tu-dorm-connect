@@ -4,6 +4,7 @@ import { APIProvider } from "@vis.gl/react-google-maps";
 
 import EventsPage from "./pages/EventsPage";
 import { MAPS_API_KEY } from "./config";
+import HomePage from "./pages/Home";
 
 const App: React.FC = () => {
   return (
@@ -11,6 +12,7 @@ const App: React.FC = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/events" element={<EventsPage />} />
+          <Route path="/home" element={<HomePage />} />
         </Routes>
       </BrowserRouter>
     </APIProvider>
