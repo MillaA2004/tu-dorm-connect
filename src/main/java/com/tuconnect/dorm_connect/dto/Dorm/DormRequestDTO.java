@@ -1,7 +1,6 @@
-package com.tuconnect.dorm_connect.dto;
+package com.tuconnect.dorm_connect.dto.Dorm;
 
-public record DormResponseDTO(
-        Long id,
+public record DormRequestDTO(
         String name,
         String address,
         String blockNumber,

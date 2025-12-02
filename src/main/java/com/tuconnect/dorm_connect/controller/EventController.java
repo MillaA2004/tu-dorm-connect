@@ -1,7 +1,7 @@
 package com.tuconnect.dorm_connect.controller;
 
-import com.tuconnect.dorm_connect.dto.EventRequestDTO;
-import com.tuconnect.dorm_connect.dto.EventResponseDTO;
+import com.tuconnect.dorm_connect.dto.Event.EventRequestDTO;
+import com.tuconnect.dorm_connect.dto.Event.EventResponseDTO;
 import com.tuconnect.dorm_connect.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

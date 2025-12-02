@@ -1,4 +1,4 @@
-package com.tuconnect.dorm_connect.dto;
+package com.tuconnect.dorm_connect.dto.Review;
 
 import java.time.LocalDateTime;
 

@@ -1,7 +1,7 @@
 package com.tuconnect.dorm_connect.service.ServiceImpl;
 
-import com.tuconnect.dorm_connect.dto.EventRequestDTO;
-import com.tuconnect.dorm_connect.dto.EventResponseDTO;
+import com.tuconnect.dorm_connect.dto.Event.EventRequestDTO;
+import com.tuconnect.dorm_connect.dto.Event.EventResponseDTO;
 import com.tuconnect.dorm_connect.mapper.EventMapper;
 import com.tuconnect.dorm_connect.model.Event;
 import com.tuconnect.dorm_connect.model.Roles;

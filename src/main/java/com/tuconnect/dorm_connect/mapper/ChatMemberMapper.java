@@ -13,7 +13,7 @@ public interface ChatMemberMapper {
 
 
     @Mapping(target = "chatMemberId", source = "chatMemberId")
-    @Mapping(target = "userId", source = "user.userId")
+    @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "firstName", source = "user.firstName")
     @Mapping(target = "lastName", source = "user.lastName")
     @Mapping(target = "chatRole", source = "chatRole")

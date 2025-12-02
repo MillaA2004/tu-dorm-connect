@@ -1,6 +1,6 @@
 package com.tuconnect.dorm_connect.mapper;
 
-import com.tuconnect.dorm_connect.dto.UserDTO;
+import com.tuconnect.dorm_connect.dto.User.UserDTO;
 import com.tuconnect.dorm_connect.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

@@ -1,4 +1,4 @@
-package com.tuconnect.dorm_connect.dto;
+package com.tuconnect.dorm_connect.dto.Review;
 
 public record ReviewRequestDTO(
         Integer rating,

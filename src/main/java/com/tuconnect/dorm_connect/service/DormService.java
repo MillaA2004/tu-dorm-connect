@@ -1,7 +1,7 @@
 package com.tuconnect.dorm_connect.service;
 
-import com.tuconnect.dorm_connect.dto.DormRequestDTO;
-import com.tuconnect.dorm_connect.dto.DormResponseDTO;
+import com.tuconnect.dorm_connect.dto.Dorm.DormRequestDTO;
+import com.tuconnect.dorm_connect.dto.Dorm.DormResponseDTO;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package com.tuconnect.dorm_connect.service;
 
-import com.tuconnect.dorm_connect.dto.ReviewRequestDTO;
-import com.tuconnect.dorm_connect.dto.ReviewResponseDTO;
+import com.tuconnect.dorm_connect.dto.Review.ReviewRequestDTO;
+import com.tuconnect.dorm_connect.dto.Review.ReviewResponseDTO;
 
 import java.util.List;
 
