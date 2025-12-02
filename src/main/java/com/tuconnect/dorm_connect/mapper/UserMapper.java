@@ -16,7 +16,7 @@ public interface UserMapper {
     @Mapping(target = "password", source = "dto.password")
     @Mapping(target = "profileImageUrl", source = "dto.profileImageUrl")
     @Mapping(target = "major", source = "dto.major")
-    @Mapping(target = "year", source = "dto.year")
+    @Mapping(target = "academicYear", source = "dto.year")
     @Mapping(target = "role", source = "dto.role")
     User toEntity(UserDTO dto);
 

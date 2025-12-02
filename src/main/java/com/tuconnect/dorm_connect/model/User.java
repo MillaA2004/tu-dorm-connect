@@ -3,7 +3,6 @@ package com.tuconnect.dorm_connect.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -38,7 +37,7 @@ public class User {
     private String major;
 
     @Column(nullable = false)
-    private Integer year;
+    private Integer academicYear;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
