@@ -1,7 +1,7 @@
 package com.tuconnect.dorm_connect.controller;
 
-import com.tuconnect.dorm_connect.dto.ReviewRequestDTO;
-import com.tuconnect.dorm_connect.dto.ReviewResponseDTO;
+import com.tuconnect.dorm_connect.dto.Review.ReviewRequestDTO;
+import com.tuconnect.dorm_connect.dto.Review.ReviewResponseDTO;
 import com.tuconnect.dorm_connect.service.ReviewService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

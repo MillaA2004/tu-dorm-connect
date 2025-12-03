@@ -129,7 +129,7 @@ public class ChatServiceImpl implements ChatService {
 
 
     public void addMember(Long chatId, Long userId, String chatRole) {
-        boolean exists = chatMemberRepository.existsByChatChatIdAndUserUserId(chatId, userId);
+        boolean exists = chatMemberRepository.existsByChatChatIdAndUserId(chatId, userId);
         if (exists) {
             return;
         }
@@ -142,12 +142,12 @@ public class ChatServiceImpl implements ChatService {
 
 
     public void removeMember(Long chatId, Long userId) {
-        chatMemberRepository.findByChatChatIdAndUserUserId(chatId, userId)
+        chatMemberRepository.findByChatChatIdAndUserId(chatId, userId)
                 .ifPresent(chatMemberRepository::delete);
     }
 
     public void assertUserInChat(Long userId, Long chatId) {
-        boolean exists = chatMemberRepository.existsByChatChatIdAndUserUserId(chatId, userId);
+        boolean exists = chatMemberRepository.existsByChatChatIdAndUserId(chatId, userId);
         if (!exists) {
             throw new IllegalStateException("User " + userId + " is not a member of chat " + chatId);
         }
