@@ -1,8 +1,7 @@
 package com.tuconnect.dorm_connect.dto.User;
 
 import com.tuconnect.dorm_connect.model.Roles;
-import com.tuconnect.dorm_connect.model.User.Sex;
-import com.tuconnect.dorm_connect.model.User.SearchingStatus;
+import com.tuconnect.dorm_connect.model.User;
 
 
 public record UserDTO(
@@ -14,8 +13,7 @@ public record UserDTO(
         String email,
         String password,
         String profileImageUrl,
-        Sex sex,
-        SearchingStatus searchingStatus,
+        User.Gender gender,
         String major,
         Integer year,
         Roles role

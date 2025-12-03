@@ -35,12 +35,8 @@ public class User {
     private String profileImageUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "searching_status")
-    private SearchingStatus searchingStatus = null;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "sex", nullable = false)
-    private Sex sex;
+    @Column(name = "gender", nullable = false)
+    private Gender gender;
 
     @Column(nullable = false)
     private String major;
@@ -68,12 +64,7 @@ public class User {
     @ManyToMany(mappedBy = "participants")
     private List<Event> events;
 
-    public enum SearchingStatus {
-        SEARCHING,
-        NOT_SEARCHING
-    }
-
-    public enum Sex {
+    public enum Gender {
         MALE,
         FEMALE
     }
