@@ -23,8 +23,8 @@ public class UserServiceImpl implements UserService {
         this.userMapper = userMapper;
     }
 
-    public Optional<UserDTO> getUserById(Long userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
+    public Optional<UserDTO> getUserById(Long id) {
+        Optional<User> userOptional = userRepository.findById(id);
         return userOptional.map(userMapper::toDTO);
     }
 
@@ -41,37 +41,40 @@ public class UserServiceImpl implements UserService {
         user.setEmail(dto.email());
         user.setPassword(dto.password());
         user.setProfileImageUrl(dto.profileImageUrl());
+        user.setGender(dto.gender());
         user.setMajor(dto.major());
         user.setYear(dto.year());
-        user.setRole(Roles.Users);
+        user.setRole(dto.role());
 
         User savedUser = userRepository.save(user);
 
         return userMapper.toDTO(savedUser);
     }
 
-    public UserDTO updateUser(Long userId, UserDTO updatedUserDTO) {
+    public UserDTO updateUser(Long id, UserDTO updatedUserDTO) {
 
-        User existingUser = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
 
         existingUser.setFirstName(updatedUserDTO.firstName());
         existingUser.setLastName(updatedUserDTO.lastName());
         existingUser.setEmail(updatedUserDTO.email());
         existingUser.setPassword(updatedUserDTO.password());
         existingUser.setProfileImageUrl(updatedUserDTO.profileImageUrl());
+        existingUser.setGender(updatedUserDTO.gender());
         existingUser.setMajor(updatedUserDTO.major());
         existingUser.setYear(updatedUserDTO.year());
+        existingUser.setRole(updatedUserDTO.role());
 
 
         User savedUser = userRepository.save(existingUser);
         return userMapper.toDTO(savedUser);
     }
 
-    public void deleteUser(Long userId) {
+    public void deleteUser(Long id) {
 
-        User existingUser = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
 
 
         userRepository.delete(existingUser);

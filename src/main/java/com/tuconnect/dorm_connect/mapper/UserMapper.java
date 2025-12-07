@@ -9,12 +9,13 @@ import org.mapstruct.MappingConstants;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
 
-    @Mapping(target = "id", source = "dto.userId")
+    @Mapping(target = "id", source = "dto.id")
     @Mapping(target = "firstName", source = "dto.firstName")
     @Mapping(target = "lastName", source = "dto.lastName")
     @Mapping(target = "email", source = "dto.email")
     @Mapping(target = "password", source = "dto.password")
     @Mapping(target = "profileImageUrl", source = "dto.profileImageUrl")
+    @Mapping(target = "gender", source = "dto.gender")
     @Mapping(target = "major", source = "dto.major")
     @Mapping(target = "year", source = "dto.year")
     @Mapping(target = "role", source = "dto.role")

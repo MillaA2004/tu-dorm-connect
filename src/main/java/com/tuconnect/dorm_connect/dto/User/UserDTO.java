@@ -7,7 +7,7 @@ import com.tuconnect.dorm_connect.model.User;
 public record UserDTO(
 
 
-        Long userId,
+        Long id,
         String firstName,
         String lastName,
         String email,
