@@ -34,6 +34,10 @@ public class User {
     @Column(name = "image_url", nullable = true)
     private String profileImageUrl;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender", nullable = false)
+    private Gender gender;
+
     @Column(nullable = false)
     private String major;
 
@@ -43,7 +47,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Roles role;
-
 
     @ManyToOne
     @JoinColumn(name = "dorm_id")
@@ -60,4 +63,9 @@ public class User {
 
     @ManyToMany(mappedBy = "participants")
     private List<Event> events;
+
+    public enum Gender {
+        MALE,
+        FEMALE
+    }
 }
