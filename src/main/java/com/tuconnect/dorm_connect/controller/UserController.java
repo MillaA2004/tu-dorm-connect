@@ -49,13 +49,13 @@ public class UserController {
     }
 
 
-    @GetMapping("/id-by-email/{email}")
+    @GetMapping("/id-by-major/{major}")
     public ResponseEntity<?> getUserIdByEmail(@PathVariable String email) {
         try {
             Long userId = userService.getUserIdFromEmail(email);
             return ResponseEntity.ok(Collections.singletonMap("userId", userId));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found for email: " + email);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found for major: " + email);
         }
     }
 
