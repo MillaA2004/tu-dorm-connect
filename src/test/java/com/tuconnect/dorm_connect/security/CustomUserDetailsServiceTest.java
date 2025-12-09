@@ -30,7 +30,7 @@ class CustomUserDetailsServiceTest {
         User user = User.builder()
                 .email("test@example.com")
                 .password("encodedPassword")
-                .role(Roles.Users)
+                .role(Roles.User)
                 .firstName("Test")
                 .lastName("User")
                 .major("CS")
@@ -45,15 +45,13 @@ class CustomUserDetailsServiceTest {
         assertEquals("test@example.com", userDetails.getUsername());
         assertEquals("encodedPassword", userDetails.getPassword());
         assertTrue(userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("Users")));
+                .anyMatch(a -> a.getAuthority().equals("User")));
     }
 
     @Test
     void loadUserByUsername_ShouldThrowException_WhenUserNotFound() {
         when(userRepository.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> {
-            customUserDetailsService.loadUserByUsername("nonexistent@example.com");
-        });
+        assertThrows(UsernameNotFoundException.class, () -> customUserDetailsService.loadUserByUsername("nonexistent@example.com"));
     }
 }

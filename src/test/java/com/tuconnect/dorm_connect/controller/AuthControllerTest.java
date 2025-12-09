@@ -1,8 +1,12 @@
 package com.tuconnect.dorm_connect.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tuconnect.dorm_connect.dto.User.UserDTO;
 import com.tuconnect.dorm_connect.dto.auth.LoginRequest;
+import com.tuconnect.dorm_connect.model.Roles;
+import com.tuconnect.dorm_connect.model.User;
 import com.tuconnect.dorm_connect.security.JwtTokenProvider;
+import com.tuconnect.dorm_connect.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -34,6 +38,9 @@ class AuthControllerTest {
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
 
+    @MockitoBean
+    private UserService userService;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -53,6 +60,37 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("fake-jwt-token"));
+    }
+
+    @Test
+    void register_ShouldReturnToken_WhenRegistrationIsSuccessful() throws Exception {
+        UserDTO userDTO = new UserDTO(
+                null,
+                "John",
+                "Doe",
+                "john.doe@example.com",
+                "password",
+                null,
+                User.Gender.MALE,
+                "Computer Science",
+                null,
+                Roles.User
+        );
+
+        Authentication authentication = mock(Authentication.class);
+
+        when(userService.createUser(any(UserDTO.class))).thenReturn(userDTO);
+
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(authentication);
+
+        when(jwtTokenProvider.generateToken(authentication)).thenReturn("fake-jwt-token");
+
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userDTO)))
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.token").value("fake-jwt-token"));
     }
 }

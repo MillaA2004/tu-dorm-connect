@@ -1,9 +1,12 @@
 package com.tuconnect.dorm_connect.controller;
 
+import com.tuconnect.dorm_connect.dto.User.UserDTO;
 import com.tuconnect.dorm_connect.dto.auth.JwtResponse;
 import com.tuconnect.dorm_connect.dto.auth.LoginRequest;
 import com.tuconnect.dorm_connect.security.JwtTokenProvider;
+import com.tuconnect.dorm_connect.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +24,7 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest loginRequest) {
@@ -42,5 +46,23 @@ public class AuthController {
     public ResponseEntity<Void> logout() {
         SecurityContextHolder.clearContext();
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<JwtResponse> register(@RequestBody UserDTO userDTO) {
+        // password is encoded inside userDTO
+        userService.createUser(userDTO);
+
+        // auth user to generate token
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        userDTO.email(),
+                        userDTO.password()
+                )
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String token = jwtTokenProvider.generateToken(authentication);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new JwtResponse(token));
     }
 }
