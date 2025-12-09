@@ -56,7 +56,7 @@
             <version>42.7.3</version><!--added to fix error connecting to the DB-->
 			<scope>runtime</scope>
 		</dependency>
-        <!--adding 2 dependencies to use swaggers-->
+        <!--adding 2 dependencies to use swagger-->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -94,6 +94,11 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.3.232</version>
+        </dependency>
     </dependencies>
 
 	<build>

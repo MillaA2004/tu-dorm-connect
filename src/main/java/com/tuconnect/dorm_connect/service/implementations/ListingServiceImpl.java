@@ -1,4 +1,4 @@
-package com.tuconnect.dorm_connect.service.ServiceImpl;
+package com.tuconnect.dorm_connect.service.implementations;
 
 import com.tuconnect.dorm_connect.dto.Listing.ListingRequestDTO;
 import com.tuconnect.dorm_connect.dto.Listing.ListingResponseDTO;
