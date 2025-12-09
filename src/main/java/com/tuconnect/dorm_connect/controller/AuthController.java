@@ -37,4 +37,10 @@ public class AuthController {
 
         return ResponseEntity.ok(new JwtResponse(token));
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok().build();
+    }
 }
