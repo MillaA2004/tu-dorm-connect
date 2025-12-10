@@ -15,14 +15,14 @@ public class MatchingService {
         score += 2 * match(q1.getSmokes(), q2.getSmokes()); total++;
         score += 2 * match(q1.getDrinks(), q2.getDrinks()); total++;
         score += 3 * match(q1.getPartyHome(), q2.getPartyHome()); total++;
-        score += 3 * match(q1.getStayAtHome(), q2.getStayAtHome()); total++;
-        score += match(q1.getSharesCleaning(), q2.getSharesCleaning()); total++;
+        score += match(q1.getStayAtHome(), q2.getStayAtHome()); total++;
+        score += 2 * match(q1.getSharesCleaning(), q2.getSharesCleaning()); total++;
         score += match(q1.getEarlyRiser(), q2.getEarlyRiser()); total++;
         score += match(q1.getStudiesInRoom(), q2.getStudiesInRoom()); total++;
         score += match(q1.getPrefersSocialRoommate(), q2.getPrefersSocialRoommate()); total++;
         score += 3 * match(q1.getCooksInDorm(), q2.getCooksInDorm()); total++;
         score += match(q1.getUsesHeadphones(), q2.getUsesHeadphones()); total++;
-        score += match(q1.getSharesItems(), q2.getSharesItems()); total++;
+        score += 2 * match(q1.getSharesItems(), q2.getSharesItems()); total++;
 
         // Scaled comparisons (1–5)
         score += 3 * scaleMatch(q1.getCleanliness(), q2.getCleanliness()); total++;

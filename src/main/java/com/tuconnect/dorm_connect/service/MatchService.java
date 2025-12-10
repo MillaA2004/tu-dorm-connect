@@ -27,6 +27,8 @@ public class MatchService {
     private final MatchingService matchingService;
     private final UserMatchMapper userMatchMapper;
 
+    private static final double MIN_SCORE = 60.0;
+
     public List<UserMatchDTO> generateMatchesForViewer(Long viewerId) {
         User viewer = userRepository.findById(viewerId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Viewer not found"));
@@ -34,9 +36,14 @@ public class MatchService {
         Questionnaire viewerQ = questionnaireRepository.findByUser(viewer)
                 .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Viewer has no questionnaire"));
 
-        List<User> posters = userRepository.findByRole(Roles.Poster).stream()
-                .filter(p -> p.getQuestionnaire() != null)
+        userMatchRepository.deleteByViewer(viewer);
+
+        List<User> posters = userRepository.findAll().stream()
+                .filter(u -> !u.getId().equals(viewer.getId()))
+                .filter(u -> u.getQuestionnaire() != null && !u.getListings().isEmpty())
                 .toList();
+
+
 
         List<UserMatch> matches = posters.stream()
                 .map(poster -> {
@@ -48,6 +55,7 @@ public class MatchService {
                             .createdAt(LocalDateTime.now())
                             .build();
                 })
+                .filter(match -> match.getScore() >= MIN_SCORE)
                 .toList();
 
         userMatchRepository.saveAll(matches);
