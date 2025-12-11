@@ -9,6 +9,7 @@ import com.tuconnect.dorm_connect.model.UserMatch;
 import com.tuconnect.dorm_connect.repository.QuestionnaireRepository;
 import com.tuconnect.dorm_connect.repository.UserMatchRepository;
 import com.tuconnect.dorm_connect.repository.UserRepository;
+import com.tuconnect.dorm_connect.service.ServiceImpl.MatchServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -46,7 +47,7 @@ class MatchServiceTest {
     private UserMatchMapper userMatchMapper;
 
     @InjectMocks
-    private MatchService matchService;
+    private MatchServiceImpl matchService;
 
     @Test
     void generateMatchesForViewer_shouldReturnSortedMatches() {

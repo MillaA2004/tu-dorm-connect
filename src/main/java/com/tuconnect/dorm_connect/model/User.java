@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -55,17 +57,22 @@ public class User {
     @JoinColumn(name = "dorm_id")
     private Dorm dorm;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Listing> listings;
 
     @OneToMany(mappedBy = "user")
     private List<Review> reviews;
 
-    @OneToMany(mappedBy = "creator")
+    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Event> organizedEvents;
 
-    @ManyToMany(mappedBy = "participants")
-    private List<Event> events;
+    @ManyToMany
+    @JoinTable(
+            name = "event_participants",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id")
+    )
+    private Set<Event> events = new HashSet<>();
 
     public enum Gender {
         MALE,

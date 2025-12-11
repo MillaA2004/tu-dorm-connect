@@ -6,7 +6,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -50,11 +49,6 @@ public class Event {
     private User creator;
 
 
-    @ManyToMany
-    @JoinTable(
-            name = "event_participants",
-            joinColumns = @JoinColumn(name = "event_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
+    @ManyToMany(mappedBy = "events")
     private Set<User> participants = new HashSet<>();
 }

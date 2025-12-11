@@ -1,33 +1,27 @@
-package com.tuconnect.dorm_connect.controller;
+package com.tuconnect.dorm_connect.service.ServiceImpl;
 
 import com.tuconnect.dorm_connect.dto.UserMatch.UserMatchDTO;
 import com.tuconnect.dorm_connect.mapper.UserMatchMapper;
-import com.tuconnect.dorm_connect.model.Questionnaire;
-import com.tuconnect.dorm_connect.model.Roles;
-import com.tuconnect.dorm_connect.model.User;
-import com.tuconnect.dorm_connect.model.UserMatch;
+import com.tuconnect.dorm_connect.model.*;
 import com.tuconnect.dorm_connect.repository.QuestionnaireRepository;
 import com.tuconnect.dorm_connect.repository.UserMatchRepository;
 import com.tuconnect.dorm_connect.repository.UserRepository;
+import com.tuconnect.dorm_connect.service.MatchService;
 import com.tuconnect.dorm_connect.service.MatchingService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@RestController
+import static org.springframework.http.HttpStatus.*;
+
+@Service
 @RequiredArgsConstructor
-@RequestMapping("/matches")
-public class MatchController {
+public class MatchServiceImpl implements MatchService {
 
     private final UserRepository userRepository;
     private final QuestionnaireRepository questionnaireRepository;
@@ -35,34 +29,42 @@ public class MatchController {
     private final MatchingService matchingService;
     private final UserMatchMapper userMatchMapper;
 
-    @GetMapping("/{viewerId}")
-    public ResponseEntity<List<UserMatchDTO>> getMatches(@PathVariable Long viewerId) {
+    private static final double MIN_SCORE = 60.0;
+
+    public List<UserMatchDTO> generateMatchesForViewer(Long viewerId) {
         User viewer = userRepository.findById(viewerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Viewer not found"));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Viewer not found"));
 
         Questionnaire viewerQ = questionnaireRepository.findByUser(viewer)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Viewer has no questionnaire"));
+                .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Viewer has no questionnaire"));
 
-        List<User> potentialMatches = userRepository.findAll().stream()
+        userMatchRepository.deleteByViewer(viewer);
+
+        List<User> posters = userRepository.findAll().stream()
                 .filter(u -> !u.getId().equals(viewer.getId()))
                 .filter(u -> u.getQuestionnaire() != null && !u.getListings().isEmpty())
                 .toList();
 
-        List<UserMatchDTO> matches = potentialMatches.stream()
+
+
+        List<UserMatch> matches = posters.stream()
                 .map(poster -> {
                     double score = matchingService.calculateMatchScore(viewerQ, poster.getQuestionnaire());
-                    UserMatch match = UserMatch.builder()
+                    return UserMatch.builder()
                             .viewer(viewer)
                             .poster(poster)
                             .score(score)
                             .createdAt(LocalDateTime.now())
                             .build();
-                    userMatchRepository.save(match);
-                    return userMatchMapper.toDTO(match);
                 })
-                .sorted(Comparator.comparing(UserMatchDTO::score).reversed())
+                .filter(match -> match.getScore() >= MIN_SCORE)
                 .toList();
 
-        return ResponseEntity.ok(matches);
+        userMatchRepository.saveAll(matches);
+
+        return matches.stream()
+                .sorted(Comparator.comparing(UserMatch::getScore).reversed())
+                .map(userMatchMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }
