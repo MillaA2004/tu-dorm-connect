@@ -3,10 +3,7 @@ package com.tuconnect.dorm_connect.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -44,7 +41,7 @@ public class User {
     private String major;
 
     @Column(nullable = false)
-    private Integer year;
+    private Integer academicYear;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
@@ -63,16 +60,11 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Review> reviews;
 
-    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "creator")
     private List<Event> organizedEvents;
 
-    @ManyToMany
-    @JoinTable(
-            name = "event_participants",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "event_id")
-    )
-    private Set<Event> events = new HashSet<>();
+    @ManyToMany(mappedBy = "participants")
+    private List<Event> events;
 
     public enum Gender {
         MALE,

@@ -1,4 +1,4 @@
-package com.tuconnect.dorm_connect.service.ServiceImpl;
+package com.tuconnect.dorm_connect.service.implementations;
 
 import com.tuconnect.dorm_connect.dto.User.UserDTO;
 import com.tuconnect.dorm_connect.mapper.UserMapper;
@@ -6,6 +6,7 @@ import com.tuconnect.dorm_connect.model.Roles;
 import com.tuconnect.dorm_connect.model.User;
 import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.UserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,10 +18,12 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
 
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository,UserMapper userMapper) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Optional<UserDTO> getUserById(Long userId) {
@@ -39,11 +42,11 @@ public class UserServiceImpl implements UserService {
         user.setFirstName(dto.firstName());
         user.setLastName(dto.lastName());
         user.setEmail(dto.email());
-        user.setPassword(dto.password());
+        user.setPassword(passwordEncoder.encode(dto.password()));
         user.setProfileImageUrl(dto.profileImageUrl());
         user.setMajor(dto.major());
-        user.setYear(dto.year());
-        user.setRole(Roles.Users);
+        user.setAcademicYear(dto.year());
+        user.setRole(Roles.User);
 
         User savedUser = userRepository.save(user);
 
@@ -61,7 +64,7 @@ public class UserServiceImpl implements UserService {
         existingUser.setPassword(updatedUserDTO.password());
         existingUser.setProfileImageUrl(updatedUserDTO.profileImageUrl());
         existingUser.setMajor(updatedUserDTO.major());
-        existingUser.setYear(updatedUserDTO.year());
+        existingUser.setAcademicYear(updatedUserDTO.year());
 
 
         User savedUser = userRepository.save(existingUser);
