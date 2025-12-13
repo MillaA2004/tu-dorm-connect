@@ -6,6 +6,7 @@ import com.tuconnect.dorm_connect.model.Roles;
 import com.tuconnect.dorm_connect.model.User;
 import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.UserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,14 +18,16 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
 
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository,UserMapper userMapper) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public Optional<UserDTO> getUserById(Long id) {
-        Optional<User> userOptional = userRepository.findById(id);
+    public Optional<UserDTO> getUserById(Long userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
         return userOptional.map(userMapper::toDTO);
     }
 
@@ -39,22 +42,22 @@ public class UserServiceImpl implements UserService {
         user.setFirstName(dto.firstName());
         user.setLastName(dto.lastName());
         user.setEmail(dto.email());
-        user.setPassword(dto.password());
+        user.setPassword(passwordEncoder.encode(dto.password()));
         user.setProfileImageUrl(dto.profileImageUrl());
         user.setGender(dto.gender());
         user.setMajor(dto.major());
-        user.setYear(dto.year());
-        user.setRole(dto.role());
+        user.setAcademicYear(dto.year());
+        user.setRole(Roles.User);
 
         User savedUser = userRepository.save(user);
 
         return userMapper.toDTO(savedUser);
     }
 
-    public UserDTO updateUser(Long id, UserDTO updatedUserDTO) {
+    public UserDTO updateUser(Long userId, UserDTO updatedUserDTO) {
 
-        User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
 
         existingUser.setFirstName(updatedUserDTO.firstName());
         existingUser.setLastName(updatedUserDTO.lastName());
@@ -63,18 +66,17 @@ public class UserServiceImpl implements UserService {
         existingUser.setProfileImageUrl(updatedUserDTO.profileImageUrl());
         existingUser.setGender(updatedUserDTO.gender());
         existingUser.setMajor(updatedUserDTO.major());
-        existingUser.setYear(updatedUserDTO.year());
-        existingUser.setRole(updatedUserDTO.role());
+        existingUser.setAcademicYear(updatedUserDTO.year());
 
 
         User savedUser = userRepository.save(existingUser);
         return userMapper.toDTO(savedUser);
     }
 
-    public void deleteUser(Long id) {
+    public void deleteUser(Long userId) {
 
-        User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
 
 
         userRepository.delete(existingUser);

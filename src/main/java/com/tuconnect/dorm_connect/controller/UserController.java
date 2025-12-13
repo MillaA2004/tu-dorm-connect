@@ -40,14 +40,11 @@ public class UserController {
         return ResponseEntity.ok(newUser);
     }
 
-
-
-    @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
-        UserDTO updatedUser = userService.updateUser(id, userDTO);
+    @PutMapping("/{userId}")
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long userId, @RequestBody UserDTO userDTO) {
+        UserDTO updatedUser = userService.updateUser(userId, userDTO);
         return ResponseEntity.ok(updatedUser);
     }
-
 
     @GetMapping("/id-by-email/{email}")
     public ResponseEntity<?> getUserIdByEmail(@PathVariable String email) {
@@ -58,7 +55,4 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found for email: " + email);
         }
     }
-
-
-
 }
