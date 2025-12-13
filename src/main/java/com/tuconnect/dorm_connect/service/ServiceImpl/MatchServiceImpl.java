@@ -31,12 +31,23 @@ public class MatchServiceImpl implements MatchService {
 
     private static final double MIN_SCORE = 60.0;
 
-    public List<UserMatchDTO> generateMatchesForViewer(Long viewerId) {
+    private UserMatch createMatch(User viewer, User poster, double score) {
+        return UserMatch.builder()
+                .viewer(viewer)
+                .poster(poster)
+                .score(score)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    public List<UserMatchDTO> generateMatchesForViewer(Long viewerId, Double minScore) {
         User viewer = userRepository.findById(viewerId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Viewer not found"));
 
         Questionnaire viewerQ = questionnaireRepository.findByUser(viewer)
                 .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Viewer has no questionnaire"));
+
+        double threshold = (minScore != null) ? minScore : MIN_SCORE;
 
         userMatchRepository.deleteByViewer(viewer);
 
@@ -50,19 +61,51 @@ public class MatchServiceImpl implements MatchService {
         List<UserMatch> matches = posters.stream()
                 .map(poster -> {
                     double score = matchingService.calculateMatchScore(viewerQ, poster.getQuestionnaire());
-                    return UserMatch.builder()
-                            .viewer(viewer)
-                            .poster(poster)
-                            .score(score)
-                            .createdAt(LocalDateTime.now())
-                            .build();
+                    return createMatch(viewer, poster, score);
+
                 })
-                .filter(match -> match.getScore() >= MIN_SCORE)
+                .filter(match -> match.getScore() >= threshold)
                 .toList();
 
         userMatchRepository.saveAll(matches);
 
         return matches.stream()
+                .sorted(Comparator.comparing(UserMatch::getScore).reversed())
+                .map(userMatchMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserMatchDTO> generateAllMatches(Double minScore) {
+        double threshold = (minScore != null) ? minScore : MIN_SCORE;
+
+        userMatchRepository.deleteAll();
+
+        List<User> allUsers = userRepository.findAll();
+
+        List<User> viewers = allUsers.stream()
+                .filter(u -> u.getQuestionnaire() != null)
+                .toList();
+
+        List<User> posters = allUsers.stream()
+                .filter(u -> u.getQuestionnaire() != null && !u.getListings().isEmpty())
+                .toList();
+
+        List<UserMatch> allMatches = viewers.stream()
+                .flatMap(viewer -> posters.stream()
+                        .filter(poster -> !viewer.getId().equals(poster.getId()))
+                        .map(poster -> {
+                            double score = matchingService.calculateMatchScore(
+                                    viewer.getQuestionnaire(), poster.getQuestionnaire()
+                            );
+                            return createMatch(viewer, poster, score);
+                        })
+                        .filter(match -> match.getScore() >= threshold)
+                )
+                .toList();
+
+        userMatchRepository.saveAll(allMatches);
+
+        return allMatches.stream()
                 .sorted(Comparator.comparing(UserMatch::getScore).reversed())
                 .map(userMatchMapper::toDTO)
                 .collect(Collectors.toList());

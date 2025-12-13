@@ -82,7 +82,7 @@ class MatchServiceTest {
         when(userMatchMapper.toDTO(any(UserMatch.class))).thenReturn(dto);
 
         // Act
-        List<UserMatchDTO> result = matchService.generateMatchesForViewer(viewerId);
+        List<UserMatchDTO> result = matchService.generateMatchesForViewer(viewerId, 60.00);
 
         // Assert
         assertEquals(1, result.size());
@@ -95,7 +95,7 @@ class MatchServiceTest {
     void generateMatchesForViewer_shouldThrowIfViewerNotFound() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> matchService.generateMatchesForViewer(1L));
+        assertThrows(ResponseStatusException.class, () -> matchService.generateMatchesForViewer(1L, 60.00));
     }
 
     @Test
@@ -104,7 +104,6 @@ class MatchServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(viewer));
         when(questionnaireRepository.findByUser(viewer)).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> matchService.generateMatchesForViewer(1L));
+        assertThrows(ResponseStatusException.class, () -> matchService.generateMatchesForViewer(1L, 60.00));
     }
-
 }
