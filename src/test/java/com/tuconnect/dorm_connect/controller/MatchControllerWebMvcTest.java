@@ -2,10 +2,16 @@ package com.tuconnect.dorm_connect.controller;
 
 import com.tuconnect.dorm_connect.dto.UserMatch.UserMatchDTO;
 import com.tuconnect.dorm_connect.dto.User.UserListingSummaryDTO;
+import com.tuconnect.dorm_connect.security.CustomUserDetailsService;
+import com.tuconnect.dorm_connect.security.JwtTokenProvider;
 import com.tuconnect.dorm_connect.service.MatchService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import com.tuconnect.dorm_connect.security.JwtAuthenticationFilter;
+import org.springframework.context.annotation.ComponentScan.Filter;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,7 +24,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(MatchController.class)
+@WebMvcTest(controllers = MatchController.class,
+        excludeFilters = @Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthenticationFilter.class))
+@AutoConfigureMockMvc(addFilters = false)
 class MatchControllerWebMvcTest {
 
     @Autowired
@@ -26,6 +34,12 @@ class MatchControllerWebMvcTest {
 
     @MockBean
     private MatchService matchService;
+
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    private CustomUserDetailsService customUserDetailsService;
 
     @Test
     void generateMatches_shouldReturn200AndJson() throws Exception {
