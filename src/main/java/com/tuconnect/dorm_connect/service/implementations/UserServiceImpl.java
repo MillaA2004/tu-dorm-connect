@@ -1,4 +1,4 @@
-package com.tuconnect.dorm_connect.service.implementations;
+package com.tuconnect.dorm_connect.service.ServiceImpl;
 
 import com.tuconnect.dorm_connect.dto.User.UserDTO;
 import com.tuconnect.dorm_connect.mapper.UserMapper;
@@ -44,6 +44,7 @@ public class UserServiceImpl implements UserService {
         user.setEmail(dto.email());
         user.setPassword(passwordEncoder.encode(dto.password()));
         user.setProfileImageUrl(dto.profileImageUrl());
+        user.setGender(dto.gender());
         user.setMajor(dto.major());
         user.setAcademicYear(dto.year());
         user.setRole(Roles.User);
@@ -63,6 +64,7 @@ public class UserServiceImpl implements UserService {
         existingUser.setEmail(updatedUserDTO.email());
         existingUser.setPassword(updatedUserDTO.password());
         existingUser.setProfileImageUrl(updatedUserDTO.profileImageUrl());
+        existingUser.setGender(updatedUserDTO.gender());
         existingUser.setMajor(updatedUserDTO.major());
         existingUser.setAcademicYear(updatedUserDTO.year());
 
