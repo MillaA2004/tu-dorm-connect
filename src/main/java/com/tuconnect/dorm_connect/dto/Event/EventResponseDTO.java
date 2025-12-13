@@ -1,7 +1,11 @@
 package com.tuconnect.dorm_connect.dto.Event;
 
+import com.tuconnect.dorm_connect.dto.User.UserSummaryDTO;
+
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
+
 
 public record EventResponseDTO(
         Long eventId,
@@ -14,6 +18,9 @@ public record EventResponseDTO(
         String eventType,
         Double latitude,
         Double longitude,
-        Long creatorId,
-        Set<Long> participantIds
-) {}
+        UserSummaryDTO creator,
+        List<UserSummaryDTO> participants
+) {
+
+}
+

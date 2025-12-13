@@ -93,4 +93,20 @@ public class EventController {
         return ResponseEntity.ok(dto);
     }
 
+    @DeleteMapping("/{eventId}/participants/{participantId}/creator/{creatorId}")
+    public ResponseEntity<EventResponseDTO> removeParticipant(
+            @PathVariable Long eventId,
+            @PathVariable Long participantId,
+            @PathVariable Long creatorId
+    ) {
+        return ResponseEntity.ok(eventService.removeParticipant(eventId, participantId, creatorId));
+    }
+
+
+    @GetMapping("/search")
+    public List<EventResponseDTO> search(@RequestParam String q) {
+        return eventService.searchEvents(q);
+    }
+
+
 }

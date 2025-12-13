@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import type { EventItem } from "../types";
 
 interface EventCardProps {
@@ -7,17 +8,28 @@ interface EventCardProps {
 }
 
 const EventCard: React.FC<EventCardProps> = ({ event, onCheckLocation }) => {
+  const navigate = useNavigate();
+
+
+  const goToProfile = (userId: number) => {
+  navigate(`/profile/${userId}`);
+};
+
+
   const date = new Date(event.dateTime);
   const formattedDate = isNaN(date.getTime())
     ? event.dateTime
     : date.toLocaleString();
 
-  const initials = event.creatorName
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase())
-    .join("");
+  const creatorName = `${event.creator.firstName} ${event.creator.lastName}`.trim();
+
+const initials = creatorName
+  .split(" ")
+  .filter(Boolean)
+  .slice(0, 2)
+  .map((p) => p[0]?.toUpperCase())
+  .join("");
+
 
   return (
     <div
@@ -32,48 +44,74 @@ const EventCard: React.FC<EventCardProps> = ({ event, onCheckLocation }) => {
       }}
     >
       
+<div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  }}
+>
+  <div
+  onClick={() => goToProfile(event.creator.id)}
+  title="View profile"
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "0.6rem",
+    cursor: "pointer",
+    userSelect: "none",
+  }}
+>
+
+    
+    {event.creator.profileImageUrl ? (
+      <img
+        src={event.creator.profileImageUrl}
+        alt={`${event.creator.firstName} ${event.creator.lastName}`}
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: 999,
+          objectFit: "cover",
+        }}
+      />
+    ) : (
       <div
         style={{
+          width: 36,
+          height: 36,
+          borderRadius: "999px",
+          background:
+            "linear-gradient(135deg, rgb(37,99,235), rgb(56,189,248))",
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
+          justifyContent: "center",
+          color: "white",
+          fontWeight: 600,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: "999px",
-              background:
-                "linear-gradient(135deg, rgb(37,99,235), rgb(56,189,248))",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-              fontWeight: 600,
-            }}
-          >
-            {initials}
-          </div>
-
-          <div>
-            <div style={{ fontWeight: 600 }}>{event.creatorName}</div>
-            <div style={{ fontSize: "0.8rem", color: "#6b7280" }}>
-              {event.eventType}
-            </div>
-          </div>
-        </div>
-
-        <div style={{ fontSize: "0.8rem", color: "#4b5563" }}>
-          {formattedDate}
-        </div>
+        {initials}
       </div>
+    )}
+
+    <div>
+      <div style={{ fontWeight: 600 }}>
+        {event.creator.firstName} {event.creator.lastName}
+      </div>
+      <div style={{ fontSize: "0.8rem", color: "#6b7280" }}>
+        {event.eventType}
+      </div>
+    </div>
+  </div>
+
+  <div style={{ fontSize: "0.8rem", color: "#4b5563" }}>{formattedDate}</div>
+</div>
+
 
       
       <div>
         <h3 style={{ margin: 0 }}>{event.title}</h3>
-        <p style={{ margin: 0, color: "#4b5563" }}>{event.description}</p>
+       
       </div>
 
       
@@ -81,9 +119,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onCheckLocation }) => {
         <p style={{ margin: "0.2rem 0" }}>
           <strong>Address:</strong> {event.address}
         </p>
-        <p style={{ margin: "0.2rem 0" }}>
-          <strong>Capacity:</strong> {event.capacity}
-        </p>
+        
       </div>
 
       
@@ -95,8 +131,9 @@ const EventCard: React.FC<EventCardProps> = ({ event, onCheckLocation }) => {
           alignItems: "center",
         }}
       >
-       
+        
         <button
+          onClick={() => navigate(`/events/${event.id}`)}
           style={{
             padding: "0.45rem 0.95rem",
             borderRadius: 999,
@@ -108,7 +145,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onCheckLocation }) => {
             fontWeight: 500,
           }}
         >
-          Join
+          View details
         </button>
 
         

@@ -1,7 +1,9 @@
 package com.tuconnect.dorm_connect.service;
 
 import com.tuconnect.dorm_connect.dto.User.UserDTO;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Optional;
 
 public interface UserService {
@@ -10,9 +12,9 @@ public interface UserService {
 
     Long getUserIdFromEmail(String email);
 
-    UserDTO createUser(UserDTO dto);
-
-    UserDTO updateUser(Long userId, UserDTO updatedUserDTO);
-
     void deleteUser(Long userId);
+
+    UserDTO updateUser(Long userId, UserDTO updatedUserDTO, MultipartFile file) throws IOException;
+
+    UserDTO createUser(UserDTO dto, MultipartFile file) throws IOException;
 }

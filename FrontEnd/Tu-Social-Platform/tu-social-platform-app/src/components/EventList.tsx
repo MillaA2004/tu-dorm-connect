@@ -26,3 +26,4 @@ const EventList: React.FC<EventListProps> = ({ events, onCheckLocation }) => {
 };
 
 export default EventList;
+

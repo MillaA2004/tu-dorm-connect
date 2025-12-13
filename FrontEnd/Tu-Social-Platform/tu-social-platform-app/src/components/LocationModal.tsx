@@ -13,6 +13,12 @@ interface LocationModalProps {
 }
 
 const LocationModal: React.FC<LocationModalProps> = ({ event, onClose }) => {
+  const handleOpenGoogleMaps = () => {
+    const { lat, lng } = event.location;
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <div
       style={{
@@ -37,11 +43,12 @@ const LocationModal: React.FC<LocationModalProps> = ({ event, onClose }) => {
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Header */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
-            marginBottom: "0.5rem",
+            marginBottom: "0.75rem",
             alignItems: "center",
           }}
         >
@@ -59,6 +66,7 @@ const LocationModal: React.FC<LocationModalProps> = ({ event, onClose }) => {
           </button>
         </div>
 
+        {/* Map */}
         <div style={mapContainerStyle}>
           <Map
             style={{ width: "100%", height: "100%" }}
@@ -68,6 +76,32 @@ const LocationModal: React.FC<LocationModalProps> = ({ event, onClose }) => {
           >
             <Marker position={event.location} />
           </Map>
+        </div>
+
+        {/* Actions */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: "0.75rem",
+          }}
+        >
+          <button
+            onClick={handleOpenGoogleMaps}
+            style={{
+              padding: "0.55rem 1.1rem",
+              borderRadius: 999,
+              border: "none",
+              background:
+                "linear-gradient(135deg, rgb(37,99,235), rgb(56,189,248))",
+              color: "white",
+              fontWeight: 600,
+              cursor: "pointer",
+              boxShadow: "0 6px 16px rgba(37,99,235,0.35)",
+            }}
+          >
+            Get directions
+          </button>
         </div>
       </div>
     </div>

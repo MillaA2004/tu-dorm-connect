@@ -20,5 +20,7 @@ public interface UserMapper {
     @Mapping(target = "role", source = "dto.role")
     User toEntity(UserDTO dto);
 
+    @Mapping(target = "userId", source = "id")
+    @Mapping(target = "year", source = "academicYear")
     UserDTO toDTO(User user);
 }
