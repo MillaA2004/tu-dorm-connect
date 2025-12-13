@@ -1,4 +1,4 @@
-package com.tuconnect.dorm_connect.service.implementations;
+package com.tuconnect.dorm_connect.service.ServiceImpl;
 
 import com.tuconnect.dorm_connect.dto.User.UserDTO;
 import com.tuconnect.dorm_connect.mapper.UserMapper;
