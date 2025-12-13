@@ -4,9 +4,12 @@ import com.tuconnect.dorm_connect.dto.User.UserDTO;
 import com.tuconnect.dorm_connect.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Collections;
 
 @RestController
@@ -19,6 +22,7 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
@@ -33,17 +37,20 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
-        UserDTO newUser = userService.createUser(userDTO);
-        return ResponseEntity.ok(newUser);
-    }
 
-    @PutMapping("/{userId}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long userId, @RequestBody UserDTO userDTO) {
-        UserDTO updatedUser = userService.updateUser(userId, userDTO);
+    @PutMapping(
+            value = "/{userId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<UserDTO> updateUser(
+            @PathVariable Long userId,
+            @RequestPart("user") UserDTO userDTO,
+            @RequestPart(value = "file", required = false) MultipartFile file
+    ) throws IOException {
+        UserDTO updatedUser = userService.updateUser(userId, userDTO, file);
         return ResponseEntity.ok(updatedUser);
     }
+
 
     @GetMapping("/id-by-email/{email}")
     public ResponseEntity<?> getUserIdByEmail(@PathVariable String email) {

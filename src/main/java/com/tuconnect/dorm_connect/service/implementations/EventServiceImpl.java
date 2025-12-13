@@ -12,6 +12,7 @@ import com.tuconnect.dorm_connect.service.EventService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -82,8 +83,11 @@ public class EventServiceImpl implements EventService {
         User creator = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
-        if(!currentEvent.getCreator().equals(creator) || !creator.getRole().equals(Roles.Admin)) {
-            throw new IllegalArgumentException("creator is not the owner of the event!");
+        if (
+                !currentEvent.getCreator().equals(creator)
+                        && !creator.getRole().equals(Roles.Admin)
+        ) {
+            throw new IllegalArgumentException("Not allowed to delete this event.");
         }
 
         eventRepository.delete(currentEvent);
@@ -97,12 +101,18 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toDTO(event);
     }
 
+
+
     public List<EventResponseDTO> getAllEvents() {
-        return eventRepository.findAll()
+        LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
+
+        return eventRepository
+                .findAllByDateTimeAfterOrderByDateTimeAsc(cutoff)
                 .stream()
                 .map(eventMapper::toDTO)
                 .toList();
     }
+
 
 
 
@@ -144,6 +154,12 @@ public class EventServiceImpl implements EventService {
             user.getEvents().add(event);
         }
 
+        LocalDateTime currTime = LocalDateTime.now();
+
+        if(currTime.isAfter(event.getDateTime())) {
+            throw new IllegalArgumentException("Event already happened");
+        }
+
         Event saved = eventRepository.save(event);
         return eventMapper.toDTO(saved);
     }
@@ -168,4 +184,52 @@ public class EventServiceImpl implements EventService {
         Event saved = eventRepository.save(event);
         return eventMapper.toDTO(saved);
     }
+
+    @Transactional
+    public EventResponseDTO removeParticipant(Long eventId, Long participantId, Long requesterId) {
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
+
+
+        if (event.getCreator() == null || !event.getCreator().getId().equals(requesterId)) {
+            throw new AccessDeniedException("Only the event creator can remove participants.");
+        }
+
+
+        if (event.getCreator().getId().equals(participantId)) {
+            throw new IllegalArgumentException("Creator cannot be removed from the event.");
+        }
+
+        User participant = userRepository.findById(participantId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + participantId));
+
+        if (!event.getParticipants().contains(participant)) {
+            throw new IllegalArgumentException("User is not a participant of this event.");
+        }
+
+        event.getParticipants().remove(participant);
+
+        if (participant.getEvents() != null) {
+            participant.getEvents().remove(event);
+        }
+
+        Event saved = eventRepository.save(event);
+        return eventMapper.toDTO(saved);
+    }
+
+
+    @Transactional
+    public List<EventResponseDTO> searchEvents(String q) {
+
+        String query = q.trim();
+
+        return eventRepository.searchByTitleOrAddress(query)
+                .stream()
+                .map(eventMapper::toDTO)
+                .toList();
+    }
+
+
+
 }

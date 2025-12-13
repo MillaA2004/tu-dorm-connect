@@ -1,7 +1,7 @@
 package com.tuconnect.dorm_connect.service;
 
 import com.tuconnect.dorm_connect.dto.UserMatch.UserMatchDTO;
-import com.tuconnect.dorm_connect.dto.User.UserSummaryDTO;
+import com.tuconnect.dorm_connect.dto.User.UserListingSummaryDTO;
 import com.tuconnect.dorm_connect.mapper.UserMatchMapper;
 import com.tuconnect.dorm_connect.model.*;
 import com.tuconnect.dorm_connect.repository.QuestionnaireRepository;
@@ -64,7 +64,7 @@ class MatchServiceImplTest {
                 .build();
 
         UserMatchDTO dto = new UserMatchDTO(
-                new UserSummaryDTO(2L, "Bob", "Poster", "ISN", "pic", "Dorm", 2),
+                new UserListingSummaryDTO(2L, "Bob", "Poster", "ISN", "pic", "Dorm", 2),
                 85.0
         );
 

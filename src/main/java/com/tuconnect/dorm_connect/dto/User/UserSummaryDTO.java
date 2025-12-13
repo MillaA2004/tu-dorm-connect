@@ -4,8 +4,5 @@ public record UserSummaryDTO(
         Long id,
         String firstName,
         String lastName,
-        String major,
-        String profileImageUrl,
-        String dorm,
-        Integer academicYear
+        String profileImageUrl
 ) {}

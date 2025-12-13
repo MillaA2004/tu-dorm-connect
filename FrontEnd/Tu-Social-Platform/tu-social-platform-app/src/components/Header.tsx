@@ -1,12 +1,13 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import LogoutIcon from '@mui/icons-material/Logout';
-import '../styles/Header.css';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
-
+import tuLogo from '../assets/tu-logo.png'; 
+import '../styles/Header.css';
+import { MessagesPanel } from '../components/MessengerPanel.tsx';
+import { NotificationsPanel } from './NotificationsPanel';
 
 interface HeaderProps {
   showButtons?: boolean;
@@ -15,19 +16,30 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  
+  const [isMessagesOpen, setIsMessagesOpen] = useState<boolean>(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState<boolean>(false);
 
   const toggleSidebar = () => {
-    setIsSidebarOpen((prev) => !prev);
+    setIsSidebarOpen(prev => !prev);
   };
 
   const handleLogout = () => {
-    
     navigate('/login');
   };
 
+  const toggleMessages = () => {
+    setIsMessagesOpen(prev => !prev);
+    
+    setIsNotificationsOpen(false);
+  };
 
-return (
+  const toggleNotifications = () => {
+    setIsNotificationsOpen(prev => !prev);
+    
+    setIsMessagesOpen(false);
+  };
+
+  return (
     <>
       <header className="header">
         {showButtons && (
@@ -40,22 +52,36 @@ return (
           </div>
         )}
 
+        
+
         <div className="header-center">
-          <h1 className="title">Tu-Social-App</h1>
+          
+          <Link to="/home" className="header-logo-link">
+            <img
+              src={tuLogo}
+              alt="TU Social"
+              className="header-logo"
+            />
+          </Link>
         </div>
 
         {showButtons && (
           <div className="header-right">
-
-             
+            <button
+              className="header-icon-button"
+              onClick={toggleMessages}
+              aria-label="Open messages"
+            >
               <MailOutlineIcon style={{ fontSize: 26 }} />
-              
-              {/*  need to update the logic for those buttons when the rest componets are done!!!!  */}
+            </button>
 
-            
+            <button
+              className="header-icon-button"
+              onClick={toggleNotifications}
+              aria-label="Open notifications"
+            >
               <NotificationsNoneIcon style={{ fontSize: 26 }} />
-            
-
+            </button>
           </div>
         )}
       </header>
@@ -68,10 +94,13 @@ return (
           </div>
 
           <ul className="menu-list">
+            <li><Link to="/home" onClick={toggleSidebar}>Home</Link></li>
             <li><Link to="/doorsm" onClick={toggleSidebar}>Doorsm</Link></li>
             <li><Link to="/events" onClick={toggleSidebar}>Events</Link></li>
-            <li><Link to="/my-events" onClick={toggleSidebar}>My Events</Link></li>
             <li><Link to="/information" onClick={toggleSidebar}>Information</Link></li>
+            <li><Link to="/profile/me" onClick={toggleSidebar}>My Profile</Link></li>
+            <li><Link to="/listings" onClick={toggleSidebar}>Find roomate</Link></li>
+            <li><Link to="/posts" onClick={toggleSidebar}>Posts</Link></li>
           </ul>
         </div>
 
@@ -82,6 +111,17 @@ return (
           </button>
         </div>
       </nav>
+
+      
+      <MessagesPanel
+        isOpen={isMessagesOpen}
+        onClose={() => setIsMessagesOpen(false)}
+      />
+
+      <NotificationsPanel
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+      />
     </>
   );
 };

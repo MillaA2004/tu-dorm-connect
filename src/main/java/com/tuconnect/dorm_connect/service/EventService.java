@@ -26,4 +26,8 @@ public interface EventService {
     EventResponseDTO joinEvent(Long eventId, Long userId);
 
     EventResponseDTO leaveEvent(Long eventId, Long userId);
+
+    EventResponseDTO removeParticipant(Long eventId, Long participantId, Long requesterId);
+
+    List<EventResponseDTO> searchEvents(String q);
 }

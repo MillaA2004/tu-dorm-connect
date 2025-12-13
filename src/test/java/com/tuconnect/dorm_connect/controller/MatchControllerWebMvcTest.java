@@ -1,7 +1,7 @@
 package com.tuconnect.dorm_connect.controller;
 
 import com.tuconnect.dorm_connect.dto.UserMatch.UserMatchDTO;
-import com.tuconnect.dorm_connect.dto.User.UserSummaryDTO;
+import com.tuconnect.dorm_connect.dto.User.UserListingSummaryDTO;
 import com.tuconnect.dorm_connect.service.MatchService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ class MatchControllerWebMvcTest {
     void generateMatches_shouldReturn200AndJson() throws Exception {
         Long viewerId = 1L;
 
-        UserSummaryDTO posterSummary = new UserSummaryDTO(
+        UserListingSummaryDTO posterSummary = new UserListingSummaryDTO(
                 2L, "Bob", "Poster", "ISN", "picture", "Block 14", 1
         );
         UserMatchDTO dto = new UserMatchDTO(posterSummary, 85.0);
@@ -84,7 +84,7 @@ class MatchControllerWebMvcTest {
     void generateMatches_withCustomMinScore_shouldReturnFilteredResults() throws Exception {
         Long viewerId = 1L;
         UserMatchDTO dto = new UserMatchDTO(
-                new UserSummaryDTO(2L, "Bob", "Poster", "ISN", "picture", "Block 14", 1), 85.0
+                new UserListingSummaryDTO(2L, "Bob", "Poster", "ISN", "picture", "Block 14", 1), 85.0
         );
 
         when(matchService.generateMatchesForViewer(viewerId, 75.0)).thenReturn(List.of(dto));

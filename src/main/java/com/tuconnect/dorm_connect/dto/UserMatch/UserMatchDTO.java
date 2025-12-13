@@ -1,9 +1,9 @@
 package com.tuconnect.dorm_connect.dto.UserMatch;
 
-import com.tuconnect.dorm_connect.dto.User.UserSummaryDTO;
+import com.tuconnect.dorm_connect.dto.User.UserListingSummaryDTO;
 
 public record UserMatchDTO(
-        UserSummaryDTO poster,
+        UserListingSummaryDTO poster,
         Double score
 ) {
 }

@@ -18,7 +18,7 @@ import java.util.Set;
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long eventId;
 
     private String title;
 
@@ -39,7 +39,6 @@ public class Event {
     @Column(name = "event_type")
     private String eventType;
 
-
     private Double latitude;
 
     private Double longitude;
@@ -48,7 +47,11 @@ public class Event {
     @JoinColumn(name = "creator_id")
     private User creator;
 
-
-    @ManyToMany(mappedBy = "events")
+    @ManyToMany
+    @JoinTable(
+            name = "event_participants",
+            joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private Set<User> participants = new HashSet<>();
 }

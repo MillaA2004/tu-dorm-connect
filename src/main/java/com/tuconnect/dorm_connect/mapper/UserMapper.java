@@ -15,6 +15,7 @@ public interface UserMapper {
     @Mapping(target = "email", source = "dto.email")
     @Mapping(target = "password", source = "dto.password")
     @Mapping(target = "profileImageUrl", source = "dto.profileImageUrl")
+    @Mapping(target = "gender", source = "dto.gender")
     @Mapping(target = "major", source = "dto.major")
     @Mapping(target = "academicYear", source = "dto.year")
     @Mapping(target = "role", source = "dto.role")
@@ -27,5 +28,6 @@ public interface UserMapper {
     User toEntity(UserDTO dto);
 
     @Mapping(target = "userId", source = "id")
+    @Mapping(target = "year", source = "academicYear")
     UserDTO toDTO(User user);
 }
