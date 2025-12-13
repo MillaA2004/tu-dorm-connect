@@ -93,6 +93,7 @@ public class UserServiceImpl implements UserService {
         existingUser.setEmail(updatedUserDTO.email());
         existingUser.setPassword(updatedUserDTO.password());
         existingUser.setProfileImageUrl(profileImage);
+        existingUser.setGender(updatedUserDTO.gender());
         existingUser.setMajor(updatedUserDTO.major());
         existingUser.setAcademicYear(updatedUserDTO.year());
 
