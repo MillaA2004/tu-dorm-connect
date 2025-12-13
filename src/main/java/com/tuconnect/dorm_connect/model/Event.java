@@ -6,7 +6,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -40,7 +39,6 @@ public class Event {
     @Column(name = "event_type")
     private String eventType;
 
-
     private Double latitude;
 
     private Double longitude;
@@ -48,7 +46,6 @@ public class Event {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id")
     private User creator;
-
 
     @ManyToMany
     @JoinTable(

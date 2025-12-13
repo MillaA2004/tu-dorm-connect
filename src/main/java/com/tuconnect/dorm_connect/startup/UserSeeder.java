@@ -31,7 +31,7 @@
 //            Dorm dorm2 = dormRepository.findByName("Block 14")
 //                    .orElseThrow(() -> new NoSuchElementException("Dorm not found"));
 //            User user1 = User.builder()
-//                    .email("milangelova@tu-sofia.bg")
+//                    .major("milangelova@tu-sofia.bg")
 //                    .passwordHash("hashed123")
 //                    .name("Milla")
 //                    .facultyNumber("F12345")
@@ -40,7 +40,7 @@
 //                    .dorm(dorm2)
 //                    .build();
 //            User user2 = User.builder()
-//                    .email("knikolov@tu-sofia.bg")
+//                    .major("knikolov@tu-sofia.bg")
 //                    .password("hashed456")
 //                    .name("Kaloyan")
 //                    .facultyNumber("F67890")

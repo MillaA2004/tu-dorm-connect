@@ -47,11 +47,14 @@ public class User {
     @Column(name = "role")
     private Roles role;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Questionnaire questionnaire;
+
     @ManyToOne
     @JoinColumn(name = "dorm_id")
     private Dorm dorm;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Listing> listings;
 
     @OneToMany(mappedBy = "user")

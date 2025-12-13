@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     public Long getUserIdFromEmail(String email) {
         return userRepository.findByEmail(email)
                 .map(User::getId)
-                .orElseThrow(() -> new RuntimeException("User not found for email: " + email));
+                .orElseThrow(() -> new RuntimeException("User not found for major: " + email));
     }
 
 
