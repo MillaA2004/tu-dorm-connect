@@ -12,30 +12,30 @@ public class MatchingService {
         int total = 0;
 
         // Boolean comparisons
-        score += 2 * match(q1.getSmokes(), q2.getSmokes()); total++;
-        score += 2 * match(q1.getDrinks(), q2.getDrinks()); total++;
-        score += 3 * match(q1.getPartyHome(), q2.getPartyHome()); total++;
+        score += 2 * match(q1.getSmokes(), q2.getSmokes()); total+=2;
+        score += 2 * match(q1.getDrinks(), q2.getDrinks()); total+=2;
+        score += 3 * match(q1.getPartyHome(), q2.getPartyHome()); total+=3;
         score += match(q1.getStayAtHome(), q2.getStayAtHome()); total++;
-        score += 2 * match(q1.getSharesCleaning(), q2.getSharesCleaning()); total++;
+        score += 2 * match(q1.getSharesCleaning(), q2.getSharesCleaning()); total+=2;
         score += match(q1.getEarlyRiser(), q2.getEarlyRiser()); total++;
         score += match(q1.getStudiesInRoom(), q2.getStudiesInRoom()); total++;
         score += match(q1.getPrefersSocialRoommate(), q2.getPrefersSocialRoommate()); total++;
-        score += 3 * match(q1.getCooksInDorm(), q2.getCooksInDorm()); total++;
+        score += 3 * match(q1.getCooksInDorm(), q2.getCooksInDorm()); total+=3;
         score += match(q1.getUsesHeadphones(), q2.getUsesHeadphones()); total++;
-        score += 2 * match(q1.getSharesItems(), q2.getSharesItems()); total++;
+        score += 2 * match(q1.getSharesItems(), q2.getSharesItems()); total+=2;
 
         // Scaled comparisons (1–5)
-        score += 3 * scaleMatch(q1.getCleanliness(), q2.getCleanliness()); total++;
-        score += 2 * scaleMatch(q1.getBedtime(), q2.getBedtime()); total++;
-        score += 2 * scaleMatch(q1.getNeedsQuiet(), q2.getNeedsQuiet()); total++;
-        score += 3 * scaleMatch(q1.getGuestFrequency(), q2.getGuestFrequency()); total++;
+        score += 3 * scaleMatch(q1.getCleanliness(), q2.getCleanliness()); total+=3;
+        score += 2 * scaleMatch(q1.getBedtime(), q2.getBedtime()); total+=2;
+        score += 2 * scaleMatch(q1.getNeedsQuiet(), q2.getNeedsQuiet()); total+=2;
+        score += 3 * scaleMatch(q1.getGuestFrequency(), q2.getGuestFrequency()); total+=3;
         score += scaleMatch(q1.getFoodSharing(), q2.getFoodSharing()); total++;
         score += scaleMatch(q1.getEntertainmentFrequency(), q2.getEntertainmentFrequency()); total++;
-        score += 3 * scaleMatch(q1.getPersonalSpaceImportance(), q2.getPersonalSpaceImportance()); total++;
+        score += 3 * scaleMatch(q1.getPersonalSpaceImportance(), q2.getPersonalSpaceImportance()); total+=3;
 
         // String comparisons
         score += stringMatch(q1.getMbti(), q2.getMbti()); total++;
-        score += 0.5 * stringMatch(q1.getSpecialty(), q2.getSpecialty()); total++;
+        score += stringMatch(q1.getSpecialty(), q2.getSpecialty()); total++;
 
         // Age difference
         if (q1.getAge() != null && q2.getAge() != null) {
