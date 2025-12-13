@@ -7,15 +7,16 @@ import com.tuconnect.dorm_connect.security.JwtTokenProvider;
 import com.tuconnect.dorm_connect.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/auth")
@@ -48,12 +49,16 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<JwtResponse> register(@RequestBody UserDTO userDTO) {
-        // password is encoded inside userDTO
-        userService.createUser(userDTO);
+    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<JwtResponse> register(
+            @RequestPart UserDTO userDTO,
+            @RequestPart(value = "file", required = false) MultipartFile file
+    ) throws IOException {
 
-        // auth user to generate token
+
+        userService.createUser(userDTO, file);
+
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         userDTO.email(),
@@ -63,6 +68,11 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtTokenProvider.generateToken(authentication);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new JwtResponse(token));
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new JwtResponse(token));
     }
+
+
+
 }

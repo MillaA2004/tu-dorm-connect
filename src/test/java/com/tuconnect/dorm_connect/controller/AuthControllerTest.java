@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.multipart.MultipartFile;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -80,7 +81,8 @@ class AuthControllerTest {
 
         Authentication authentication = mock(Authentication.class);
 
-        when(userService.createUser(any(UserDTO.class))).thenReturn(userDTO);
+
+        when(userService.createUser(any(UserDTO.class),null)).thenReturn(userDTO);
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authentication);

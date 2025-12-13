@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import "../styles/HomePage.css";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom"; 
+import image1 from "../assets/1.jpg";
+import image2 from "../assets/2.jpg";
+import image3 from "../assets/3.jpg";
 
 type Slide = {
   id: number;
@@ -12,17 +15,17 @@ type Slide = {
 const slides: Slide[] = [
   {
     id: 1,
-    src: "/images/campus-1.jpg", 
+    src: image1, 
     alt: "Students at the campus",
   },
   {
     id: 2,
-    src: "/images/campus-2.jpg",
+    src: image2,
     alt: "Group of students studying together",
   },
   {
     id: 3,
-    src: "/images/campus-3.jpg",
+    src: image3,
     alt: "Technical University building",
   },
 ];
@@ -165,5 +168,6 @@ const HomePage: React.FC = () => {
     </>
   );
 };
+
 
 export default HomePage;
