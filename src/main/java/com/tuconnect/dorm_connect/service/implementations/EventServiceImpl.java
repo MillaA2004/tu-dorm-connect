@@ -9,6 +9,7 @@ import com.tuconnect.dorm_connect.model.User;
 import com.tuconnect.dorm_connect.repository.EventRepository;
 import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.EventService;
+import com.tuconnect.dorm_connect.service.NotificationService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +28,14 @@ public class EventServiceImpl implements EventService {
 
     private final UserRepository userRepository;
 
+    private final NotificationService notificationService;
+
     @Autowired
-    public EventServiceImpl(EventMapper eventMapper,EventRepository eventRepository,UserRepository userRepository) {
+    public EventServiceImpl(EventMapper eventMapper,EventRepository eventRepository,UserRepository userRepository,NotificationService notificationService) {
         this.eventMapper = eventMapper;
         this.eventRepository= eventRepository;
         this.userRepository=userRepository;
+        this.notificationService = notificationService;
     }
 
 
@@ -161,6 +165,15 @@ public class EventServiceImpl implements EventService {
         }
 
         Event saved = eventRepository.save(event);
+
+        if (saved.getCreator() != null) {
+            notificationService.notifyEventJoined(
+                    saved.getCreator().getId(),
+                    user.getId(),
+                    saved.getEventId()
+            );
+        }
+
         return eventMapper.toDTO(saved);
     }
 
