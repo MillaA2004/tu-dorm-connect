@@ -33,7 +33,7 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("roles", roles)
-                .setIssuedAt(new Date())
+                .setIssuedAt(currentDate)
                 .setExpiration(expireDate)
                 .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
@@ -57,10 +57,12 @@ public class JwtTokenProvider {
             Jwts.parserBuilder()
                     .setSigningKey(key())
                     .build()
-                    .parse(token);
+                    .parseClaimsJws(token);
             return true;
-        } catch (MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException e) {
-            // Log exception in a real application
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        } catch (RuntimeException e) {
+            // covers issues like bad Base64 secret decoding, etc.
             return false;
         }
     }
