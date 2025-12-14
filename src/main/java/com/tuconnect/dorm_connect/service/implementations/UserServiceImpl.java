@@ -67,6 +67,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(dto.password()));
         user.setProfileImageUrl(profileImage);
         user.setMajor(dto.major());
+        user.setGender(dto.gender());
         user.setAcademicYear(dto.year());
         user.setGender(dto.gender());
         user.setRole(Roles.User);
@@ -95,6 +96,7 @@ public class UserServiceImpl implements UserService {
         existingUser.setProfileImageUrl(profileImage);
         existingUser.setGender(updatedUserDTO.gender());
         existingUser.setMajor(updatedUserDTO.major());
+        existingUser.setGender(updatedUserDTO.gender());
         existingUser.setAcademicYear(updatedUserDTO.year());
 
 
