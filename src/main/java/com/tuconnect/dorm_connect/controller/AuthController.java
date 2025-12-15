@@ -54,10 +54,7 @@ public class AuthController {
             @RequestPart UserDTO userDTO,
             @RequestPart(value = "file", required = false) MultipartFile file
     ) throws IOException {
-
-
         userService.createUser(userDTO, file);
-
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -72,7 +69,4 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new JwtResponse(token));
     }
-
-
-
 }
