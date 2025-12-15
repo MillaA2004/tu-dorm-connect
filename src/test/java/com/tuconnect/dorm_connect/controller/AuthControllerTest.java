@@ -12,16 +12,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.multipart.MultipartFile;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -75,23 +76,32 @@ class AuthControllerTest {
                 null,
                 User.Gender.MALE,
                 "Computer Science",
-                null,
+                3,
                 Roles.User
+        );
+
+        MockMultipartFile userDtoPart = new MockMultipartFile(
+                "userDTO",
+                "userDTO.json",
+                MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsBytes(userDTO)
         );
 
         Authentication authentication = mock(Authentication.class);
 
-
-        when(userService.createUser(any(UserDTO.class),null)).thenReturn(userDTO);
+        when(userService.createUser(any(UserDTO.class), any())).thenReturn(userDTO);
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authentication);
 
-        when(jwtTokenProvider.generateToken(authentication)).thenReturn("fake-jwt-token");
+        when(jwtTokenProvider.generateToken(any(Authentication.class))).thenReturn("fake-jwt-token");
 
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userDTO)))
+        mockMvc.perform(
+                        multipart("/auth/register")
+                                .file(userDtoPart)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.token").value("fake-jwt-token"));
     }
