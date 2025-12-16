@@ -95,7 +95,7 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
 
           <ul className="menu-list">
             <li><Link to="/home" onClick={toggleSidebar}>Home</Link></li>
-            <li><Link to="/doorsm" onClick={toggleSidebar}>Doorsm</Link></li>
+            <li><Link to="/dorms" onClick={toggleSidebar}>Dorms</Link></li>
             <li><Link to="/events" onClick={toggleSidebar}>Events</Link></li>
             <li><Link to="/information" onClick={toggleSidebar}>Information</Link></li>
             <li><Link to="/profile/me" onClick={toggleSidebar}>My Profile</Link></li>
