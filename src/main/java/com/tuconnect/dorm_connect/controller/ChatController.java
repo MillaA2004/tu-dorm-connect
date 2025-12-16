@@ -1,9 +1,6 @@
 package com.tuconnect.dorm_connect.controller;
 
-import com.tuconnect.dorm_connect.dto.Chat.ChatDTO;
-import com.tuconnect.dorm_connect.dto.Chat.AddMemberRequest;
-import com.tuconnect.dorm_connect.dto.Chat.CreateDirectChatRequest;
-import com.tuconnect.dorm_connect.dto.Chat.CreateGroupChatRequest;
+import com.tuconnect.dorm_connect.dto.Chat.*;
 import com.tuconnect.dorm_connect.service.ChatService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 //@RestController
@@ -152,6 +150,17 @@ public class ChatController {
                 authentication.getName(),
                 memberId
         );
+    }
+
+
+    @GetMapping("/{chatId}/members")
+    public List<ChatMemberDTO> getMembers(@PathVariable Long chatId, Principal principal) {
+        return chatService.getChatMembers(chatId, principal.getName());
+    }
+
+    @PostMapping("/{chatId}/read")
+    public void markAsRead(@PathVariable Long chatId, Principal principal) {
+        chatService.markAsRead(chatId, principal.getName());
     }
 }
 

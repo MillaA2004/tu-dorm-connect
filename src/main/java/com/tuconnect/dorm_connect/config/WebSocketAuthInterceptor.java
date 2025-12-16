@@ -30,7 +30,7 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
             return message;
         }
 
-        // Only authenticate on CONNECT
+
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
 
             String authHeader = accessor.getFirstNativeHeader("Authorization");
@@ -53,7 +53,7 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                                     userDetails.getAuthorities()
                             );
 
-                    // 🔑 This makes Principal available in @MessageMapping
+
                     accessor.setUser(authentication);
                 }
             }

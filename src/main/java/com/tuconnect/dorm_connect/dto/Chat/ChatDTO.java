@@ -8,7 +8,9 @@ public record ChatDTO(
         Long chatId,
         String name,
         boolean groupChat,
+        Long adminUserId,
         List<ChatMemberDTO> members,
-        MessageDTO lastMessage
+        MessageDTO lastMessage,
+        long unreadCount
 ) {
 }

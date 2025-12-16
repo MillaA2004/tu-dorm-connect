@@ -1,6 +1,7 @@
 package com.tuconnect.dorm_connect.service.implementations;
 
 import com.tuconnect.dorm_connect.dto.Chat.ChatDTO;
+import com.tuconnect.dorm_connect.dto.Chat.ChatMemberDTO;
 import com.tuconnect.dorm_connect.dto.Messages.MessageDTO;
 import com.tuconnect.dorm_connect.mapper.ChatMapper;
 import com.tuconnect.dorm_connect.mapper.MessageMapper;
@@ -13,158 +14,12 @@ import com.tuconnect.dorm_connect.repository.MessageRepository;
 import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.ChatService;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
-//@Service
-//public class ChatServiceImpl implements ChatService {
-//
-//    private final ChatRepository chatRepository;
-//    private final ChatMemberRepository chatMemberRepository;
-//    private final UserRepository userRepository;
-//    private final MessageRepository messageRepository;
-//    private final ChatMapper chatMapper;
-//    private final MessageMapper messageMapper;
-//
-//    @Autowired
-//    public ChatServiceImpl(ChatRepository chatRepository, ChatMemberRepository chatMemberRepository, UserRepository userRepository, MessageRepository messageRepository, ChatMapper chatMapper, MessageMapper messageMapper) {
-//        this.chatMapper = chatMapper;
-//        this.chatRepository = chatRepository;
-//        this.chatMemberRepository = chatMemberRepository;
-//        this.userRepository = userRepository;
-//        this.messageMapper = messageMapper;
-//        this.messageRepository = messageRepository;
-//    }
-//
-//    private void addMemberInternal(Chat chat, Long userId, String chatRole) {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new EntityNotFoundException("User not found: " + userId));
-//
-//        ChatMember member = new ChatMember();
-//        member.setChat(chat);
-//        member.setUser(user);
-//        member.setChatRole(chatRole);
-//
-//        chatMemberRepository.save(member);
-//    }
-//
-//    private ChatDTO toDtoWithLastMessage(Chat chat) {
-//        ChatDTO dto = chatMapper.toDto(chat);
-//
-//        MessageDTO lastMessage = messageRepository
-//                .findFirstByChatChatIdOrderBySentAtDesc(chat.getChatId())
-//                .map(messageMapper::toDto)
-//                .orElse(null);
-//
-//        return new ChatDTO(
-//                dto.chatId(),
-//                dto.name(),
-//                dto.groupChat(),
-//                dto.members(),
-//                lastMessage
-//        );
-//    }
-//
-//
-//    public ChatDTO getChatById(Long chatId) {
-//        Chat chat = chatRepository.findById(chatId)
-//                .orElseThrow(() -> new EntityNotFoundException("Chat not found: " + chatId));
-//
-//        return toDtoWithLastMessage(chat);
-//    }
-//
-//
-//    public ChatDTO createDirectChat(Long currentUserId, Long otherUserId) {
-//        if (currentUserId.equals(otherUserId)) {
-//            throw new IllegalArgumentException("Cannot create direct chat with yourself");
-//        }
-//
-//
-//        Chat chat = chatRepository
-//                .findDirectChatBetweenUsers(currentUserId, otherUserId)
-//                .orElseGet(() -> {
-//                    Chat newChat = new Chat();
-//                    newChat.setGroupChat(false);
-//                    newChat.setName(null);
-//
-//                    Chat savedChat = chatRepository.save(newChat);
-//
-//                    addMemberInternal(savedChat, currentUserId, "Member");
-//                    addMemberInternal(savedChat, otherUserId, "Member");
-//
-//                    return savedChat;
-//                });
-//
-//        return toDtoWithLastMessage(chat);
-//    }
-//
-//
-//    public ChatDTO createGroupChat(Long currentUserId, String name, List<Long> memberIds) {
-//        if (name == null || name.isBlank()) {
-//            throw new IllegalArgumentException("Group chat name is required");
-//        }
-//
-//        Chat chat = new Chat();
-//        chat.setGroupChat(true);
-//        chat.setName(name);
-//
-//        Chat savedChat = chatRepository.save(chat);
-//
-//
-//        addMemberInternal(savedChat, currentUserId, "Admin");
-//
-//
-//        if (memberIds != null) {
-//            for (Long memberId : memberIds) {
-//                if (!memberId.equals(currentUserId)) {
-//                    addMemberInternal(savedChat, memberId, "Member");
-//                }
-//            }
-//        }
-//
-//        return toDtoWithLastMessage(savedChat);
-//    }
-//
-//
-//    public void addMember(Long chatId, Long userId, String chatRole) {
-//        boolean exists = chatMemberRepository.existsByChatChatIdAndUserId(chatId, userId);
-//        if (exists) {
-//            return;
-//        }
-//
-//        Chat chat = chatRepository.findById(chatId)
-//                .orElseThrow(() -> new EntityNotFoundException("Chat not found: " + chatId));
-//
-//        addMemberInternal(chat, userId, chatRole);
-//    }
-//
-//
-//    public void removeMember(Long chatId, Long userId) {
-//        chatMemberRepository.findByChatChatIdAndUserId(chatId, userId)
-//                .ifPresent(chatMemberRepository::delete);
-//    }
-//
-//    public void assertUserInChat(Long userId, Long chatId) {
-//        boolean exists = chatMemberRepository.existsByChatChatIdAndUserId(chatId, userId);
-//        if (!exists) {
-//            throw new IllegalStateException("User " + userId + " is not a member of chat " + chatId);
-//        }
-//
-//    }
-//
-//    public List<ChatDTO> getChatsForUser(Long userId) {
-//
-//
-//        List<Chat> chats = chatRepository.findAllByUserId(userId);
-//
-//
-//        return chats.stream()
-//                .map(this::toDtoWithLastMessage)
-//                .toList();
-//    }
-//}
+
 
 @Service
 public class ChatServiceImpl implements ChatService {
@@ -192,7 +47,7 @@ public class ChatServiceImpl implements ChatService {
         this.messageMapper = messageMapper;
     }
 
-    // ---------- helpers ----------
+
 
     private User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
@@ -211,11 +66,24 @@ public class ChatServiceImpl implements ChatService {
         member.setChat(chat);
         member.setUser(user);
         member.setChatRole(role);
+        member.setLastReadAt(Instant.now());
+
 
         chatMemberRepository.save(member);
     }
 
-    private ChatDTO toDtoWithLastMessage(Chat chat) {
+
+
+    private ChatDTO toDtoWithLastMessage(Chat chat, User me) {
+
+        Long adminId = chatMemberRepository
+                .findAllByChatChatId(chat.getChatId())
+                .stream()
+                .filter(m -> "Admin".equalsIgnoreCase(m.getChatRole()))
+                .map(m -> m.getUser().getId())
+                .findFirst()
+                .orElse(null);
+
         ChatDTO dto = chatMapper.toDto(chat);
 
         MessageDTO lastMessage = messageRepository
@@ -223,14 +91,32 @@ public class ChatServiceImpl implements ChatService {
                 .map(messageMapper::toDto)
                 .orElse(null);
 
+
+        Instant lastReadAt = chatMemberRepository
+                .findByChatChatIdAndUserId(chat.getChatId(), me.getId())
+                .map(ChatMember::getLastReadAt)
+                .orElse(Instant.EPOCH);
+
+        if (lastReadAt == null) lastReadAt = Instant.EPOCH;
+
+        long unreadCount = messageRepository
+                .countByChatChatIdAndSentAtAfterAndSender_IdNot(
+                        chat.getChatId(),
+                        lastReadAt,
+                        me.getId()
+                );
+
         return new ChatDTO(
                 dto.chatId(),
                 dto.name(),
                 dto.groupChat(),
+                adminId,
                 dto.members(),
-                lastMessage
+                lastMessage,
+                unreadCount
         );
     }
+
 
     // ---------- public API ----------
 
@@ -240,7 +126,7 @@ public class ChatServiceImpl implements ChatService {
 
         return chatRepository.findAllByUserId(me.getId())
                 .stream()
-                .map(this::toDtoWithLastMessage)
+                .map(chat -> toDtoWithLastMessage(chat, me))
                 .toList();
     }
 
@@ -252,7 +138,8 @@ public class ChatServiceImpl implements ChatService {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 
-        return toDtoWithLastMessage(chat);
+
+        return toDtoWithLastMessage(chat, me);
     }
 
     @Override
@@ -276,7 +163,8 @@ public class ChatServiceImpl implements ChatService {
                     return saved;
                 });
 
-        return toDtoWithLastMessage(chat);
+
+        return toDtoWithLastMessage(chat, me);
     }
 
     @Override
@@ -301,7 +189,8 @@ public class ChatServiceImpl implements ChatService {
                     .forEach(id -> addMemberInternal(saved, id, "Member"));
         }
 
-        return toDtoWithLastMessage(saved);
+
+        return toDtoWithLastMessage(saved,me);
     }
 
     @Override
@@ -332,5 +221,49 @@ public class ChatServiceImpl implements ChatService {
             throw new IllegalStateException("User is not a member of this chat");
         }
     }
+
+    private boolean isAdmin(Long chatId, Long userId) {
+        return chatMemberRepository.findByChatChatIdAndUserId(chatId, userId)
+                .map(m -> "Admin".equalsIgnoreCase(m.getChatRole()))
+                .orElse(false);
+    }
+
+    @Override
+    public List<ChatMemberDTO> getChatMembers(Long chatId, String email) {
+        User me = getUserByEmail(email);
+        assertUserInChat(me.getId(), chatId);
+
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+
+        if (!chat.isGroupChat()) {
+            throw new IllegalStateException("Members list is only available for group chats");
+        }
+
+        return chatMemberRepository.findAllByChatChatId(chatId)
+                .stream()
+                .map(cm -> new ChatMemberDTO(
+                        cm.getChatMemberId(),
+                        cm.getUser().getId(),
+                        cm.getUser().getFirstName(),
+                        cm.getUser().getLastName(),
+                        cm.getChatRole()
+                ))
+                .toList();
+    }
+
+
+    public void markAsRead(Long chatId, String email) {
+        User me = getUserByEmail(email);
+
+        ChatMember cm = chatMemberRepository
+                .findByChatChatIdAndUserId(chatId, me.getId())
+                .orElseThrow();
+
+        cm.setLastReadAt(Instant.now());
+        chatMemberRepository.save(cm);
+    }
+
+
 }
 

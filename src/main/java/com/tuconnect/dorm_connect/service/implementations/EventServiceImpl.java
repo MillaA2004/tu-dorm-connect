@@ -3,9 +3,9 @@ package com.tuconnect.dorm_connect.service.implementations;
 import com.tuconnect.dorm_connect.dto.Event.EventRequestDTO;
 import com.tuconnect.dorm_connect.dto.Event.EventResponseDTO;
 import com.tuconnect.dorm_connect.mapper.EventMapper;
-import com.tuconnect.dorm_connect.model.Event;
-import com.tuconnect.dorm_connect.model.Roles;
-import com.tuconnect.dorm_connect.model.User;
+import com.tuconnect.dorm_connect.model.*;
+import com.tuconnect.dorm_connect.repository.ChatMemberRepository;
+import com.tuconnect.dorm_connect.repository.ChatRepository;
 import com.tuconnect.dorm_connect.repository.EventRepository;
 import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.EventService;
@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -30,28 +31,58 @@ public class EventServiceImpl implements EventService {
 
     private final NotificationService notificationService;
 
+    private final ChatRepository chatRepository;
+
+    private final ChatMemberRepository chatMemberRepository;
+
     @Autowired
-    public EventServiceImpl(EventMapper eventMapper,EventRepository eventRepository,UserRepository userRepository,NotificationService notificationService) {
+    public EventServiceImpl(EventMapper eventMapper,EventRepository eventRepository,UserRepository userRepository,NotificationService notificationService,ChatRepository chatRepository,ChatMemberRepository chatMemberRepository) {
         this.eventMapper = eventMapper;
         this.eventRepository= eventRepository;
         this.userRepository=userRepository;
         this.notificationService = notificationService;
+        this.chatRepository=chatRepository;
+        this.chatMemberRepository=chatMemberRepository;
     }
 
 
+
+    @Transactional
     public EventResponseDTO createEvent(Long creatorId, EventRequestDTO dto) {
         User creator = userRepository.findById(creatorId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + creatorId));
+
 
         Event event = eventMapper.toEntity(dto);
         event.setCreator(creator);
         event.setCreatedAt(LocalDateTime.now());
 
+        Event savedEvent = eventRepository.save(event);
 
 
-        Event saved = eventRepository.save(event);
-        return eventMapper.toDTO(saved);
+        Chat chat = new Chat();
+        chat.setGroupChat(true);
+        chat.setName(savedEvent.getTitle());
+
+        Chat savedChat = chatRepository.save(chat);
+
+
+        ChatMember admin = new ChatMember();
+        admin.setChat(savedChat);
+        admin.setUser(creator);
+        admin.setChatRole("Admin");
+        admin.setLastReadAt(Instant.now());
+
+        chatMemberRepository.save(admin);
+
+
+        savedEvent.setChat(savedChat);
+        eventRepository.save(savedEvent);
+
+
+        return eventMapper.toDTO(savedEvent);
     }
+
 
     @Transactional
     public EventResponseDTO updateEvent(Long creatorId, Long eventId, EventRequestDTO dto) {
@@ -137,6 +168,8 @@ public class EventServiceImpl implements EventService {
                 .toList();
     }
 
+
+
     @Transactional
     public EventResponseDTO joinEvent(Long eventId, Long userId) {
         Event event = eventRepository.findById(eventId)
@@ -153,29 +186,47 @@ public class EventServiceImpl implements EventService {
             throw new IllegalStateException("Event is full.");
         }
 
+        if (LocalDateTime.now().isAfter(event.getDateTime())) {
+            throw new IllegalArgumentException("Event already happened.");
+        }
+
+
         event.getParticipants().add(user);
         if (user.getEvents() != null && !user.getEvents().contains(event)) {
             user.getEvents().add(event);
         }
 
-        LocalDateTime currTime = LocalDateTime.now();
+        Event savedEvent = eventRepository.save(event);
 
-        if(currTime.isAfter(event.getDateTime())) {
-            throw new IllegalArgumentException("Event already happened");
+
+        Chat chat = savedEvent.getChat();
+        if (chat != null) {
+            boolean alreadyMember = chatMemberRepository
+                    .existsByChatChatIdAndUserId(chat.getChatId(), user.getId());
+
+            if (!alreadyMember) {
+                ChatMember member = new ChatMember();
+                member.setChat(chat);
+                member.setUser(user);
+                member.setChatRole("Member");
+                member.setLastReadAt(Instant.now());
+
+                chatMemberRepository.save(member);
+            }
         }
 
-        Event saved = eventRepository.save(event);
 
-        if (saved.getCreator() != null) {
+        if (savedEvent.getCreator() != null) {
             notificationService.notifyEventJoined(
-                    saved.getCreator().getId(),
+                    savedEvent.getCreator().getId(),
                     user.getId(),
-                    saved.getEventId()
+                    savedEvent.getEventId()
             );
         }
 
-        return eventMapper.toDTO(saved);
+        return eventMapper.toDTO(savedEvent);
     }
+
 
     @Transactional
     public EventResponseDTO leaveEvent(Long eventId, Long userId) {

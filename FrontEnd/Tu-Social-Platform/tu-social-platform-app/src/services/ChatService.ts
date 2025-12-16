@@ -2,6 +2,7 @@ import apiClient from "./apiClient";
 import type { MessageDTO } from "./MessageService";
 
 export interface ChatMemberDTO {
+  chatMemberId: number;   
   userId: number;
   firstName?: string;
   lastName?: string;
@@ -15,6 +16,7 @@ export interface ChatDTO {
   groupChat: boolean;
   members: ChatMemberDTO[];
   lastMessage: MessageDTO | null;
+  unreadCount: number;
 }
 
 export interface CreateDirectChatRequest {
@@ -64,4 +66,13 @@ export const chatService = {
   removeMember: async (chatId: number, memberId: number): Promise<void> => {
     await apiClient.delete(`${CHATS_BASE}/${chatId}/members/${memberId}`);
   },
+
+  getChatMembers: async (chatId: number): Promise<ChatMemberDTO[]> => {
+  const res = await apiClient.get<ChatMemberDTO[]>(`${CHATS_BASE}/${chatId}/members`);
+  return res.data;
+},
+
+markAsRead: async (chatId: number): Promise<void> => {
+  await apiClient.post(`${CHATS_BASE}/${chatId}/read`);
+},
 };
