@@ -21,12 +21,12 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Who receives the notification
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "recipient_id", nullable = false)
     private User recipient;
 
-    // Who triggered it (optional but recommended)
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "actor_id")
     private User actor;
@@ -39,18 +39,18 @@ public class Notification {
     @Column(name = "target_type", nullable = false)
     private TargetType targetType;
 
-    // This is the Post.id or Event.eventId
+
     @Column(name = "target_id", nullable = false)
     private Long targetId;
 
-    // Optional: a short message to show in FE without extra joins
+
     @Column(name = "message", length = 500)
     private String message;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    // null = unread, non-null = read
+
     @Column(name = "read_at")
     private LocalDateTime readAt;
 }

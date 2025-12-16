@@ -27,7 +27,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void notifyPostCommented(Long postAuthorId, Long commenterId, Long postId) {
         if (postAuthorId.equals(commenterId)) return;
 
-        // proxies are enough for relationships
+
         User recipient = userRepository.getReferenceById(postAuthorId);
         User actor = userRepository.getReferenceById(commenterId);
 
@@ -69,7 +69,7 @@ public class NotificationServiceImpl implements NotificationService {
         Notification n = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
 
-        // security check: only recipient can mark it read
+
         if (!n.getRecipient().getId().equals(recipientId)) {
             throw new RuntimeException("Not allowed");
         }

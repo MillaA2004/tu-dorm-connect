@@ -11,66 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 
-//@RestController
-//@RequestMapping("/api/chats")
-//public class ChatController {
-//
-//    private final ChatService chatService;
-//
-//    @Autowired
-//    public ChatController(ChatService chatService) {
-//        this.chatService = chatService;
-//    }
-//
-//
-//    @GetMapping
-//    public List<ChatDTO> getChatsForUser(@RequestParam Long userId) {
-//        return chatService.getChatsForUser(userId);
-//    }
-//
-//
-//    @GetMapping("/{chatId}")
-//    public ChatDTO getChatById(@PathVariable Long chatId,
-//                               @RequestParam Long userId) {
-//        chatService.assertUserInChat(userId, chatId);
-//        return chatService.getChatById(chatId);
-//    }
-//
-//
-//    @PostMapping("/direct")
-//    @ResponseStatus(HttpStatus.CREATED)
-//    public ChatDTO createDirectChat(@Valid @RequestBody CreateDirectChatRequest request) {
-//        return chatService.createDirectChat(request.currentUserId(), request.otherUserId());
-//    }
-//
-//
-//    @PostMapping("/group")
-//    @ResponseStatus(HttpStatus.CREATED)
-//    public ChatDTO createGroupChat(@Valid @RequestBody CreateGroupChatRequest request) {
-//        return chatService.createGroupChat(
-//                request.currentUserId(),
-//                request.name(),
-//                request.memberIds()
-//        );
-//    }
-//
-//
-//    @PostMapping("/{chatId}/members")
-//    @ResponseStatus(HttpStatus.NO_CONTENT)
-//    public void addMember(@PathVariable Long chatId,
-//                          @Valid @RequestBody AddMemberRequest request) {
-//        chatService.addMember(chatId, request.userId(), request.chatRole());
-//    }
-//
-//
-//    @DeleteMapping("/{chatId}/members/{userId}")
-//    @ResponseStatus(HttpStatus.NO_CONTENT)
-//    public void removeMember(@PathVariable Long chatId,
-//                             @PathVariable Long userId) {
-//        chatService.removeMember(chatId, userId);
-//    }
-//}
-//
+
 
 
 @RestController
@@ -83,20 +24,20 @@ public class ChatController {
         this.chatService = chatService;
     }
 
-    // GET /api/chats  → my chats
+
     @GetMapping
     public List<ChatDTO> getMyChats(Authentication authentication) {
         return chatService.getChatsForCurrentUser(authentication.getName());
     }
 
-    // GET /api/chats/{chatId}
+
     @GetMapping("/{chatId}")
     public ChatDTO getChatById(@PathVariable Long chatId,
                                Authentication authentication) {
         return chatService.getChatForCurrentUser(chatId, authentication.getName());
     }
 
-    // POST /api/chats/direct
+
     @PostMapping("/direct")
     @ResponseStatus(HttpStatus.CREATED)
     public ChatDTO createDirectChat(
@@ -109,7 +50,7 @@ public class ChatController {
         );
     }
 
-    // POST /api/chats/group
+
     @PostMapping("/group")
     @ResponseStatus(HttpStatus.CREATED)
     public ChatDTO createGroupChat(
@@ -123,7 +64,7 @@ public class ChatController {
         );
     }
 
-    // POST /api/chats/{chatId}/members
+
     @PostMapping("/{chatId}/members")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addMember(@PathVariable Long chatId,
@@ -138,7 +79,7 @@ public class ChatController {
         );
     }
 
-    // DELETE /api/chats/{chatId}/members/{memberId}
+
     @DeleteMapping("/{chatId}/members/{memberId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeMember(@PathVariable Long chatId,
