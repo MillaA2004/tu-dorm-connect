@@ -1,10 +1,12 @@
 package com.tuconnect.dorm_connect.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +18,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.ZoneOffset;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -46,8 +51,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
             String username = jwtTokenProvider.getUsername(token);
-
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+            if (userDetails instanceof UserPrincipal userPrincipal && userPrincipal.isSuspendedNow()) {
+                SecurityContextHolder.clearContext();
+                writeSuspendedResponse(response, userPrincipal);
+                return;
+            }
 
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
@@ -69,5 +79,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return StringUtils.hasText(token) ? token : null;
         }
         return null;
+    }
+
+    private void writeSuspendedResponse(HttpServletResponse response, UserPrincipal userPrincipal) throws IOException {
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+        Map<String, Object> body = buildBody(userPrincipal);
+
+        new ObjectMapper().writeValue(response.getOutputStream(), body);
+    }
+
+    public static Map<String, Object> buildBody(UserPrincipal userPrincipal) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("error", "SUSPENDED");
+        body.put("message", "You've been suspended.");
+        body.put("suspendedUntil", userPrincipal.getSuspendedUntil() == null
+                ? null
+                : userPrincipal.getSuspendedUntil().toInstant(ZoneOffset.UTC).toEpochMilli());
+        return body;
     }
 }

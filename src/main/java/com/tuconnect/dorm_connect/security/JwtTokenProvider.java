@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.stream.Collectors;
 
@@ -27,12 +28,25 @@ public class JwtTokenProvider {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
+        boolean suspended = false;
+        Long suspendedUntilEpochMs = null;
+
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof UserPrincipal userPrincipal) {
+            suspended = userPrincipal.isSuspendedNow();
+            if (userPrincipal.getSuspendedUntil() != null) {
+                suspendedUntilEpochMs = userPrincipal.getSuspendedUntil().toInstant(ZoneOffset.UTC).toEpochMilli();
+            }
+        }
+
         Date currentDate = new Date();
         Date expireDate = new Date(currentDate.getTime() + jwtExpirationDate);
 
         return Jwts.builder()
                 .setSubject(username)
                 .claim("roles", roles)
+                .claim("suspended", suspended)
+                .claim("suspendedUntil", suspendedUntilEpochMs)
                 .setIssuedAt(currentDate)
                 .setExpiration(expireDate)
                 .signWith(key(), SignatureAlgorithm.HS256)
@@ -59,10 +73,22 @@ public class JwtTokenProvider {
                     .build()
                     .parseClaimsJws(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
         } catch (RuntimeException e) {
-            // covers issues like bad Base64 secret decoding, etc.
+            return false;
+        }
+    }
+
+    public boolean isSuspendedClaim(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            Object suspended = claims.get("suspended");
+            return suspended instanceof Boolean b && b;
+        } catch (Exception e) {
             return false;
         }
     }

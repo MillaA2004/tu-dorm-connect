@@ -3,7 +3,6 @@ package com.tuconnect.dorm_connect.controller;
 import com.tuconnect.dorm_connect.dto.Chat.*;
 import com.tuconnect.dorm_connect.service.ChatService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -11,9 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
-
-
-
 
 @RestController
 @RequestMapping("/api/chats")

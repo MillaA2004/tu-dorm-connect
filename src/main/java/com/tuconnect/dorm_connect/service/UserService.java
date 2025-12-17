@@ -17,4 +17,8 @@ public interface UserService {
     UserDTO updateUser(Long userId, UserDTO updatedUserDTO, MultipartFile file) throws IOException;
 
     UserDTO createUser(UserDTO dto, MultipartFile file) throws IOException;
+
+    void suspendUser(Long userId, long minutes);
+
+    void unsuspendUser(Long userId);
 }
