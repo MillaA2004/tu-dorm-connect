@@ -102,7 +102,6 @@ public class UserServiceImpl implements UserService {
         existingUser.setGender(updatedUserDTO.gender());
         existingUser.setAcademicYear(updatedUserDTO.year());
 
-        // Only update password if provided (avoid overwriting with null/empty)
         if (updatedUserDTO.password() != null && !updatedUserDTO.password().isBlank()) {
             existingUser.setPassword(passwordEncoder.encode(updatedUserDTO.password()));
         }
@@ -149,6 +148,15 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
 
         existingUser.setSuspendedUntil(null);
+        userRepository.save(existingUser);
+    }
+
+    @Override
+    public void setRole(Long userId, Roles role) {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+
+        existingUser.setRole(role);
         userRepository.save(existingUser);
     }
 }

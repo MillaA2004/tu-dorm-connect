@@ -1,5 +1,6 @@
 package com.tuconnect.dorm_connect.controller;
 
+import com.tuconnect.dorm_connect.dto.auth.SetUserRoleRequest;
 import com.tuconnect.dorm_connect.dto.auth.SuspendUserRequest;
 import com.tuconnect.dorm_connect.service.UserService;
 import jakarta.validation.Valid;
@@ -26,6 +27,20 @@ public class AdminUserController {
     @PostMapping("/{userId}/unsuspend")
     public ResponseEntity<Void> unsuspendUser(@PathVariable Long userId) {
         userService.unsuspendUser(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Used to promote a regular user to an admin.
+     *
+     * @param userId userId of the user to be promoted
+     * @param request the role to upgrade the user to (has to be Admin)
+     * @return a response indicating success
+     */
+    @PreAuthorize("hasAuthority('Admin')")
+    @PostMapping("/{userId}/role")
+    public ResponseEntity<Void> setRole(@PathVariable Long userId, @Valid @RequestBody SetUserRoleRequest request) {
+        userService.setRole(userId, request.role());
         return ResponseEntity.noContent().build();
     }
 }

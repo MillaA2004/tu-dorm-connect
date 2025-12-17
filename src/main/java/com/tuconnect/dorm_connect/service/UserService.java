@@ -1,6 +1,7 @@
 package com.tuconnect.dorm_connect.service;
 
 import com.tuconnect.dorm_connect.dto.User.UserDTO;
+import com.tuconnect.dorm_connect.model.Roles;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -21,4 +22,6 @@ public interface UserService {
     void suspendUser(Long userId, long minutes);
 
     void unsuspendUser(Long userId);
+
+    void setRole(Long userId, Roles role);
 }

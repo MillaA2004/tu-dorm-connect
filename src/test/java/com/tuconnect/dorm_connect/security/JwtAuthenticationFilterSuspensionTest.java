@@ -29,7 +29,7 @@ class JwtAuthenticationFilterSuspensionTest {
         FilterChain chain = mock(FilterChain.class);
 
         when(jwtTokenProvider.validateToken("valid-token")).thenReturn(true);
-        when(jwtTokenProvider.getUsername("valid-token")).thenReturn("suspended@test.com");
+        when(jwtTokenProvider.getEmail("valid-token")).thenReturn("suspended@test.com");
 
         UserPrincipal principal = new UserPrincipal(
                 1L,
