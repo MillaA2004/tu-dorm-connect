@@ -47,9 +47,7 @@ public class Listing {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "dorm_id")
-    private Dorm dorm;
+    private String dorm;
 
     public boolean isExpired() {
         return expiresAt != null && LocalDateTime.now().isAfter(expiresAt);

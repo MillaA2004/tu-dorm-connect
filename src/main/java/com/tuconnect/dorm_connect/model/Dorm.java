@@ -42,9 +42,9 @@ public class Dorm {
     @OneToMany(mappedBy = "dorm")
     private List<Review> reviews;
 
-    @OneToMany(mappedBy = "dorm")
-    private List<User> livingPeople;
-
-    @OneToMany(mappedBy = "dorm")
-    private List<Listing> listings;
+//    @OneToMany(mappedBy = "dorm")
+//    private List<User> livingPeople;
+//
+//    @OneToMany(mappedBy = "dorm")
+//    private List<Listing> listings;
 }

@@ -14,7 +14,6 @@ import java.util.List;
 public interface ListingMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
-    @Mapping(target = "dorm", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "expiresAt", ignore = true)
     @Mapping(target = "preferencesJson", ignore = true)
@@ -23,17 +22,14 @@ public interface ListingMapper {
 
     List<ListingResponseDTO> toResponseDTOList(List<Listing> listings);
 
-    @Mapping(target = "dormId", source = "dorm.id")
-    @Mapping(target = "dormName", source = "dorm.name")
     @Mapping(target = "userId", source = "user.id")
-    //@Mapping(target = "username", source = "user.username")
     ListingResponseDTO toResponseDTO(Listing listing);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
-    @Mapping(target = "dorm", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "expiresAt", ignore = true)
+    @Mapping(target = "dorm", source = "dorm")
     @Mapping(target = "preferencesJson", ignore = true)
     @Mapping(target = "isActive", ignore = true)
     void updateEntityFromDTO(ListingRequestDTO dto, @MappingTarget Listing listing);

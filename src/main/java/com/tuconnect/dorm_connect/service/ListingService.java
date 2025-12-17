@@ -17,11 +17,13 @@ public interface ListingService {
 
     List<ListingResponseDTO> getListingsByUserId(Long userId);
 
-    List<ListingResponseDTO> getListingsByDorm(Long dormId);
+    List<ListingResponseDTO> getListingsByDorm(String dormName);
 
     ListingResponseDTO updateListing(Long id, ListingRequestDTO dto, Long currentUserId);
 
     void deleteListing(Long id, Long currentUserId);
 
-    Page<ListingResponseDTO> searchListings(String keyword, Long dormId, Pageable pageable);
+    List<ListingResponseDTO> searchListings(String keyword);
+
+    List<ListingResponseDTO> getListingsByPriceMax(Double maxPrice);
 }

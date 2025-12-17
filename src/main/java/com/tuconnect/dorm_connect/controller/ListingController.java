@@ -44,13 +44,13 @@ public class ListingController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ListingResponseDTO>> getListingsByUserId(@RequestParam Long userId) {
+    public ResponseEntity<List<ListingResponseDTO>> getListingsByUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(listingService.getListingsByUserId(userId));
     }
 
-    @GetMapping("/dorm/{dormId}")
-    public ResponseEntity<List<ListingResponseDTO>> getListingsByDorm(@PathVariable Long dormId) {
-        return ResponseEntity.ok(listingService.getListingsByDorm(dormId));
+    @GetMapping("/dorm/{dormName}")
+    public ResponseEntity<List<ListingResponseDTO>> getListingsByDorm(@PathVariable String dormName) {
+        return ResponseEntity.ok(listingService.getListingsByDorm(dormName));
     }
 
     @PutMapping("/{id}")
@@ -72,13 +72,16 @@ public class ListingController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping
-    public ResponseEntity<Page<ListingResponseDTO>> searchListings(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) Long dormId,
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    @GetMapping("/search")
+    public ResponseEntity<List<ListingResponseDTO>> searchListings(
+            @RequestParam(required = false) String keyword
     ) {
-        Page<ListingResponseDTO> listings = listingService.searchListings(keyword, dormId, pageable);
+        List<ListingResponseDTO> listings = listingService.searchListings(keyword);
         return ResponseEntity.ok(listings);
+    }
+
+    @GetMapping("/price/max")
+    public ResponseEntity<List<ListingResponseDTO>> getListingsByPriceMax(@RequestParam Double maxPrice) {
+        return ResponseEntity.ok(listingService.getListingsByPriceMax(maxPrice));
     }
 }

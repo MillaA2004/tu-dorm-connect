@@ -22,27 +22,18 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
             LocalDateTime now
     );
 
-    List<Listing> findByDormIdAndIsActiveTrueAndExpiresAtAfter(
-            Long dormId,
+    List<Listing> findByDormAndIsActiveTrueAndExpiresAtAfter(
+            String dorm,
             LocalDateTime now
     );
 
     @Query("SELECT l FROM Listing l WHERE " +
-            "(LOWER(l.title) LIKE %:keyword% OR LOWER(l.description) LIKE %:keyword%) " +
+            "(LOWER(l.title) LIKE %:keyword% OR LOWER(l.description) LIKE %:keyword% OR LOWER(l.dorm) LIKE %:keyword%) " +
             "AND l.isActive = true AND l.expiresAt > :now")
-    Page<Listing> searchByKeyword(
+    List<Listing> searchByKeyword(
             @Param("keyword") String keyword,
-            @Param("now") LocalDateTime now,
-            Pageable pageable
+            @Param("now") LocalDateTime now
     );
 
-    @Query("SELECT l FROM Listing l WHERE " +
-            "(LOWER(l.title) LIKE %:keyword% OR LOWER(l.description) LIKE %:keyword%) " +
-            "AND l.dorm.id = :dormId AND l.isActive = true AND l.expiresAt > :now")
-    Page<Listing> searchByKeywordAndDorm(
-            @Param("keyword") String keyword,
-            @Param("dormId") Long dormId,
-            @Param("now") LocalDateTime now,
-            Pageable pageable
-    );
+    List<Listing> findByIsActiveTrueAndExpiresAtAfterAndPriceLessThanEqual(LocalDateTime now, Double maxPrice);
 }
