@@ -9,7 +9,7 @@ import com.tuconnect.dorm_connect.model.UserMatch;
 import com.tuconnect.dorm_connect.repository.QuestionnaireRepository;
 import com.tuconnect.dorm_connect.repository.UserMatchRepository;
 import com.tuconnect.dorm_connect.repository.UserRepository;
-import com.tuconnect.dorm_connect.service.ServiceImpl.MatchServiceImpl;
+import com.tuconnect.dorm_connect.service.implementations.MatchServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,7 +52,6 @@ class MatchServiceTest {
 
     @Test
     void generateMatchesForViewer_shouldReturnSortedMatches() {
-        // Arrange
         Long viewerId = 1L;
         User viewer = new User();
         viewer.setId(viewerId);
@@ -64,27 +64,19 @@ class MatchServiceTest {
         Questionnaire posterQ = new Questionnaire();
         posterQ.setUser(poster);
         poster.setQuestionnaire(posterQ);
-        poster.setListings(List.of(new Listing())); // poster has listings
-
-        UserMatch match = UserMatch.builder()
-                .viewer(viewer)
-                .poster(poster)
-                .score(85.0)
-                .createdAt(LocalDateTime.now())
-                .build();
+        poster.setListings(List.of(new Listing()));
 
         UserMatchDTO dto = new UserMatchDTO(null, 85.0);
 
         when(userRepository.findById(viewerId)).thenReturn(Optional.of(viewer));
         when(questionnaireRepository.findByUser(viewer)).thenReturn(Optional.of(viewerQ));
-        when(userRepository.findAll()).thenReturn(List.of(viewer, poster));
+        when(userRepository.findByQuestionnaireIsNotNullAndListingsIsNotEmpty())
+                .thenReturn(List.of(poster));
         when(matchingService.calculateMatchScore(viewerQ, posterQ)).thenReturn(85.0);
         when(userMatchMapper.toDTO(any(UserMatch.class))).thenReturn(dto);
 
-        // Act
         List<UserMatchDTO> result = matchService.generateMatchesForViewer(viewerId, 60.00);
 
-        // Assert
         assertEquals(1, result.size());
         assertEquals(85.0, result.get(0).score());
         verify(userMatchRepository).deleteByViewer(viewer);
@@ -95,15 +87,18 @@ class MatchServiceTest {
     void generateMatchesForViewer_shouldThrowIfViewerNotFound() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> matchService.generateMatchesForViewer(1L, 60.00));
+        assertThrows(ResponseStatusException.class,
+                () -> matchService.generateMatchesForViewer(1L, 60.00));
     }
 
     @Test
-    void generateMatchesForViewer_shouldThrowIfNoQuestionnaire() {
+    void generateMatchesForViewer_shouldReturnEmptyList_whenNoQuestionnaire() {
         User viewer = new User();
         when(userRepository.findById(1L)).thenReturn(Optional.of(viewer));
         when(questionnaireRepository.findByUser(viewer)).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> matchService.generateMatchesForViewer(1L, 60.00));
+        List<UserMatchDTO> result = matchService.generateMatchesForViewer(1L, 60.00);
+
+        assertThat(result).isEmpty();
     }
 }

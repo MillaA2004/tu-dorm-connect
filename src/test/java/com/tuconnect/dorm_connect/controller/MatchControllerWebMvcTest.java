@@ -46,7 +46,7 @@ class MatchControllerWebMvcTest {
         Long viewerId = 1L;
 
         UserListingSummaryDTO posterSummary = new UserListingSummaryDTO(
-                2L, "Bob", "Poster", "ISN", "picture", "Block 14", 1
+                2L, "Bob", "Poster", "ISN", "picture",  1
         );
         UserMatchDTO dto = new UserMatchDTO(posterSummary, 85.0);
 
@@ -60,7 +60,6 @@ class MatchControllerWebMvcTest {
                 .andExpect(jsonPath("$[0].poster.lastName").value("Poster"))
                 .andExpect(jsonPath("$[0].poster.major").value("ISN"))
                 .andExpect(jsonPath("$[0].poster.profileImageUrl").value("picture"))
-                .andExpect(jsonPath("$[0].poster.dorm").value("Block 14"))
                 .andExpect(jsonPath("$[0].poster.academicYear").value(1))
                 .andExpect(jsonPath("$[0].score").value(85.0));
     }
@@ -98,7 +97,7 @@ class MatchControllerWebMvcTest {
     void generateMatches_withCustomMinScore_shouldReturnFilteredResults() throws Exception {
         Long viewerId = 1L;
         UserMatchDTO dto = new UserMatchDTO(
-                new UserListingSummaryDTO(2L, "Bob", "Poster", "ISN", "picture", "Block 14", 1), 85.0
+                new UserListingSummaryDTO(2L, "Bob", "Poster", "ISN", "picture",  1), 85.0
         );
 
         when(matchService.generateMatchesForViewer(viewerId, 75.0)).thenReturn(List.of(dto));

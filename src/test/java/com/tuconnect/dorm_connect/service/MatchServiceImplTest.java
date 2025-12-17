@@ -7,7 +7,7 @@ import com.tuconnect.dorm_connect.model.*;
 import com.tuconnect.dorm_connect.repository.QuestionnaireRepository;
 import com.tuconnect.dorm_connect.repository.UserMatchRepository;
 import com.tuconnect.dorm_connect.repository.UserRepository;
-import com.tuconnect.dorm_connect.service.ServiceImpl.MatchServiceImpl;
+import com.tuconnect.dorm_connect.service.implementations.MatchServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +45,6 @@ class MatchServiceImplTest {
 
     @Test
     void generateMatchesForViewer_shouldReturnMatchesAboveThreshold() {
-        // Arrange
         User viewer = new User();
         viewer.setId(1L);
         Questionnaire viewerQ = new Questionnaire();
@@ -57,20 +56,15 @@ class MatchServiceImplTest {
         poster.setQuestionnaire(posterQ);
         poster.setListings(List.of(new Listing()));
 
-        UserMatch match = UserMatch.builder()
-                .viewer(viewer)
-                .poster(poster)
-                .score(85.0)
-                .build();
-
         UserMatchDTO dto = new UserMatchDTO(
-                new UserListingSummaryDTO(2L, "Bob", "Poster", "ISN", "pic", "Dorm", 2),
+                new UserListingSummaryDTO(2L, "Bob", "Poster", "ISN", "pic",  2),
                 85.0
         );
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(viewer));
         when(questionnaireRepository.findByUser(viewer)).thenReturn(Optional.of(viewerQ));
-        when(userRepository.findAll()).thenReturn(List.of(viewer, poster));
+        when(userRepository.findByQuestionnaireIsNotNullAndListingsIsNotEmpty())
+                .thenReturn(List.of(poster));
         when(matchingService.calculateMatchScore(viewerQ, posterQ)).thenReturn(85.0);
         when(userMatchMapper.toDTO(any(UserMatch.class))).thenReturn(dto);
 
@@ -99,8 +93,10 @@ class MatchServiceImplTest {
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(viewer));
         when(questionnaireRepository.findByUser(viewer)).thenReturn(Optional.of(viewerQ));
-        when(userRepository.findAll()).thenReturn(List.of(viewer, poster));
-        when(matchingService.calculateMatchScore(viewerQ, posterQ)).thenReturn(30.0); // below threshold
+        when(userRepository.findByQuestionnaireIsNotNullAndListingsIsNotEmpty())
+                .thenReturn(List.of(poster));
+        // stub score below threshold
+        when(matchingService.calculateMatchScore(viewerQ, posterQ)).thenReturn(30.0);
 
         List<UserMatchDTO> result = matchService.generateMatchesForViewer(1L, null);
 
@@ -109,4 +105,3 @@ class MatchServiceImplTest {
         verify(userMatchRepository).saveAll(List.of());
     }
 }
-
