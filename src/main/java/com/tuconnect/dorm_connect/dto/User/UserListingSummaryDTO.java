@@ -6,7 +6,6 @@ public record UserListingSummaryDTO(
         String lastName,
         String major,
         String profileImageUrl,
-        String dorm,
         Integer academicYear
 ) {
 }
