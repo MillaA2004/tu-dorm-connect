@@ -66,6 +66,13 @@ public class User {
     @ManyToMany(mappedBy = "participants")
     private List<Event> events;
 
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> posts;
+
+
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> receivedNotifications;
+
     public enum Gender {
         MALE,
         FEMALE

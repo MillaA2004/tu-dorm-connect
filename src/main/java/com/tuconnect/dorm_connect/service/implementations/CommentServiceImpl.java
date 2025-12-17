@@ -1,4 +1,4 @@
-package com.tuconnect.dorm_connect.service.ServiceImpl;
+package com.tuconnect.dorm_connect.service.implementations;
 
 import com.tuconnect.dorm_connect.dto.Comment.CommentCreateRequest;
 import com.tuconnect.dorm_connect.dto.Comment.CommentResponse;
@@ -10,6 +10,7 @@ import com.tuconnect.dorm_connect.repository.CommentRepository;
 import com.tuconnect.dorm_connect.repository.PostRepository;
 import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.CommentService;
+import com.tuconnect.dorm_connect.service.NotificationService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,15 +23,18 @@ public class CommentServiceImpl implements CommentService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CommentMapper commentMapper;
+    private final NotificationService notificationService;
 
     public CommentServiceImpl(CommentRepository commentRepository,
                               PostRepository postRepository,
                               UserRepository userRepository,
-                              CommentMapper commentMapper) {
+                              CommentMapper commentMapper,
+                              NotificationService notificationService) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.commentMapper = commentMapper;
+        this.notificationService=notificationService;
     }
 
     @Override
@@ -50,6 +54,12 @@ public class CommentServiceImpl implements CommentService {
                 .build();
 
         Comment saved = commentRepository.save(comment);
+
+        notificationService.notifyPostCommented(
+                post.getAuthor().getId(),
+                author.getId(),
+                post.getId()
+        );
 
         return commentMapper.toDTO(saved);
     }

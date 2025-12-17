@@ -5,7 +5,11 @@ import com.tuconnect.dorm_connect.dto.Messages.SendMessageRequest;
 import com.tuconnect.dorm_connect.service.MessageService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+
+
 
 @RestController
 @RequestMapping("/api/chats/{chatId}/messages")
@@ -19,23 +23,32 @@ public class MessageController {
 
 
     @GetMapping
-    public Page<MessageDTO> getMessages(@PathVariable Long chatId,
-                                        @RequestParam Long userId,
-                                        @RequestParam(defaultValue = "0") int page,
-                                        @RequestParam(defaultValue = "50") int size) {
-
-
-        return messageService.getMessages(chatId, userId, page, size);
+    public Page<MessageDTO> getMessages(
+            @PathVariable Long chatId,
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size
+    ) {
+        return messageService.getMessages(
+                chatId,
+                authentication.getName(),
+                page,
+                size
+        );
     }
 
 
     @PostMapping
-    public MessageDTO sendMessage(@PathVariable Long chatId,
-                                  @RequestParam Long userId,
-                                  @Valid @RequestBody SendMessageRequest request) {
-
-
-
-        return messageService.sendMessage(chatId, userId, request.content());
+    public MessageDTO sendMessage(
+            @PathVariable Long chatId,
+            Authentication authentication,
+            @Valid @RequestBody SendMessageRequest request
+    ) {
+        return messageService.sendMessage(
+                chatId,
+                authentication.getName(),
+                request.content()
+        );
     }
 }
+
