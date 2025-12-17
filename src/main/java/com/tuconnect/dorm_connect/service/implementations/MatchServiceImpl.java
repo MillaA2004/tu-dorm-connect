@@ -11,6 +11,7 @@ import com.tuconnect.dorm_connect.service.MatchingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MatchServiceImpl implements MatchService {
 
     private final UserRepository userRepository;
@@ -62,6 +64,7 @@ public class MatchServiceImpl implements MatchService {
 
         List<UserMatch> matches = posters.stream()
                 .filter(poster -> !poster.getId().equals(viewer.getId()))
+                .filter(poster -> poster.getGender() == viewer.getGender())
                 .map(poster -> {
                     double score = matchingService.calculateMatchScore(viewerQ, poster.getQuestionnaire());
                     return createMatch(viewer, poster, score);
@@ -90,6 +93,7 @@ public class MatchServiceImpl implements MatchService {
                 .flatMap(viewer -> posters.stream()
                         .filter(poster -> !viewer.getId().equals(poster.getId()))
                         // prevent duplicate (viewer,poster) and (poster,viewer)
+                        .filter(poster -> poster.getGender() == viewer.getGender())
                         .filter(poster -> viewer.getId() < poster.getId())
                         .map(poster -> {
                             double score = matchingService.calculateMatchScore(

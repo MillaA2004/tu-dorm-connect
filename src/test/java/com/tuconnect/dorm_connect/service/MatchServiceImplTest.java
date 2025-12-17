@@ -104,4 +104,66 @@ class MatchServiceImplTest {
         verify(userMatchRepository).deleteByViewer(viewer);
         verify(userMatchRepository).saveAll(List.of());
     }
+
+    @Test
+    void generateMatchesForViewer_shouldReturnEmptyList_whenDifferentGender() {
+        User viewer = new User();
+        viewer.setId(1L);
+        viewer.setGender(User.Gender.FEMALE);
+        Questionnaire viewerQ = new Questionnaire();
+        viewerQ.setUser(viewer);
+
+        User poster = new User();
+        poster.setId(2L);
+        poster.setGender(User.Gender.MALE);
+        Questionnaire posterQ = new Questionnaire();
+        poster.setQuestionnaire(posterQ);
+        poster.setListings(List.of(new Listing()));
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(viewer));
+        when(questionnaireRepository.findByUser(viewer)).thenReturn(Optional.of(viewerQ));
+        when(userRepository.findByQuestionnaireIsNotNullAndListingsIsNotEmpty())
+                .thenReturn(List.of(poster));
+        when(matchingService.calculateMatchScore(viewerQ, posterQ)).thenReturn(85.0);
+
+        List<UserMatchDTO> result = matchService.generateMatchesForViewer(1L, null);
+
+        assertThat(result).isEmpty();
+        verify(userMatchRepository).deleteByViewer(viewer);
+        verify(userMatchRepository).saveAll(List.of());
+    }
+
+    @Test
+    void generateMatchesForViewer_shouldReturnMatch_whenSameGender() {
+        User viewer = new User();
+        viewer.setId(1L);
+        viewer.setGender(User.Gender.FEMALE);
+        Questionnaire viewerQ = new Questionnaire();
+        viewerQ.setUser(viewer);
+
+        User poster = new User();
+        poster.setId(2L);
+        poster.setGender(User.Gender.FEMALE);
+        Questionnaire posterQ = new Questionnaire();
+        poster.setQuestionnaire(posterQ);
+        poster.setListings(List.of(new Listing()));
+
+        UserMatchDTO dto = new UserMatchDTO(
+                new UserListingSummaryDTO(2L, "Alice", "Poster", "Dorm A", "pic", 2),
+                90.0
+        );
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(viewer));
+        when(questionnaireRepository.findByUser(viewer)).thenReturn(Optional.of(viewerQ));
+        when(userRepository.findByQuestionnaireIsNotNullAndListingsIsNotEmpty())
+                .thenReturn(List.of(poster));
+        when(matchingService.calculateMatchScore(viewerQ, posterQ)).thenReturn(90.0);
+        when(userMatchMapper.toDTO(any(UserMatch.class))).thenReturn(dto);
+
+        List<UserMatchDTO> result = matchService.generateMatchesForViewer(1L, null);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).score()).isEqualTo(90.0);
+    }
+
 }
