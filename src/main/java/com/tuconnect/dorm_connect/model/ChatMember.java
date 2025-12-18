@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
 
 
 @Entity
@@ -27,6 +28,6 @@ public class ChatMember {
     @Column
     private String chatRole;
 
-
+    private Instant lastReadAt;
 }
 

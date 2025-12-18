@@ -16,7 +16,7 @@ public interface ChatMapper {
     @Mapping(target = "name", source = "name")
     @Mapping(target = "groupChat", source = "groupChat")
     @Mapping(target = "members", source = "members")
-    @Mapping(target = "lastMessage", ignore = true) // you will set this manually in service
+    @Mapping(target = "lastMessage", ignore = true)
     ChatDTO toDto(Chat chat);
 
     @Mapping(target = "chatId", source = "dto.chatId")
