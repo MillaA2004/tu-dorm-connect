@@ -75,4 +75,9 @@ export const chatService = {
 markAsRead: async (chatId: number): Promise<void> => {
   await apiClient.post(`${CHATS_BASE}/${chatId}/read`);
 },
+
+deleteIfEmpty: async (chatId: number): Promise<void> => {
+  await apiClient.delete(`${CHATS_BASE}/${chatId}/if-empty`);
+},
+
 };

@@ -14,6 +14,7 @@ import com.tuconnect.dorm_connect.repository.MessageRepository;
 import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.ChatService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -250,6 +251,29 @@ public class ChatServiceImpl implements ChatService {
                         cm.getChatRole()
                 ))
                 .toList();
+    }
+
+
+    @Transactional
+    public void deleteDirectChatIfEmpty(Long chatId, String email) {
+        User me = getUserByEmail(email);
+
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+
+
+        if (Boolean.TRUE.equals(chat.isGroupChat())) return;
+
+
+        assertUserInChat(me.getId(), chatId);
+
+
+        boolean hasMessages = messageRepository.existsByChatChatId(chatId);
+        if (hasMessages) return;
+
+
+        chatMemberRepository.deleteByChatChatId(chatId);
+        chatRepository.delete(chat);
     }
 
 

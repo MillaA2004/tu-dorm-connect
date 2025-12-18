@@ -12,7 +12,7 @@ public interface UserService {
 
     Long getUserIdFromEmail(String email);
 
-    void deleteUser(Long userId);
+    void softDeleteUser(Long id);
 
     UserDTO updateUser(Long userId, UserDTO updatedUserDTO, MultipartFile file) throws IOException;
 

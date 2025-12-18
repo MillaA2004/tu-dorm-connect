@@ -7,11 +7,9 @@ import org.springframework.stereotype.Service;
 @Service
 public interface MessageService {
 
-//    MessageDTO sendMessage(Long chatId, Long senderId, String content);
-//
-//    Page<MessageDTO> getMessages(Long chatId, Long requesterId, int page, int size);
-
     MessageDTO sendMessage(Long chatId, String senderEmail, String content);
 
     Page<MessageDTO> getMessages(Long chatId, String requesterEmail, int page, int size);
+
+    MessageDTO editMessage(Long chatId, Long messageId, String requesterEmail, String content);
 }

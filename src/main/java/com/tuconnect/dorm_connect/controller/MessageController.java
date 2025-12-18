@@ -1,5 +1,6 @@
 package com.tuconnect.dorm_connect.controller;
 
+import com.tuconnect.dorm_connect.dto.Messages.EditMessageRequest;
 import com.tuconnect.dorm_connect.dto.Messages.MessageDTO;
 import com.tuconnect.dorm_connect.dto.Messages.SendMessageRequest;
 import com.tuconnect.dorm_connect.service.MessageService;
@@ -46,6 +47,22 @@ public class MessageController {
     ) {
         return messageService.sendMessage(
                 chatId,
+                authentication.getName(),
+                request.content()
+        );
+    }
+
+
+    @PutMapping("/{messageId}")
+    public MessageDTO editMessage(
+            @PathVariable Long chatId,
+            @PathVariable Long messageId,
+            Authentication authentication,
+            @Valid @RequestBody EditMessageRequest request
+    ) {
+        return messageService.editMessage(
+                chatId,
+                messageId,
                 authentication.getName(),
                 request.content()
         );

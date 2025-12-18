@@ -19,5 +19,6 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     long countByChatChatIdAndSentAtAfterAndSender_IdNot(Long chatId, Instant after, Long userId);
 
 
+    boolean existsByChatChatId(Long chatId);
 }
 
