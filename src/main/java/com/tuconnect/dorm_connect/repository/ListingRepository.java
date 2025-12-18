@@ -1,8 +1,6 @@
 package com.tuconnect.dorm_connect.repository;
 
 import com.tuconnect.dorm_connect.model.Listing;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,12 +11,12 @@ import java.util.List;
 
 @Repository
 public interface ListingRepository extends JpaRepository<Listing, Long> {
-    boolean existsByUserIdAndIsActiveTrue(Long userId);
+    boolean existsByPosterIdAndIsActiveTrue(Long posterId);
 
     List<Listing> findByIsActiveTrueAndExpiresAtAfter(LocalDateTime now);
 
-    List<Listing> findByUserIdAndIsActiveTrueAndExpiresAtAfter(
-            Long userId,
+    List<Listing> findByPosterIdAndIsActiveTrueAndExpiresAtAfter(
+            Long posterId,
             LocalDateTime now
     );
 

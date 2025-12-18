@@ -2,6 +2,9 @@ package com.tuconnect.dorm_connect.controller;
 
 import com.tuconnect.dorm_connect.dto.Listing.ListingRequestDTO;
 import com.tuconnect.dorm_connect.dto.Listing.ListingResponseDTO;
+import com.tuconnect.dorm_connect.model.Listing;
+import com.tuconnect.dorm_connect.model.User;
+import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.ListingService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -14,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -24,12 +28,14 @@ import java.util.List;
 public class ListingController {
 
     private final ListingService listingService;
+    private final UserRepository userRepository;
 
-    @PostMapping
+    @PostMapping("/poster/{posterId}")
     public ResponseEntity<ListingResponseDTO> createListing(
-            @Valid @RequestBody ListingRequestDTO listingRequestDTO) {
-        ListingResponseDTO saved = listingService.createListing(listingRequestDTO);
-        return new ResponseEntity<>(saved, HttpStatus.CREATED);
+            @PathVariable Long posterId,
+            @Valid @RequestBody ListingRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(listingService.createListing(posterId, dto));
     }
 
     @GetMapping("/active")

@@ -13,20 +13,21 @@ import java.util.List;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ListingMapper {
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "poster", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "expiresAt", ignore = true)
     @Mapping(target = "preferencesJson", ignore = true)
     @Mapping(target = "isActive", constant = "true")
     Listing toEntity(ListingRequestDTO dto);
 
+    @Mapping(source = "poster.id", target = "posterId")
     List<ListingResponseDTO> toResponseDTOList(List<Listing> listings);
 
-    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "posterId", source = "poster.id")
     ListingResponseDTO toResponseDTO(Listing listing);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "poster", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "expiresAt", ignore = true)
     @Mapping(target = "dorm", source = "dorm")

@@ -22,7 +22,7 @@ public record ListingRequestDTO(
         String dorm,
 
         @NotNull(message = "User ID is required")
-        Long userId,
+        Long posterId,
 
         @Positive(message = "Expiry days must be positive")
         Integer expiryDays

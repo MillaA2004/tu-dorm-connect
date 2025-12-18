@@ -55,7 +55,7 @@ public class User {
 //    private Dorm dorm;
 //    private String dormName;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "poster", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Listing> listings;
 
     @OneToMany(mappedBy = "user")

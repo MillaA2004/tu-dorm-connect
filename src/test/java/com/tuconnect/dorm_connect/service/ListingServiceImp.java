@@ -70,7 +70,7 @@ class ListingServiceImplTest {
         when(listingRepository.save(listing)).thenReturn(listing);
         when(listingMapper.toResponseDTO(listing)).thenReturn(responseDTO);
 
-        ListingResponseDTO result = listingService.createListing(dto);
+        ListingResponseDTO result = listingService.createListing(dto.posterId(), dto);
 
         assertThat(result).isEqualTo(responseDTO);
         verify(listingRepository).save(listing);
@@ -148,7 +148,7 @@ class ListingServiceImplTest {
         listing.setId(1L);
         User owner = new User();
         owner.setId(1L);
-        listing.setUser(owner);
+        listing.setPoster(owner);
 
         when(listingRepository.findById(1L)).thenReturn(Optional.of(listing));
 

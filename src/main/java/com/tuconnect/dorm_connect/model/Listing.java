@@ -44,8 +44,8 @@ public class Listing {
     private Boolean isActive = true;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "poster_id", nullable = false)
+    private User poster;
 
     private String dorm;
 

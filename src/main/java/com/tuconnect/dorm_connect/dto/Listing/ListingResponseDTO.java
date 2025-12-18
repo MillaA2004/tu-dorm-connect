@@ -9,7 +9,7 @@ public record ListingResponseDTO(
         Double price,
         String preferencesJson,
         String dormName,
-        Long userId,
+        Long posterId,
         Boolean isActive,
         LocalDateTime createdAt,
         LocalDateTime expiresAt

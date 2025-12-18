@@ -12,8 +12,6 @@ import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.ListingService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,17 +30,18 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     @Transactional
-    public ListingResponseDTO createListing(ListingRequestDTO dto) {
-        User user = userRepository.findById(dto.userId())
+    public ListingResponseDTO createListing(Long posterId, ListingRequestDTO dto) {
+        User poster = userRepository.findById(posterId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        Questionnaire questionnaire = questionnaireRepository.findByUserId(dto.userId());
+
+        Questionnaire questionnaire = questionnaireRepository.findByUserId(posterId);
         if (questionnaire == null) {
             throw new IllegalStateException("User must complete questionnaire before posting a listing.");
         }
 
         Listing listing = listingMapper.toEntity(dto);
+        listing.setPoster(poster);
         listing.setIsActive(true);
-        listing.setUser(user);
         if (dto.expiryDays() != null) {
             listing.setExpiresAt(LocalDateTime.now().plusDays(dto.expiryDays()));
         }
@@ -66,7 +65,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public List<ListingResponseDTO> getListingsByUserId(Long userId){
-        List<Listing> listings = listingRepository.findByUserIdAndIsActiveTrueAndExpiresAtAfter(userId, LocalDateTime.now());
+        List<Listing> listings = listingRepository.findByPosterIdAndIsActiveTrueAndExpiresAtAfter(userId, LocalDateTime.now());
         return listingMapper.toResponseDTOList(listings);
     }
 
@@ -79,11 +78,11 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     @Transactional
-    public ListingResponseDTO updateListing(Long id, ListingRequestDTO dto, Long currentUserId) {
+    public ListingResponseDTO updateListing(Long id, ListingRequestDTO dto, Long currentPosterId) {
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Listing not found with id: " + id));
 
-        if (!listing.getUser().getId().equals(currentUserId)) {
+        if (!listing.getPoster().getId().equals(currentPosterId)) {
             throw new IllegalArgumentException("Able to update only if it is your own listings");
         }
 
@@ -95,11 +94,11 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     @Transactional
-    public void deleteListing(Long id, Long currentUserId) {
+    public void deleteListing(Long id, Long currentPosterId) {
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Listing not found with id: " + id));
 
-        if (!listing.getUser().getId().equals(currentUserId))
+        if (!listing.getPoster().getId().equals(currentPosterId))
             throw new IllegalArgumentException("Able to delete only if owner.");
 
         listing.setIsActive(false);

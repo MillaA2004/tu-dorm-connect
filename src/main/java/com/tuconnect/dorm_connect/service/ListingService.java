@@ -9,13 +9,13 @@ import java.util.List;
 
 public interface ListingService {
 
-    ListingResponseDTO createListing(ListingRequestDTO dto);
+    ListingResponseDTO createListing(Long posterId, ListingRequestDTO dto);
 
     ListingResponseDTO getListingById(Long id);
 
     List<ListingResponseDTO> getActiveListings();
 
-    List<ListingResponseDTO> getListingsByUserId(Long userId);
+    List<ListingResponseDTO> getListingsByUserId(Long posterId);
 
     List<ListingResponseDTO> getListingsByDorm(String dormName);
 
