@@ -2,7 +2,7 @@ package com.tuconnect.dorm_connect.controller;
 
 import com.tuconnect.dorm_connect.dto.Questionnaire.QuestionnaireDTO;
 import com.tuconnect.dorm_connect.service.QuestionnaireService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
