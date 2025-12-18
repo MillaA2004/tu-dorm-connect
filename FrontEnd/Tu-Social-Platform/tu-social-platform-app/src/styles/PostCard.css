@@ -1,0 +1,358 @@
+
+/* =========================
+   POST CARD
+========================= */
+
+.postCard {
+  width: 100%;
+  max-width: 620px;                 /* 👈 keeps cards narrow */
+  margin: 0 auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #ffffff;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.postCard:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.postHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.postMeta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.postAuthor {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.postDate {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.postActions {
+  display: flex;
+  align-items: center;
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.postContent {
+  margin-top: 8px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #111827;
+  white-space: pre-wrap;
+}
+
+/* =========================
+   AVATARS
+========================= */
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatar.small {
+  width: 28px;
+  height: 28px;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarFallback {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+/* =========================
+   COMMENTS SECTION
+========================= */
+
+.commentsSection {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f1f1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.commentsTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* =========================
+   COMMENTS LIST
+========================= */
+
+.commentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.commentItem {
+  display: flex;
+  gap: 8px;
+  padding: 6px 8px;
+  background: #f9fafb;
+  border-radius: 10px;
+}
+
+.commentBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.commentTopRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.commentAuthor {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.commentDate {
+  font-size: 0.7rem;
+  color: #6b7280;
+}
+
+.commentActions {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+/* =========================
+   COMMENT CONTENT
+========================= */
+
+.commentContent {
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: #111827;
+}
+
+.commentEdit textarea {
+  width: 100%;
+  font-size: 0.85rem;
+  padding: 6px 8px;
+  resize: vertical;
+}
+
+/* =========================
+   ADD COMMENT
+========================= */
+
+.addCommentForm {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.addCommentInput {
+  width: 100%;
+  font-size: 0.85rem;
+  padding: 6px 8px;
+  resize: vertical;
+}
+
+.addCommentActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.primaryBtn {
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #111827;
+  background: #111827;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.primaryBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.linkBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.75rem;
+  cursor: pointer;
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.linkBtn.danger {
+  color: #b00020;
+}
+
+.dangerBtn {
+  font-size: 0.75rem;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid #b00020;
+  background: transparent;
+  color: #b00020;
+  cursor: pointer;
+}
+
+/* =========================
+   ERROR
+========================= */
+
+.errorText {
+  font-size: 0.8rem;
+  color: #b00020;
+}
+
+
+
+/* =========================
+   CREATE POST FORM
+========================= */
+
+.createPost {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px; /* space before first post */
+}
+
+.createPostCard {
+  width: 100%;
+  max-width: 620px; /* 👈 SAME AS POST CARD */
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #ffffff;
+}
+
+.createPostForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.createPostInput {
+  width: 100%;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  resize: vertical;
+}
+
+.createPostInput:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.createPostActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+
+
+.postCardClickable {
+  cursor: pointer;
+}
+
+.postCardClickable:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+
+.commentsToggleRow {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+
+.postEdit {
+  margin-top: 8px;
+  display: grid;
+  gap: 8px;
+}
+
+.postEditInput {
+  width: 100%;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  resize: vertical;
+}
+
+.postEditActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.authorName {
+  color: inherit;             
+  text-decoration: none;       
+  font-weight: 600;            
+  cursor: pointer;
+}
+
+.authorName:hover {
+  text-decoration: underline;  
+}
+
+
+

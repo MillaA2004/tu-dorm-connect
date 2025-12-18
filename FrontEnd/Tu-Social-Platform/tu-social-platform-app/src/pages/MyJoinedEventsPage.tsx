@@ -55,7 +55,7 @@ const MyJoinedEventsPage: React.FC = () => {
       .sort((a, b) => {
         const aTime = new Date(a.dateTime).getTime();
         const bTime = new Date(b.dateTime).getTime();
-        // upcoming: soonest first, past: most recent first
+        
         return timeFilter === "upcoming" ? aTime - bTime : bTime - aTime;
       });
   }, [events, timeFilter]);
@@ -102,7 +102,7 @@ const MyJoinedEventsPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Upcoming / Past toggle */}
+        
         <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.25rem" }}>
           <button
             type="button"

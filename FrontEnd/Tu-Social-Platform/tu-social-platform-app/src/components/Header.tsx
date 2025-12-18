@@ -10,6 +10,8 @@ import { MessagesPanel } from "../components/MessengerPanel.tsx";
 import { NotificationsPanel } from "./NotificationsPanel";
 import { notificationService } from "../services/NotificationService";
 import { chatService } from "../services/ChatService";
+import { logoutUser } from "../services/AuthService";
+
 
 interface HeaderProps {
   showButtons?: boolean;
@@ -27,7 +29,12 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
-  const handleLogout = () => navigate("/login");
+  const handleLogout = () => {
+  logoutUser();          
+  setIsSidebarOpen(false); 
+  navigate("/login", { replace: true }); 
+};
+
 
   const loadUnreadNotifCount = async () => {
     try {

@@ -26,4 +26,6 @@ public interface ChatService {
     List<ChatMemberDTO> getChatMembers(Long chatId, String email);
 
     void markAsRead(Long chatId, String email);
+
+    void deleteDirectChatIfEmpty(Long chatId, String email);
 }

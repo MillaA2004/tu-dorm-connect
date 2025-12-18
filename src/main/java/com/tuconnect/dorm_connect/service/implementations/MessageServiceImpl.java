@@ -87,4 +87,32 @@ public class MessageServiceImpl implements MessageService {
                 .findByChatChatIdOrderBySentAtAsc(chatId, pageable)
                 .map(messageMapper::toDto);
     }
+
+    @Override
+    public MessageDTO editMessage(Long chatId, Long messageId, String requesterEmail, String content) {
+        if (content == null || content.isBlank()) {
+            throw new IllegalArgumentException("Message content cannot be empty");
+        }
+
+        User requester = getUserByEmail(requesterEmail);
+        chatService.assertUserInChat(requester.getId(), chatId);
+
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new EntityNotFoundException("Message not found"));
+
+
+        if (!message.getChat().getChatId().equals(chatId)) {
+            throw new IllegalArgumentException("Message does not belong to this chat");
+        }
+
+
+        if (!message.getSender().getId().equals(requester.getId())) {
+            throw new org.springframework.security.access.AccessDeniedException("You can edit only your own messages");
+        }
+
+        message.setContent(content.trim());
+
+        Message saved = messageRepository.save(message);
+        return messageMapper.toDto(saved);
+    }
 }

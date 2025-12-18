@@ -3,15 +3,17 @@ import "../styles/ChatWindow.css";
 import { messageService, type MessageDTO, type PageResponse } from "../services/MessageService";
 import { useAuth } from "../services/AuthContext";
 import { chatService, type ChatMemberDTO } from "../services/ChatService";
+import { useNavigate } from "react-router-dom";
 
 type ChatWindowProps = {
   isOpen: boolean;
   chatId: number | null;
-
+ 
   chatTitle: string;
   isGroup: boolean;
   isAdmin: boolean;
 
+  otherUserId: number | null;
   onClose: () => void;
 };
 
@@ -24,14 +26,34 @@ const toInitials = (name: string) =>
     .toUpperCase()
     .slice(0, 2);
 
+const formatMessageTimestamp = (iso: string) => {
+  const sent = new Date(iso);
+  const now = new Date();
+
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfSentDay = new Date(sent.getFullYear(), sent.getMonth(), sent.getDate());
+
+  const diffDays = Math.floor(
+    (startOfToday.getTime() - startOfSentDay.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  if (diffDays === 0) return sent.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  if (diffDays === 1) return "1 day ago";
+  if (diffDays > 1 && diffDays < 7) return `${diffDays} days ago`;
+
+  return sent.toLocaleDateString([], { day: "2-digit", month: "short" });
+};
+
 export const ChatWindow: React.FC<ChatWindowProps> = ({
   isOpen,
   chatId,
   chatTitle,
   isGroup,
   isAdmin,
+  otherUserId,
   onClose,
 }) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   const currentUserId: number | null = useMemo(() => {
@@ -45,37 +67,25 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   const [messages, setMessages] = useState<MessageDTO[]>([]);
   const [text, setText] = useState("");
 
-  
   const [page, setPage] = useState(0);
   const [first, setFirst] = useState(true);
 
-  
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  
   const [membersLoading, setMembersLoading] = useState(false);
   const [members, setMembers] = useState<ChatMemberDTO[]>([]);
   const [memberErr, setMemberErr] = useState<string | null>(null);
   const [removingId, setRemovingId] = useState<number | null>(null);
 
-  
   const [leaving, setLeaving] = useState(false);
   const [leaveErr, setLeaveErr] = useState<string | null>(null);
 
-  const listRef = useRef<HTMLDivElement | null>(null);
+ 
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
+  const [editingSaving, setEditingSaving] = useState(false);
 
-  
-  useEffect(() => {
-    if (!isOpen) return;
-    const handle = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        if (settingsOpen) setSettingsOpen(false);
-        else onClose();
-      }
-    };
-    window.addEventListener("keydown", handle);
-    return () => window.removeEventListener("keydown", handle);
-  }, [isOpen, onClose, settingsOpen]);
+  const listRef = useRef<HTMLDivElement | null>(null);
 
   const normalize = (arr: MessageDTO[]) =>
     [...arr].sort((a, b) => +new Date(a.sentAt) - +new Date(b.sentAt));
@@ -102,7 +112,69 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     });
   };
 
-  
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditText("");
+    setEditingSaving(false);
+  };
+
+  const saveEdit = async (messageId: number) => {
+    if (!chatId) return;
+    const next = editText.trim();
+    if (!next) return;
+
+    try {
+      setEditingSaving(true);
+
+      const updated = await messageService.editMessage(chatId, messageId, next);
+
+      setMessages((prev) =>
+        prev.map((m) => (m.messageId === updated.messageId ? updated : m))
+      );
+
+      cancelEdit();
+    } catch (e) {
+      console.error("Failed to edit message", e);
+      setEditingSaving(false);
+    }
+  };
+
+  const handleClose = async () => {
+    
+    if (settingsOpen) {
+      setSettingsOpen(false);
+      return;
+    }
+
+    
+    if (editingId != null) {
+      cancelEdit();
+      return;
+    }
+
+    if (leaving) return;
+
+    if (chatId && !isGroup && messages.length === 0) {
+      try {
+        await chatService.deleteIfEmpty(chatId);
+      } catch (e) {
+        console.error("Failed to delete empty chat", e);
+      }
+    }
+
+    onClose();
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handle = (e: KeyboardEvent) => {
+      if (e.key === "Escape") void handleClose();
+    };
+    window.addEventListener("keydown", handle);
+    return () => window.removeEventListener("keydown", handle);
+    
+  }, [isOpen, chatId, isGroup, settingsOpen, leaving, messages.length, editingId]);
+
   useEffect(() => {
     if (!isOpen || !chatId) return;
 
@@ -110,7 +182,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       try {
         setLoading(true);
 
-        
         setSettingsOpen(false);
         setMembers([]);
         setMemberErr(null);
@@ -124,6 +195,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         setPage(0);
         setFirst(true);
 
+        cancelEdit();
+
         await loadPage(0, "replace");
         setTimeout(scrollToBottom, 0);
       } catch (e) {
@@ -133,6 +206,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         setLoading(false);
       }
     })();
+    
   }, [isOpen, chatId]);
 
   const loadEarlier = async () => {
@@ -182,7 +256,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     setMemberErr(null);
     setLeaveErr(null);
 
-    
     if (isAdmin) {
       try {
         setMembersLoading(true);
@@ -196,7 +269,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         setMembersLoading(false);
       }
     }
-    
   };
 
   const removeMember = async (memberUserId: number) => {
@@ -218,15 +290,15 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   const canRemove = (m: ChatMemberDTO) => {
     if (!isAdmin) return false;
     if (currentUserId == null) return false;
-    if (m.userId === currentUserId) return false; 
-    if (String(m.chatRole).toLowerCase() === "admin") return false; 
+    if (m.userId === currentUserId) return false;
+    if (String(m.chatRole).toLowerCase() === "admin") return false;
     return true;
   };
 
   const leaveGroup = async () => {
     if (!chatId) return;
     if (!isGroup) return;
-    if (isAdmin) return; 
+    if (isAdmin) return;
     if (currentUserId == null) return;
 
     try {
@@ -235,7 +307,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
       await chatService.removeMember(chatId, currentUserId);
 
-      
       setSettingsOpen(false);
       onClose();
     } catch (e) {
@@ -250,28 +321,56 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
   return (
     <>
-      <div className="chatwin-backdrop" onClick={onClose} />
+      <div className="chatwin-backdrop" onClick={() => void handleClose()} />
 
-      <section className="chatwin" role="dialog" aria-label="Chat window" onClick={(e) => e.stopPropagation()}>
+      <section
+        className="chatwin"
+        role="dialog"
+        aria-label="Chat window"
+        onClick={(e) => e.stopPropagation()}
+      >
         <header className="chatwin__header">
           <div className="chatwin__title">
             <div className="chatwin__avatar">
               <span>{toInitials(chatTitle)}</span>
             </div>
+
             <div className="chatwin__titleText">
-              <div className="chatwin__name">{chatTitle}</div>
+              <div
+                className={`chatwin__name ${!isGroup ? "chatwin__nameLink" : ""}`}
+                onClick={() => {
+                  if (!isGroup && otherUserId) {
+                    navigate(`/profile/${otherUserId}`);
+                  }
+                }}
+                title={!isGroup ? "Open profile" : undefined}
+                role={!isGroup ? "link" : undefined}
+              >
+                {chatTitle}
+              </div>
+
               <div className="chatwin__meta">{isGroup ? "Group chat" : "Direct message"}</div>
             </div>
           </div>
 
           <div className="chatwin__actions">
-            
             {isGroup && (
-              <button className="chatwin__iconBtn" onClick={openSettings} aria-label="Chat settings" title="Chat settings">
+              <button
+                className="chatwin__iconBtn"
+                onClick={openSettings}
+                aria-label="Chat settings"
+                title="Chat settings"
+              >
                 ⚙
               </button>
             )}
-            <button className="chatwin__iconBtn" onClick={onClose} aria-label="Close" title="Close">
+
+            <button
+              className="chatwin__iconBtn"
+              onClick={() => void handleClose()}
+              aria-label="Close"
+              title="Close"
+            >
               ✕
             </button>
           </div>
@@ -292,6 +391,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             ) : (
               messages.map((m) => {
                 const mine = currentUserId != null && Number(m.userId) === Number(currentUserId);
+                const isEditingThis = editingId === m.messageId;
+
                 return (
                   <div key={m.messageId} className={`chatmsg ${mine ? "mine" : ""}`}>
                     {!mine && (
@@ -306,9 +407,54 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
                     <div className="chatmsg__bubble">
                       {!mine && <div className="chatmsg__sender">{m.senderName ?? "User"}</div>}
-                      <div className="chatmsg__text">{m.content}</div>
-                      <div className="chatmsg__time">
-                        {new Date(m.sentAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+
+                      
+                      {mine && isEditingThis ? (
+                        <div className="chatmsg__editWrap">
+                          <input
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") void saveEdit(m.messageId);
+                              if (e.key === "Escape") cancelEdit();
+                            }}
+                            disabled={editingSaving}
+                          />
+                          <div className="chatmsg__editActions">
+                            <span
+                              className="chatmsg__editAction"
+                              role="link"
+                              onClick={() => void saveEdit(m.messageId)}
+                            >
+                              {editingSaving ? "Saving…" : "Save"}
+                            </span>
+                            <span className="chatmsg__editAction" role="link" onClick={cancelEdit}>
+                              Cancel
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="chatmsg__text">{m.content}</div>
+                      )}
+
+                      <div className="chatmsg__timeRow">
+                        <div className="chatmsg__time">{formatMessageTimestamp(m.sentAt)}</div>
+
+                        
+                        {mine && !isEditingThis && (
+                          <span
+                            className="chatmsg__editLink"
+                            role="link"
+                            title="Edit message"
+                            onClick={() => {
+                              setEditingId(m.messageId);
+                              setEditText(m.content);
+                            }}
+                          >
+                            Edit
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -325,7 +471,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
-                  send();
+                  void send();
                 }
               }}
             />
@@ -335,18 +481,22 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           </div>
         </div>
 
-        
         {settingsOpen && (
           <aside className="chatwin__settings" role="dialog" aria-label="Chat settings">
             <div className="chatwin__settingsHeader">
-              <div className="chatwin__settingsTitle">{isAdmin ? "Group members" : "Group settings"}</div>
-              <button className="chatwin__iconBtn" onClick={() => setSettingsOpen(false)} aria-label="Close settings">
+              <div className="chatwin__settingsTitle">
+                {isAdmin ? "Group members" : "Group settings"}
+              </div>
+              <button
+                className="chatwin__iconBtn"
+                onClick={() => setSettingsOpen(false)}
+                aria-label="Close settings"
+              >
                 ✕
               </button>
             </div>
 
             <div className="chatwin__settingsBody">
-              
               {isAdmin ? (
                 <>
                   {memberErr && <div className="chatwin__placeholder">{memberErr}</div>}
@@ -356,25 +506,40 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                   ) : (
                     <ul className="chatwin__members">
                       {members.map((m) => {
-                        const fullName = `${m.firstName ?? ""} ${m.lastName ?? ""}`.trim() || `User ${m.userId}`;
-                        const role = String(m.chatRole || "").toLowerCase() === "admin" ? "Admin" : "Member";
+                        const fullName =
+                          `${m.firstName ?? ""} ${m.lastName ?? ""}`.trim() || `User ${m.userId}`;
+                        const role =
+                          String(m.chatRole || "").toLowerCase() === "admin" ? "Admin" : "Member";
+
+                        const goProfile = () => navigate(`/profile/${m.userId}`);
 
                         return (
                           <li key={m.chatMemberId} className="chatwin__member">
-                            <div className="chatwin__memberLeft">
+                            <div
+                              className="chatwin__memberLeft chatwin__memberLeftLink"
+                              onClick={goProfile}
+                              role="link"
+                              title="Open profile"
+                            >
                               <div className="chatwin__memberAvatar">
                                 <span>{toInitials(fullName)}</span>
                               </div>
+
                               <div className="chatwin__memberName">
-                                {fullName}{" "}
-                                <span style={{ opacity: 0.7, fontWeight: 700, marginLeft: 6 }}>· {role}</span>
+                                {fullName}
+                                <span style={{ opacity: 0.7, fontWeight: 700, marginLeft: 6 }}>
+                                  · {role}
+                                </span>
                               </div>
                             </div>
 
                             {canRemove(m) && (
                               <button
                                 className="chatwin__removeBtn"
-                                onClick={() => removeMember(m.userId)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  void removeMember(m.userId);
+                                }}
                                 disabled={removingId === m.userId}
                               >
                                 {removingId === m.userId ? "Removing…" : "Remove"}
@@ -387,7 +552,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                   )}
                 </>
               ) : (
-                
                 <>
                   {leaveErr && <div className="chatwin__placeholder">{leaveErr}</div>}
 
@@ -410,3 +574,5 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     </>
   );
 };
+
+

@@ -14,6 +14,10 @@ export interface SendMessageRequest {
   content: string;
 }
 
+export interface EditMessageRequest {
+  content: string;
+}
+
 export interface PageResponse<T> {
   content: T[];
   totalElements: number;
@@ -39,6 +43,18 @@ export const messageService = {
     const res = await apiClient.post<MessageDTO>(
       `${BASE}/${chatId}/messages`,
       { content } satisfies SendMessageRequest
+    );
+    return res.data;
+  },
+
+  editMessage: async (
+    chatId: number,
+    messageId: number,
+    content: string
+  ): Promise<MessageDTO> => {
+    const res = await apiClient.put<MessageDTO>(
+      `${BASE}/${chatId}/messages/${messageId}`,
+      { content } satisfies EditMessageRequest
     );
     return res.data;
   },

@@ -408,3 +408,61 @@
   cursor: not-allowed;
 }
 
+.chatwin__nameLink {
+  cursor: pointer;
+}
+
+.chatwin__nameLink:hover {
+  text-decoration: underline;
+}
+
+
+.chatwin__memberLeftLink {
+  cursor: pointer;
+}
+
+.chatwin__memberLeftLink:hover .chatwin__memberName {
+  text-decoration: underline;
+}
+
+
+.chatmsg__timeRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.chatmsg__editLink {
+  cursor: pointer;
+  opacity: 0.7;
+  font-size: 12px;
+}
+
+.chatmsg__editLink:hover {
+  text-decoration: underline;
+  opacity: 1;
+}
+
+.chatmsg__editWrap input {
+  width: 100%;
+}
+
+.chatmsg__editActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.chatmsg__editAction {
+  cursor: pointer;
+}
+
+.chatmsg__editAction:hover {
+  text-decoration: underline;
+}
+
+
+

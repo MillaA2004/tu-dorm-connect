@@ -15,6 +15,8 @@ import UserProfilePage from "./pages/UserProfilePage";
 import { AuthProvider } from "./services/AuthContext";
 import MyEventsPage from "./pages/MyEventsPage";
 import MyJoinedEventsPage from "./pages/MyJoinedEventsPage";
+import PostPage from "./pages/PostPage";
+import PostDetailsPage from "./pages/PostDetailsPage";
 
 const App: React.FC = () => {
   return (
@@ -36,8 +38,9 @@ const App: React.FC = () => {
           <Route path="/profile/me" element={<UserProfilePage />} />
           <Route path = "/events/joined" element= {<MyJoinedEventsPage/>} />
           <Route path="/events/mine" element={<MyEventsPage />} />
+          <Route path = "/posts" element = {<PostPage />} />
+          <Route path="/posts/:postId" element={<PostDetailsPage />} />
           
-
         </Routes>
       </BrowserRouter>
     </APIProvider>

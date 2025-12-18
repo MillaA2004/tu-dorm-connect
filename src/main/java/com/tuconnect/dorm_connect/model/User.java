@@ -3,6 +3,7 @@ package com.tuconnect.dorm_connect.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.util.List;
 
 @Entity
@@ -46,6 +47,12 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Roles role;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean deleted;
+
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Questionnaire questionnaire;

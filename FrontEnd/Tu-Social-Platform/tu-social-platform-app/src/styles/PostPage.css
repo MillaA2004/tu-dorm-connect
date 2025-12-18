@@ -1,0 +1,50 @@
+/* src/pages/posts.css (or wherever you keep page css) */
+
+.postsPage {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+  
+}
+
+.postsTitle {
+  margin: 0;
+}
+
+.createPost {
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+
+.createPostForm {
+  display: grid;
+  gap: 10px;
+}
+
+.createPostInput {
+  width: 100%;
+  resize: vertical;
+}
+
+.createPostActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Reuse these from PostCard if you already pasted them */
+.primaryBtn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #111;
+  background: #111;
+  color: #fff;
+  cursor: pointer;
+}
+
+.errorText {
+  color: #b00020;
+}

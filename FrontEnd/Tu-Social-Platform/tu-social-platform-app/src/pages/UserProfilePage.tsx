@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import UserDetails, {
   type UserProfileData,
   type UserProfileUpdate,
@@ -8,14 +8,25 @@ import {
   getUserById,
   getUserByEmail,
   updateUser,
+  deleteUser,
   type UserDTO,
 } from "../services/UserService";
-import { useAuth } from "../services/AuthContext"; 
+import { useAuth } from "../services/AuthContext";
 import Header from "../components/Header";
+import MyPostList from "../components/MyPostList";
+import MyEventList from "../components/UserEventList";
+import type { EventItem } from "../types";
+
+
+import { chatService } from "../services/ChatService";
+import { ChatWindow } from "../components/ChatWindow";
+
+type Tab = "posts" | "events";
 
 const UserProfilePage: React.FC = () => {
   const { userId: userIdParam } = useParams<{ userId?: string }>();
-  const { user } = useAuth(); 
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [userDto, setUserDto] = useState<UserDTO | null>(null);
@@ -24,6 +35,12 @@ const UserProfilePage: React.FC = () => {
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [activeTab, setActiveTab] = useState<Tab>("posts");
+
+ 
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatState, setChatState] = useState<null | { chatId: number; title: string }>(null);
+
   useEffect(() => {
     let isCancelled = false;
 
@@ -31,7 +48,6 @@ const UserProfilePage: React.FC = () => {
       setError(null);
       setNotFound(false);
 
-      
       if (!userIdParam && !user) {
         setLoading(false);
         return;
@@ -43,7 +59,6 @@ const UserProfilePage: React.FC = () => {
         let result: { dto: UserDTO; profile: UserProfileData };
 
         if (userIdParam) {
-         
           const id = Number(userIdParam);
           if (Number.isNaN(id)) {
             setNotFound(true);
@@ -51,7 +66,6 @@ const UserProfilePage: React.FC = () => {
           }
           result = await getUserById(id);
         } else {
-          
           if (!user?.email) {
             setNotFound(true);
             return;
@@ -66,10 +80,7 @@ const UserProfilePage: React.FC = () => {
       } catch (err: any) {
         if (isCancelled) return;
 
-        if (
-          err?.message === "USER_NOT_FOUND" ||
-          (err as any)?.code === "USER_NOT_FOUND"
-        ) {
+        if (err?.message === "USER_NOT_FOUND" || (err as any)?.code === "USER_NOT_FOUND") {
           setNotFound(true);
         } else {
           console.error("Failed to load user:", err?.response ?? err);
@@ -87,16 +98,13 @@ const UserProfilePage: React.FC = () => {
     };
   }, [userIdParam, user?.email]);
 
-  
+  useEffect(() => {
+    setActiveTab("posts");
+  }, [userIdParam]);
+
   if (!userIdParam && !user) {
     return (
-      <main
-        style={{
-          maxWidth: "1000px",
-          margin: "24px auto",
-          padding: "0 16px",
-        }}
-      >
+      <main style={{ maxWidth: "1000px", margin: "24px auto", padding: "0 16px" }}>
         <p>You must be logged in to view your profile.</p>
       </main>
     );
@@ -104,13 +112,7 @@ const UserProfilePage: React.FC = () => {
 
   if (loading) {
     return (
-      <main
-        style={{
-          maxWidth: "1000px",
-          margin: "24px auto",
-          padding: "0 16px",
-        }}
-      >
+      <main style={{ maxWidth: "1000px", margin: "24px auto", padding: "0 16px" }}>
         <p>Loading profile...</p>
       </main>
     );
@@ -118,13 +120,7 @@ const UserProfilePage: React.FC = () => {
 
   if (notFound) {
     return (
-      <main
-        style={{
-          maxWidth: "1000px",
-          margin: "24px auto",
-          padding: "0 16px",
-        }}
-      >
+      <main style={{ maxWidth: "1000px", margin: "24px auto", padding: "0 16px" }}>
         <p>User not found.</p>
       </main>
     );
@@ -132,25 +128,17 @@ const UserProfilePage: React.FC = () => {
 
   if (!profile) {
     return (
-      <main
-        style={{
-          maxWidth: "1000px",
-          margin: "24px auto",
-          padding: "0 16px",
-        }}
-      >
-        {error ? (
-          <p style={{ color: "crimson" }}>{error}</p>
-        ) : (
-          <p>Could not load profile.</p>
-        )}
+      <main style={{ maxWidth: "1000px", margin: "24px auto", padding: "0 16px" }}>
+        {error ? <p style={{ color: "crimson" }}>{error}</p> : <p>Could not load profile.</p>}
       </main>
     );
   }
 
+  const isCurrentUser = !!user && !!userDto && userDto.email === user.email;
+
   
-  const isCurrentUser =
-    !!user && !!userDto && userDto.email === user.email;
+  const isAdmin = (user as any)?.role === "Admin" || (user as any)?.isAdmin === true;
+  const canDelete = (isCurrentUser || isAdmin) && !!userDto?.userId;
 
   const handleSaveProfile = async (updated: UserProfileUpdate) => {
     if (!userDto) return;
@@ -158,7 +146,7 @@ const UserProfilePage: React.FC = () => {
     try {
       setError(null);
 
-      const userId = userDto.userId; 
+      const userId = userDto.userId;
 
       const updatedDto: UserDTO = {
         ...userDto,
@@ -166,7 +154,6 @@ const UserProfilePage: React.FC = () => {
         lastName: updated.lastName,
         major: updated.major,
         year: updated.academicYear,
-        
         profileImageUrl: userDto.profileImageUrl,
       };
 
@@ -183,28 +170,106 @@ const UserProfilePage: React.FC = () => {
     }
   };
 
+  const handleDeleteProfile = async () => {
+    if (!userDto?.userId) return;
+
+    try {
+      setError(null);
+      await deleteUser(userDto.userId);
+      navigate("/register", { replace: true });
+    } catch (err) {
+      console.error(err);
+      setError("Failed to delete profile.");
+    }
+  };
+
+  
+  const handleMessage = async () => {
+    if (!userDto?.userId) return;
+
+    try {
+      setError(null);
+
+      
+      const chat = await chatService.createDirectChat(userDto.userId);
+
+      const title =
+        `${profile.firstName} ${profile.lastName}`.trim() ||
+        chat.name ||
+        "Direct message";
+
+      setChatState({ chatId: Number(chat.chatId), title });
+      setChatOpen(true);
+    } catch (e) {
+      console.error("Failed to open chat:", e);
+      setError("Failed to open chat.");
+    }
+  };
+
+  const handleCheckLocation = (event: EventItem) => {
+    console.log("Check location for event:", event);
+  };
+
+  const shownUserId = userDto?.userId;
+
   return (
     <>
-    <Header/>
-    
-    <main
-      style={{
-        maxWidth: "1000px",
-        margin: "24px auto",
-        padding: "0 16px",
-      }}
-    >
-      {error && (
-        <p style={{ color: "crimson", marginBottom: "12px" }}>{error}</p>
-      )}
+      <Header />
 
-      <UserDetails
-        {...profile}
-        isCurrentUser={isCurrentUser}
-        onSaveProfile={handleSaveProfile}
-        onMessage={() => console.log("Message clicked")}
+      <main style={{ maxWidth: "1000px", margin: "24px auto", padding: "0 16px" }}>
+        {error && <p style={{ color: "crimson", marginBottom: "12px" }}>{error}</p>}
+
+        <UserDetails
+          {...profile}
+          isCurrentUser={isCurrentUser}
+          canDelete={canDelete}
+          onSaveProfile={handleSaveProfile}
+          onMessage={handleMessage}
+          onDelete={handleDeleteProfile}
+        />
+
+        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 24, marginBottom: 12 }}>
+          <button
+            className={`hero-action-button ${activeTab === "posts" ? "active" : ""}`}
+            onClick={() => setActiveTab("posts")}
+          >
+            Posts
+          </button>
+
+          <button
+            className={`hero-action-button ${activeTab === "events" ? "active" : ""}`}
+            onClick={() => setActiveTab("events")}
+          >
+            Events
+          </button>
+        </div>
+
+        {shownUserId && activeTab === "posts" && (
+          <section style={{ marginTop: 12 }}>
+            <MyPostList userId={shownUserId} />
+          </section>
+        )}
+
+        {shownUserId && activeTab === "events" && (
+          <section style={{ marginTop: 12 }}>
+            <MyEventList userId={shownUserId} onCheckLocation={handleCheckLocation} />
+          </section>
+        )}
+      </main>
+
+      
+      <ChatWindow
+        isOpen={chatOpen}
+        chatId={chatState?.chatId ?? null}
+        chatTitle={chatState?.title ?? "Chat"}
+        isGroup={false}
+        isAdmin={false}
+        otherUserId={isCurrentUser ? null : (userDto?.userId ?? null)} //ako neshto se scbupi gledai tuk!
+          onClose={() => {
+          setChatOpen(false);
+          setChatState(null);
+        }}
       />
-    </main>
     </>
   );
 };
