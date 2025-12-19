@@ -4,9 +4,13 @@ import com.tuconnect.dorm_connect.dto.Review.ReviewRequestDTO;
 import com.tuconnect.dorm_connect.dto.Review.ReviewResponseDTO;
 import com.tuconnect.dorm_connect.mapper.ReviewMapper;
 import com.tuconnect.dorm_connect.model.Review;
+import com.tuconnect.dorm_connect.repository.DormRepository;
 import com.tuconnect.dorm_connect.repository.ReviewRepository;
+import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.ReviewService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,42 +21,72 @@ public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final ReviewMapper reviewMapper;
+    private final UserRepository userRepository;
+    private final DormRepository dormRepository;
 
-    public ReviewServiceImpl(ReviewRepository reviewRepository, ReviewMapper reviewMapper) {
+    public ReviewServiceImpl(ReviewRepository reviewRepository, ReviewMapper reviewMapper,UserRepository userRepository,DormRepository dormRepository) {
         this.reviewRepository = reviewRepository;
         this.reviewMapper = reviewMapper;
+        this.userRepository=userRepository;
+        this.dormRepository=dormRepository;
     }
 
     @Override
-    public ReviewResponseDTO createReview(ReviewRequestDTO dto) {
+    @Transactional
+    public ReviewResponseDTO createReview(
+            ReviewRequestDTO dto,
+            Authentication authentication
+    ) {
+        var user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (dto.userId() == null)
-            throw new IllegalArgumentException("userId is required");
+        var dorm = dormRepository.findById(dto.dormId())
+                .orElseThrow(() -> new IllegalArgumentException("Dorm not found"));
 
-        if (dto.dormId() == null)
-            throw new IllegalArgumentException("dormId is required");
+
+        if (dto.rating() == null || dto.rating() < 1 || dto.rating() > 5) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5");
+        }
+
+
+        if (reviewRepository.existsByUserAndDorm(user, dorm)) {
+            throw new IllegalStateException("You already reviewed this dorm");
+        }
 
         Review review = reviewMapper.toEntity(dto);
+        review.setUser(user);
+        review.setDorm(dorm);
         review.setCreatedAt(LocalDateTime.now());
 
         Review saved = reviewRepository.save(review);
-
         return reviewMapper.toDTO(saved);
     }
 
     @Override
-    public ReviewResponseDTO updateReview(Long id, ReviewRequestDTO dto) {
+    @Transactional
+    public ReviewResponseDTO updateReview(Long reviewId, ReviewRequestDTO dto, Authentication authentication) {
 
-        Review existing = reviewRepository.findById(id)
+        var existingReview = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new EntityNotFoundException("Review not found"));
 
-        Review updated = reviewMapper.toEntity(dto);
-        updated.setId(existing.getId());
-        updated.setCreatedAt(existing.getCreatedAt()); // запазваме createdAt
+        var user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        Review saved = reviewRepository.save(updated);
+        if(!existingReview.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("Not allowed to edin other users reviews!");
+        }
 
+        if (dto.rating() == null || dto.rating() < 1 || dto.rating() > 5) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5");
+        }
+
+        existingReview.setComment(dto.comment());
+        existingReview.setRating(dto.rating());
+
+
+        Review saved = reviewRepository.save(existingReview);
         return reviewMapper.toDTO(saved);
+
     }
 
     @Override
@@ -63,13 +97,6 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewMapper.toDTO(rev);
     }
 
-    @Override
-    public List<ReviewResponseDTO> getAllReviews() {
-        return reviewRepository.findAll()
-                .stream()
-                .map(reviewMapper::toDTO)
-                .toList();
-    }
 
     @Override
     public void deleteReview(Long id) {
@@ -88,10 +115,16 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<ReviewResponseDTO> getReviewsByUser(Long userId) {
-        return reviewRepository.findByUserId(userId)
-                .stream()
-                .map(reviewMapper::toDTO)
-                .toList();
+    @Transactional
+    public Double getAverageRatingForDorm(Long dormId) {
+
+        if (!dormRepository.existsById(dormId)) {
+            throw new EntityNotFoundException("Dorm not found");
+        }
+
+        Double avg = reviewRepository.findAverageRatingByDormId(dormId);
+        return avg != null ? avg : 0.0;
     }
+
+
 }
