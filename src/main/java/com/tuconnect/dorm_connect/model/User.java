@@ -54,14 +54,10 @@ public class User {
     @Column(name = "deleted_at")
     private Instant deletedAt;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
     private Questionnaire questionnaire;
 
-    @ManyToOne
-    @JoinColumn(name = "dorm_id")
-    private Dorm dorm;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "poster", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Listing> listings;
 
     @OneToMany(mappedBy = "user")

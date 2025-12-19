@@ -11,8 +11,6 @@ public interface DormMapper {
     // Request → Entity
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "reviews", ignore = true)
-    @Mapping(target = "livingPeople", ignore = true)
-    @Mapping(target = "listings", ignore = true)
     Dorm toEntity(DormRequestDTO dto);
 
     // Entity → Response

@@ -23,7 +23,6 @@ public interface UserMatchMapper {
                 user.getLastName(),
                 user.getMajor(),
                 user.getProfileImageUrl(),
-                user.getDorm() != null ? user.getDorm().getName() : null,
                 user.getAcademicYear()
         );
     }

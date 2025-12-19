@@ -8,10 +8,8 @@ public record ListingResponseDTO(
         String description,
         Double price,
         String preferencesJson,
-        Long dormId,
         String dormName,
-        Long userId,
-        //String username,
+        Long posterId,
         Boolean isActive,
         LocalDateTime createdAt,
         LocalDateTime expiresAt
