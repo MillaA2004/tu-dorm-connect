@@ -82,7 +82,7 @@ class ListingServiceImplTest {
 
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> listingService.createListing(dto));
+        assertThrows(EntityNotFoundException.class, () -> listingService.createListing(dto.posterId(), dto));
     }
 
     @Test
@@ -100,7 +100,7 @@ class ListingServiceImplTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(questionnaireRepository.findByUserId(1L)).thenReturn(null);
 
-        assertThrows(IllegalStateException.class, () -> listingService.createListing(dto));
+        assertThrows(IllegalStateException.class, () -> listingService.createListing(dto.posterId(), dto));
     }
 
     @Test
@@ -114,7 +114,7 @@ class ListingServiceImplTest {
                 100.0,                    // price
                 null,                     // preferencesJson (or a JSON string if you want)
                 "Dorm A",                 // dormName
-                1L,                       // userId
+                1L,                       // posterId
                 true,                     // isActive
                 LocalDateTime.now(),      // createdAt
                 LocalDateTime.now().plusDays(5) // expiresAt
@@ -133,7 +133,7 @@ class ListingServiceImplTest {
         Listing listing = new Listing();
         User owner = new User();
         owner.setId(1L);
-        listing.setUser(owner);
+        listing.setPoster(owner);
 
         when(listingRepository.findById(1L)).thenReturn(Optional.of(listing));
 
