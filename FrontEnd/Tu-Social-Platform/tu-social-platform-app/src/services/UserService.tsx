@@ -114,4 +114,22 @@ export async function updateUser(
     dto,
     profile: mapDtoToProfile(dto),
   };
+
+  
 }
+
+export async function deleteUser(userId: number): Promise<void> {
+  try {
+    await apiClient.delete(`${USERS_BASE}/${userId}`);
+  } catch (err: any) {
+    // optional: normalize 404 into your existing pattern
+    if (err?.response?.status === 404) {
+      const e = new Error("USER_NOT_FOUND");
+      (e as any).code = "USER_NOT_FOUND";
+      throw e;
+    }
+    console.error("deleteUser failed:", err?.response ?? err);
+    throw err;
+  }
+}
+

@@ -3,6 +3,7 @@ package com.tuconnect.dorm_connect.controller;
 import com.tuconnect.dorm_connect.dto.User.UserDTO;
 import com.tuconnect.dorm_connect.dto.auth.JwtResponse;
 import com.tuconnect.dorm_connect.dto.auth.LoginRequest;
+import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.security.JwtTokenProvider;
 import com.tuconnect.dorm_connect.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +28,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
+    private final UserRepository userRepository;
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest loginRequest) {
@@ -35,6 +38,14 @@ public class AuthController {
                         loginRequest.getPassword()
                 )
         );
+
+        String email = authentication.getName();
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User missing"));
+
+        if (user.isDeleted()) {
+            throw new DisabledException("Account deleted");
+        }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 

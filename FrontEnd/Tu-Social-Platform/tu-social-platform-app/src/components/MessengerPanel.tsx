@@ -5,7 +5,6 @@ import { chatService, type ChatDTO } from "../services/ChatService";
 import { ChatWindow } from "./ChatWindow";
 import { useAuth } from "../services/AuthContext";
 
-
 type ConversationEx = Conversation & {
   chatIdNum: number;
   isGroup: boolean;
@@ -26,25 +25,64 @@ const toInitials = (name: string) =>
     .toUpperCase()
     .slice(0, 2);
 
-const mapChatToConversation = (c: ChatDTO): ConversationEx => {
-  const isGroup = c.groupChat;
+const formatChatTimestamp = (iso: string) => {
+  const sent = new Date(iso);
+  const now = new Date();
 
-  const title = isGroup ? (c.name ?? "Group") : (c.lastMessage?.senderName ?? "Direct chat");
-  const avatarUrl = isGroup ? "" : (c.lastMessage?.senderImageUrl ?? "");
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfSentDay = new Date(sent.getFullYear(), sent.getMonth(), sent.getDate());
 
-  return {
-    id: String(c.chatId),
-    chatIdNum: Number(c.chatId),
-    isGroup,
-    members: c.members ?? [],
+  const diffDays = Math.floor(
+    (startOfToday.getTime() - startOfSentDay.getTime()) / (1000 * 60 * 60 * 24)
+  );
 
-    name: title,
-    lastMessage: c.lastMessage?.content ?? "",
-    lastMessageAt: c.lastMessage?.sentAt ?? new Date(0).toISOString(),
-    unreadCount: (c as any).unreadCount ?? 0,
-    avatarUrl,
-  };
+  if (diffDays === 0) return sent.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  if (diffDays === 1) return "1 day ago";
+  if (diffDays > 1 && diffDays < 7) return `${diffDays} days ago`;
+
+  return sent.toLocaleDateString([], { day: "2-digit", month: "short" });
 };
+
+
+const mapChatToConversation =
+  (currentUserId: number) =>
+  (c: ChatDTO): ConversationEx => {
+    const isGroup = c.groupChat;
+    const members = c.members ?? [];
+
+    if (isGroup) {
+      return {
+        id: String(c.chatId),
+        chatIdNum: Number(c.chatId),
+        isGroup,
+        members,
+        name: c.name ?? "Group",
+        lastMessage: c.lastMessage?.content ?? "",
+        lastMessageAt: c.lastMessage?.sentAt ?? new Date(0).toISOString(),
+        unreadCount: (c as any).unreadCount ?? 0,
+        avatarUrl: "",
+      };
+    }
+
+    const other = members.find((m) => Number(m.userId) !== Number(currentUserId));
+
+    const otherName =
+      `${other?.firstName ?? ""} ${other?.lastName ?? ""}`.trim() || "Direct chat";
+
+    const otherAvatar = other?.imageUrl ?? "";
+
+    return {
+      id: String(c.chatId),
+      chatIdNum: Number(c.chatId),
+      isGroup,
+      members,
+      name: otherName,
+      lastMessage: c.lastMessage?.content ?? "",
+      lastMessageAt: c.lastMessage?.sentAt ?? new Date(0).toISOString(),
+      unreadCount: (c as any).unreadCount ?? 0,
+      avatarUrl: otherAvatar,
+    };
+  };
 
 export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose }) => {
   const { user } = useAuth();
@@ -59,6 +97,7 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose })
     title: string;
     isGroup: boolean;
     isAdmin: boolean;
+    otherUserId: number | null;
   }>(null);
 
   useEffect(() => {
@@ -77,7 +116,10 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose })
       try {
         setLoading(true);
         const data = await chatService.getMyChats();
-        const mapped = data.map(mapChatToConversation);
+
+        
+        const mapped = data.map(mapChatToConversation(currentUserId));
+
         mapped.sort((a, b) => +new Date(b.lastMessageAt) - +new Date(a.lastMessageAt));
         setChats(mapped);
       } catch (e) {
@@ -87,7 +129,7 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose })
         setLoading(false);
       }
     })();
-  }, [isOpen]);
+  }, [isOpen, currentUserId]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -123,44 +165,48 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose })
             {filtered.map((conv) => {
               const isAdmin =
                 conv.isGroup &&
-                conv.members?.some((m) => m.userId === currentUserId && m.chatRole === "Admin");
+                conv.members?.some((m: any) => m.userId === currentUserId && m.chatRole === "Admin");
+
+              const otherUserId =
+                !conv.isGroup
+                  ? (conv.members as any[])?.find((m) => Number(m.userId) !== Number(currentUserId))
+                      ?.userId ?? null
+                  : null;
 
               return (
                 <li key={conv.id} className="messages-panel__item">
-                  
-
                   <button
-  className="messages-panel__item-btn"
-  onClick={async () => {
-    setSelected({
-      chatId: conv.chatIdNum,
-      title: conv.name,
-      isGroup: conv.isGroup,
-      isAdmin,
-    });
+                    className="messages-panel__item-btn"
+                    onClick={async () => {
+                      setSelected({
+                        chatId: conv.chatIdNum,
+                        title: conv.name,
+                        isGroup: conv.isGroup,
+                        isAdmin,
+                        otherUserId,
+                      });
 
-    
-    if (conv.unreadCount > 0) {
-      
-      setChats(prev =>
-        prev.map(c =>
-          c.chatIdNum === conv.chatIdNum
-            ? { ...c, unreadCount: 0 }
-            : c
-        )
-      );
+                      if (conv.unreadCount > 0) {
+                        setChats((prev) =>
+                          prev.map((c) =>
+                            c.chatIdNum === conv.chatIdNum ? { ...c, unreadCount: 0 } : c
+                          )
+                        );
 
-      try {
-        await chatService.markAsRead(conv.chatIdNum);
-      } catch (e) {
-        console.error("Failed to mark chat as read", e);
-      }
-    }
-  }}
->
-
+                        try {
+                          await chatService.markAsRead(conv.chatIdNum);
+                        } catch (e) {
+                          console.error("Failed to mark chat as read", e);
+                        }
+                      }
+                    }}
+                  >
                     <div className="messages-panel__avatar">
-                      {conv.avatarUrl ? <img src={conv.avatarUrl} alt={conv.name} /> : <span>{toInitials(conv.name)}</span>}
+                      {conv.avatarUrl ? (
+                        <img src={conv.avatarUrl} alt={conv.name} />
+                      ) : (
+                        <span>{toInitials(conv.name)}</span>
+                      )}
                     </div>
 
                     <div className="messages-panel__content">
@@ -168,14 +214,16 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose })
                         <span className="messages-panel__name">{conv.name}</span>
                         <span className="messages-panel__time">
                           {conv.lastMessageAt && conv.lastMessageAt !== new Date(0).toISOString()
-                            ? new Date(conv.lastMessageAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                            ? formatChatTimestamp(conv.lastMessageAt)
                             : ""}
                         </span>
                       </div>
 
                       <div className="messages-panel__bottom-row">
                         <span className="messages-panel__last-message">{conv.lastMessage || " "}</span>
-                        {conv.unreadCount > 0 && <span className="messages-panel__badge">{conv.unreadCount}</span>}
+                        {conv.unreadCount > 0 && (
+                          <span className="messages-panel__badge">{conv.unreadCount}</span>
+                        )}
                       </div>
                     </div>
                   </button>
@@ -192,9 +240,9 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose })
         chatTitle={selected?.title ?? "Chat"}
         isGroup={!!selected?.isGroup}
         isAdmin={!!selected?.isAdmin}
+        otherUserId={selected?.otherUserId ?? null}
         onClose={() => setSelected(null)}
       />
     </>
   );
 };
-

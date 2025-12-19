@@ -2,7 +2,9 @@ package com.tuconnect.dorm_connect.controller;
 
 import com.tuconnect.dorm_connect.dto.Post.PostCreateRequest;
 import com.tuconnect.dorm_connect.dto.Post.PostResponse;
+import com.tuconnect.dorm_connect.dto.Post.PostUpdateRequest;
 import com.tuconnect.dorm_connect.service.PostService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,14 +20,22 @@ public class PostController {
     }
 
     @PostMapping
-    public PostResponse createPost(@RequestBody PostCreateRequest request) {
-        return postService.createPost(request);
+    public PostResponse createPost(@RequestBody PostCreateRequest request, Authentication authentication) {
+        return postService.createPost(request, authentication);
     }
 
     @DeleteMapping("/{postId}")
-    public void deletePost(@PathVariable Long postId) {
-        postService.deletePost(postId);
+    public void deletePost(@PathVariable Long postId, Authentication authentication) {
+        postService.deletePost(postId, authentication);
     }
+
+    @PutMapping("/{postId}")
+    public PostResponse updatePost(@PathVariable Long postId,
+                                   @RequestBody PostUpdateRequest request,
+                                   Authentication authentication) {
+        return postService.updatePost(postId, request, authentication);
+    }
+
 
     @GetMapping
     public List<PostResponse> getAll() {

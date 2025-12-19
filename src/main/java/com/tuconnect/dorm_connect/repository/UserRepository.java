@@ -18,4 +18,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByQuestionnaireIsNotNull();
 
     List<User> findByQuestionnaireIsNotNullAndListingsIsNotEmpty();
+
+    Optional<User> findByIdAndDeletedFalse(Long id);
+
+    Optional<User> findByEmailAndDeletedFalse(String email);
 }

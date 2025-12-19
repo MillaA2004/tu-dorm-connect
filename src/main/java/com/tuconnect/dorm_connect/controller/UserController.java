@@ -31,11 +31,13 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+        userService.softDeleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
 
 
     @PutMapping(

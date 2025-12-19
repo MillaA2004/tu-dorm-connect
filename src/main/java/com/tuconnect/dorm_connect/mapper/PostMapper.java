@@ -9,8 +9,8 @@ import org.mapstruct.MappingConstants;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface PostMapper {
 
-    @Mapping(target = "authorId", source = "author.id")
-    @Mapping(target = "authorFirstName", source = "author.firstName")
-    @Mapping(target = "authorLastName", source = "author.lastName")
+    @Mapping(target = "author", source = "author")
+    @Mapping(target = "comments", source = "comments")
     PostResponse toDTO(Post post);
+
 }

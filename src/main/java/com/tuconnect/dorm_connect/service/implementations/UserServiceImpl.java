@@ -1,4 +1,4 @@
-package com.tuconnect.dorm_connect.service.ServiceImpl;
+package com.tuconnect.dorm_connect.service.implementations;
 
 import com.tuconnect.dorm_connect.dto.User.UserDTO;
 import com.tuconnect.dorm_connect.mapper.UserMapper;
@@ -7,6 +7,7 @@ import com.tuconnect.dorm_connect.model.User;
 import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.CloudinaryService;
 import com.tuconnect.dorm_connect.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.TableGenerator;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -35,7 +37,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public Optional<UserDTO> getUserById(Long userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
+        Optional<User> userOptional = userRepository.findByIdAndDeletedFalse(userId);
         return userOptional.map(userMapper::toDTO);
     }
 
@@ -105,13 +107,25 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    @Transactional
+    public void softDeleteUser(Long id) {
+        User u = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-    public void deleteUser(Long userId) {
+        if (u.isDeleted()) return;
 
-        User existingUser = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        u.setDeleted(true);
+        u.setDeletedAt(Instant.now());
 
 
-        userRepository.delete(existingUser);
+        u.setFirstName("Deleted");
+        u.setLastName("User");
+        u.setProfileImageUrl(null);
+        u.setMajor("");
+        u.setAcademicYear(0);
+
+
+
+        userRepository.save(u);
     }
 }

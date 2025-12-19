@@ -5,6 +5,7 @@ import com.tuconnect.dorm_connect.service.ChatService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -103,5 +104,12 @@ public class ChatController {
     public void markAsRead(@PathVariable Long chatId, Principal principal) {
         chatService.markAsRead(chatId, principal.getName());
     }
+
+    @DeleteMapping("/{chatId}/if-empty")
+    public ResponseEntity<Void> deleteIfEmpty(@PathVariable Long chatId, Principal principal) {
+        chatService.deleteDirectChatIfEmpty(chatId, principal.getName());
+        return ResponseEntity.noContent().build();
+    }
+
 }
 
