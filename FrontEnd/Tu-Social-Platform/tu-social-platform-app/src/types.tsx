@@ -42,6 +42,26 @@ export interface ListingItem extends NewListing {
   isActive: boolean;
 }
 
+export interface ListingRequestDTO {
+  title: string;
+  description: string;
+  dorm: string;
+  price: number;
+  expiryDays: number | null;
+}
+
+export interface ListingResponseDTO {
+  id: number;
+  title: string;
+  description: string;
+  dorm: string;
+  price: number;
+  createdAt: string;
+  expiresAt: string | null;
+  isActive: boolean;
+  posterId: number;
+}
+
 export interface Message {
   id: string;
   text: string;

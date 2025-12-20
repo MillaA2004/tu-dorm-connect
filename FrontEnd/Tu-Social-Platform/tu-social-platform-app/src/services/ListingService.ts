@@ -22,6 +22,11 @@ class ListingService {
     return res.data;
   }
 
+  async getListingsByUserId(userId: number): Promise<ListingItem[]> {
+    const res = await apiClient.get(`${API_BASE}/user/${userId}`);
+    return res.data;
+  }
+
   async createListing(posterId: number, dto: any) {
     const res = await apiClient.post(`${API_BASE}/poster/${posterId}`, dto);
     return res.data;

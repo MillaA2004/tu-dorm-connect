@@ -1,65 +1,51 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Plus, X, Filter, DollarSign, Home } from "lucide-react";
-import { listingService } from "../services/ListingService";
+import Header from "../components/Header";
 import ListingList from "../components/ListingList";
-import type { ListingItem } from "../types";
-import "../styles/ListingPage.css";
-
+import { type ListingItem } from "../types";
+import { listingService } from "../services/ListingService";
 import { useAuth } from "../services/AuthContext";
 
 const ListingsPage: React.FC = () => {
-  const navigate = useNavigate();
-
   const [listings, setListings] = useState<ListingItem[]>([]);
-  const [filteredListings, setFilteredListings] = useState<ListingItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDorm, setSelectedDorm] = useState("all");
   const [maxPrice, setMaxPrice] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
 
   const { user } = useAuth();
+  const navigate = useNavigate();
 
-  // Load listings from backend
+  const abortRef = useRef<AbortController | null>(null);
+
+  const fetchAll = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await listingService.getAllListings();
+      setListings(data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load listings.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchListings = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await listingService.getAllListings();
-        setListings(data);
-        setFilteredListings(data);
-      } catch (err) {
-        console.error("Failed to load listings", err);
-        setError("Failed to load listings. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchListings();
+    fetchAll();
   }, []);
 
   // Get unique dorm names
-  const dormNames = ["all", ...new Set(listings.map((l) => l.dorm))];
+  const dormNames = useMemo(() => {
+    return ["all", ...new Set(listings.map((l) => l.dorm))];
+  }, [listings]);
 
   // Apply filters
-  useEffect(() => {
+  const filteredListings = useMemo(() => {
     let filtered = [...listings];
-
-    // Search filter
-    if (searchTerm.trim()) {
-      const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (l) =>
-          l.title.toLowerCase().includes(searchLower) ||
-          l.description.toLowerCase().includes(searchLower) ||
-          l.dorm.toLowerCase().includes(searchLower)
-      );
-    }
 
     // Dorm filter
     if (selectedDorm !== "all") {
@@ -74,14 +60,50 @@ const ListingsPage: React.FC = () => {
       }
     }
 
-    setFilteredListings(filtered);
-  }, [searchTerm, selectedDorm, maxPrice, listings]);
+    return filtered;
+  }, [listings, selectedDorm, maxPrice]);
 
-  // Handler functions
-  const handleClearFilters = () => {
+  const handleSearchSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const q = searchTerm.trim();
+
+    // Cancel previous search
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      // If no search term, fetch all
+      if (!q) {
+        await fetchAll();
+        return;
+      }
+
+      // Search with keyword
+      const data = await listingService.searchListings(
+        q,
+        selectedDorm,
+        controller.signal
+      );
+      if (!controller.signal.aborted) setListings(data);
+    } catch (err: any) {
+      if (err?.name === "CanceledError" || err?.name === "AbortError") return;
+      console.error(err);
+      setError("Failed to search listings.");
+    } finally {
+      if (!controller.signal.aborted) setLoading(false);
+    }
+  };
+
+  const handleClearFilters = async () => {
     setSearchTerm("");
     setSelectedDorm("all");
     setMaxPrice("");
+    await fetchAll();
   };
 
   const handleViewDetails = (id: number) => {
@@ -116,137 +138,197 @@ const ListingsPage: React.FC = () => {
     // navigate(`/messages/new?listingId=${id}`);
   };
 
-  const handleCreateListing = () => {
-    navigate("/listings/new");
-  };
-
-  const hasActiveFilters =
-    searchTerm.trim() !== "" || selectedDorm !== "all" || maxPrice !== "";
-
   return (
-    <div className="listings-page">
-      {/* Header */}
-      <header className="listings-header">
-        <div className="listings-header-container">
-          <h1 className="listings-header-title">🏠 Find a Roomie</h1>
-
-          <button className="btn-primary" onClick={handleCreateListing}>
-            <Plus size={18} />
-            Create Listing
+    <>
+      <Header />
+      <div
+        style={{
+          maxWidth: 900,
+          margin: "0 auto",
+          padding: "2rem 1.5rem 3rem",
+          paddingTop: "8%",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "1.25rem",
+            alignItems: "center",
+            gap: "1rem",
+            flexWrap: "wrap",
+          }}
+        >
+          <h1 style={{ margin: 0, fontSize: "1.7rem" }}>Listings</h1>
+          <button
+            onClick={() => navigate("/listings/new")}
+            style={{
+              padding: "0.5rem 1.1rem",
+              borderRadius: 999,
+              border: "none",
+              background:
+                "linear-gradient(135deg, rgb(37,99,235), rgb(56,189,248))",
+              color: "white",
+              cursor: "pointer",
+              fontWeight: 600,
+              fontSize: "0.9rem",
+              boxShadow: "0 6px 16px rgba(37,99,235,0.35)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            + Create listing
           </button>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <div className="listings-container">
-        {/* Search and Filter Section */}
-        <div className="search-filter-container">
-          <div className="search-row">
-            {/* Search Bar */}
-            <div className="search-input-wrapper">
-              <Search size={20} className="search-icon" />
-              <input
-                className="search-input"
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by title, description, or dorm..."
-              />
-            </div>
-
-            {/* Filters Toggle */}
-            <button
-              className={`btn-secondary ${showFilters ? "active" : ""}`}
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <Filter size={18} />
-              Filters
-            </button>
-
-            {/* Clear Filters */}
-            {hasActiveFilters && (
-              <button className="btn-clear" onClick={handleClearFilters}>
-                <X size={18} />
-                Clear
-              </button>
-            )}
-          </div>
-
-          {/* Advanced Filters */}
-          {showFilters && (
-            <div className="filters-section">
-              {/* Dorm Filter */}
-              <div className="filter-group">
-                <label className="filter-label">
-                  <Home size={16} />
-                  Dorm
-                </label>
-                <select
-                  className="filter-select"
-                  value={selectedDorm}
-                  onChange={(e) => setSelectedDorm(e.target.value)}
-                >
-                  {dormNames.map((dorm) => (
-                    <option key={dorm} value={dorm}>
-                      {dorm === "all" ? "All Dorms" : dorm}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Max Price Filter */}
-              <div className="filter-group">
-                <label className="filter-label">
-                  <DollarSign size={16} />
-                  Max Price (BGN)
-                </label>
-                <input
-                  className="filter-input"
-                  type="number"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  placeholder="Enter max price"
-                  min="0"
-                />
-              </div>
-            </div>
-          )}
+        {/* Navigation buttons */}
+        <div
+          style={{
+            display: "flex",
+            gap: "0.6rem",
+            marginBottom: "1.1rem",
+            flexWrap: "wrap",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => navigate("/listings/mine")}
+            disabled={!user}
+            title={!user ? "Log in to view your listings" : ""}
+            style={{
+              padding: "0.55rem 0.95rem",
+              borderRadius: 999,
+              border: "1px solid #ddd",
+              background: "white",
+              cursor: user ? "pointer" : "not-allowed",
+              fontWeight: 700,
+              opacity: user ? 1 : 0.6,
+            }}
+          >
+            My listings
+          </button>
         </div>
 
-        {/* Results Count */}
-        <p className="results-count">
-          Showing <strong>{filteredListings.length}</strong>{" "}
-          {filteredListings.length === 1 ? "listing" : "listings"}
-        </p>
-
-        {/* Listings Grid */}
-        {loading ? (
-          <div className="loading-state">
-            <p>Loading listings...</p>
-          </div>
-        ) : error ? (
-          <div className="error-state">
-            <p>{error}</p>
-          </div>
-        ) : filteredListings.length === 0 ? (
-          <div className="empty-state">
-            <p className="empty-state-title">No listings found</p>
-            <p className="empty-state-subtitle">
-              Try adjusting your filters or search terms
-            </p>
-          </div>
-        ) : (
-          <ListingList
-            listings={filteredListings}
-            currentUserId={user ? user.id : undefined}
-            onViewDetails={handleViewDetails}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onContact={handleContact}
+        {/* Search + Filters */}
+        <form
+          onSubmit={handleSearchSubmit}
+          style={{
+            display: "flex",
+            gap: "0.75rem",
+            flexWrap: "wrap",
+            alignItems: "center",
+            marginBottom: "1.25rem",
+          }}
+        >
+          <input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search listings by title or location"
+            style={{
+              flex: "1 1 320px",
+              padding: "0.65rem 0.9rem",
+              borderRadius: 12,
+              border: "1px solid #ddd",
+              outline: "none",
+            }}
           />
+
+          <button
+            type="submit"
+            style={{
+              padding: "0.65rem 0.9rem",
+              borderRadius: 12,
+              border: "none",
+              background: "rgb(37,99,235)",
+              color: "white",
+              fontWeight: 700,
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Search
+          </button>
+
+          {/* Dorm filter */}
+          <select
+            value={selectedDorm}
+            onChange={(e) => setSelectedDorm(e.target.value)}
+            style={{
+              padding: "0.65rem 0.9rem",
+              borderRadius: 12,
+              border: "1px solid #ddd",
+              background: "white",
+              cursor: "pointer",
+              minWidth: 140,
+            }}
+          >
+            <option value="all">All dorms</option>
+            {dormNames.slice(1).map((dorm) => (
+              <option key={dorm} value={dorm}>
+                {dorm}
+              </option>
+            ))}
+          </select>
+
+          {/* Max price filter */}
+          <input
+            type="number"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+            placeholder="Max price"
+            min="0"
+            style={{
+              width: 120,
+              padding: "0.65rem 0.9rem",
+              borderRadius: 12,
+              border: "1px solid #ddd",
+              outline: "none",
+            }}
+          />
+
+          {(searchTerm.trim() !== "" ||
+            selectedDorm !== "all" ||
+            maxPrice !== "") && (
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              style={{
+                padding: "0.65rem 0.9rem",
+                borderRadius: 12,
+                border: "1px solid #ddd",
+                background: "white",
+                fontWeight: 700,
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Clear
+            </button>
+          )}
+        </form>
+
+        {loading && <p>Loading listings...</p>}
+        {error && <p style={{ color: "red" }}>{error}</p>}
+
+        {!loading && !error && (
+          <>
+            {filteredListings.length === 0 ? (
+              <p style={{ opacity: 0.75 }}>
+                No listings match your search/filter.
+              </p>
+            ) : (
+              <ListingList
+                listings={filteredListings}
+                currentUserId={user?.id}
+                onViewDetails={handleViewDetails}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onContact={handleContact}
+              />
+            )}
+          </>
         )}
       </div>
-    </div>
+    </>
   );
 };
 
