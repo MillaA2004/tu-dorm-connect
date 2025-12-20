@@ -62,7 +62,7 @@ class ListingControllerTest {
                 "Test Listing",              // title
                 "Test Description",          // description
                 100.0,                       // price
-                "TestDorm",                  // dorm
+                "TestDorm",                  // dormName
                 1L,                          // posterId
                 30                           // expiryDays
         );
@@ -73,7 +73,7 @@ class ListingControllerTest {
                 "Test Description",          // description
                 100.0,                       // price
                 null,                        // preferencesJson
-                "TestDorm",                  // dorm
+                "TestDorm",                  // dormName
                 1L,                          // posterId
                 true,                        // isActive
                 LocalDateTime.now(),        // createdAt
@@ -149,7 +149,7 @@ class ListingControllerTest {
         String dormName = "TestDorm";
         when(listingService.getListingsByDorm(dormName)).thenReturn(listingList);
 
-        mockMvc.perform(get("/listings/dorm/{dormName}", dormName))
+        mockMvc.perform(get("/listings/dormName/{dormName}", dormName))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(1)));

@@ -54,7 +54,7 @@ public class ListingController {
         return ResponseEntity.ok(listingService.getListingsByUserId(userId));
     }
 
-    @GetMapping("/dorm/{dormName}")
+    @GetMapping("/dormName/{dormName}")
     public ResponseEntity<List<ListingResponseDTO>> getListingsByDorm(@PathVariable String dormName) {
         return ResponseEntity.ok(listingService.getListingsByDorm(dormName));
     }
