@@ -1,20 +1,23 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import type { ListingItem } from "../types";
 
 interface ListingCardProps {
   listing: ListingItem;
-  currentUserId?: number;
-  onDelete?: (id: number) => void;
+  isOwner: boolean;
+  onViewDetails: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onContact?: () => void;
 }
 
 const ListingCard: React.FC<ListingCardProps> = ({
   listing,
-  currentUserId,
+  isOwner,
+  onViewDetails,
+  onEdit,
   onDelete,
+  onContact,
 }) => {
-  const navigate = useNavigate();
-
   const date = new Date(listing.createdAt);
   const formattedDate = isNaN(date.getTime())
     ? listing.createdAt
@@ -24,15 +27,6 @@ const ListingCard: React.FC<ListingCardProps> = ({
   const formattedExpiryDate = isNaN(expiryDate.getTime())
     ? listing.expiresAt
     : expiryDate.toLocaleDateString();
-
-  const isOwner = currentUserId && listing.posterId === currentUserId;
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (window.confirm("Are you sure you want to delete this listing?")) {
-      onDelete?.(listing.id);
-    }
-  };
 
   return (
     <div
@@ -55,7 +49,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
         e.currentTarget.style.transform = "translateY(0)";
         e.currentTarget.style.boxShadow = "0 6px 18px rgba(15,23,42,0.08)";
       }}
-      onClick={() => navigate(`/listings/${listing.id}`)}
+      onClick={onViewDetails}
     >
       {/* Header with status and date */}
       <div
@@ -144,7 +138,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            navigate(`/listings/${listing.id}`);
+            onViewDetails();
           }}
           style={{
             padding: "0.45rem 0.95rem",
@@ -175,7 +169,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/listings/${listing.id}/edit`);
+                onEdit?.();
               }}
               style={{
                 padding: "0.45rem 0.95rem",
@@ -192,7 +186,10 @@ const ListingCard: React.FC<ListingCardProps> = ({
               Edit
             </button>
             <button
-              onClick={handleDelete}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete?.();
+              }}
               style={{
                 padding: "0.45rem 0.95rem",
                 borderRadius: 999,
@@ -220,8 +217,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              // Navigate to contact or message functionality
-              alert("Contact poster functionality");
+              onContact?.();
             }}
             style={{
               padding: "0.45rem 0.95rem",

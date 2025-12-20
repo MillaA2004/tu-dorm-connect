@@ -1,21 +1,16 @@
 import React, { useEffect, useState } from "react";
-import {
-  Search,
-  Plus,
-  X,
-  Filter,
-  DollarSign,
-  Home,
-  MapPin,
-} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Search, Plus, X, Filter, DollarSign, Home } from "lucide-react";
 import { listingService } from "../services/ListingService";
+import ListingList from "../components/ListingList";
 import type { ListingItem } from "../types";
 import "../styles/ListingPage.css";
 
-// Import this if you have auth context
-// import { useAuth } from "../services/AuthContext";
+import { useAuth } from "../services/AuthContext";
 
 const ListingsPage: React.FC = () => {
+  const navigate = useNavigate();
+
   const [listings, setListings] = useState<ListingItem[]>([]);
   const [filteredListings, setFilteredListings] = useState<ListingItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,13 +20,8 @@ const ListingsPage: React.FC = () => {
   const [selectedDorm, setSelectedDorm] = useState("all");
   const [maxPrice, setMaxPrice] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedListing, setSelectedListing] = useState<ListingItem | null>(
-    null
-  );
 
-  // Mock current user - replace with actual auth
-  // const { user } = useAuth();
-  const currentUser = { id: 1 };
+  const { user } = useAuth();
 
   // Load listings from backend
   useEffect(() => {
@@ -87,25 +77,47 @@ const ListingsPage: React.FC = () => {
     setFilteredListings(filtered);
   }, [searchTerm, selectedDorm, maxPrice, listings]);
 
+  // Handler functions
   const handleClearFilters = () => {
     setSearchTerm("");
     setSelectedDorm("all");
     setMaxPrice("");
   };
 
-  const handleDeleteListing = async (id: number) => {
+  const handleViewDetails = (id: number) => {
+    navigate(`/listings/${id}`);
+  };
+
+  const handleEdit = (id: number) => {
+    navigate(`/listings/${id}/edit`);
+  };
+
+  const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this listing?")) {
       return;
     }
 
     try {
-      await listingService.deleteListing(id, currentUser.id);
+      if (!user || !user.id) {
+        alert("You must be logged in to delete a listing.");
+        return;
+      }
+      await listingService.deleteListing(id, user.id);
       setListings((prev) => prev.filter((l) => l.id !== id));
-      setSelectedListing(null);
     } catch (err) {
       console.error("Failed to delete listing", err);
       alert("Failed to delete listing. Please try again.");
     }
+  };
+
+  const handleContact = (id: number) => {
+    // Navigate to messaging or open contact modal
+    alert(`Contact poster for listing ${id}`);
+    // navigate(`/messages/new?listingId=${id}`);
+  };
+
+  const handleCreateListing = () => {
+    navigate("/listings/new");
   };
 
   const hasActiveFilters =
@@ -116,16 +128,9 @@ const ListingsPage: React.FC = () => {
       {/* Header */}
       <header className="listings-header">
         <div className="listings-header-container">
-          <h1 className="listings-header-title">Find a Roomie</h1>
+          <h1 className="listings-header-title">🏠 Find a Roomie</h1>
 
-          <button
-            className="btn-primary"
-            onClick={() => {
-              // Navigate to create listing page
-              // navigate('/listings/new')
-              alert("Navigate to create listing page");
-            }}
-          >
+          <button className="btn-primary" onClick={handleCreateListing}>
             <Plus size={18} />
             Create Listing
           </button>
@@ -231,131 +236,16 @@ const ListingsPage: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="listings-grid">
-            {filteredListings.map((listing) => (
-              <div
-                key={listing.id}
-                className="listing-card"
-                onClick={() => setSelectedListing(listing)}
-              >
-                <div className="listing-card-header">
-                  <h3 className="listing-card-title">{listing.title}</h3>
-                  {listing.posterId === currentUser.id && (
-                    <span className="listing-card-badge">Your Listing</span>
-                  )}
-                </div>
-
-                <p className="listing-card-description">
-                  {listing.description}
-                </p>
-
-                <div className="listing-card-location">
-                  <MapPin size={16} />
-                  <span>{listing.dorm}</span>
-                </div>
-
-                <div className="listing-card-footer">
-                  <div>
-                    <span className="listing-card-price">
-                      {listing.price} BGN
-                    </span>
-                    <span className="listing-card-price-label">/month</span>
-                  </div>
-                  <span className="listing-card-date">
-                    {new Date(listing.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ListingList
+            listings={filteredListings}
+            currentUserId={user ? user.id : undefined}
+            onViewDetails={handleViewDetails}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onContact={handleContact}
+          />
         )}
       </div>
-
-      {/* Listing Detail Modal */}
-      {selectedListing && (
-        <div className="modal-overlay" onClick={() => setSelectedListing(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">{selectedListing.title}</h2>
-              <button
-                className="modal-close-btn"
-                onClick={() => setSelectedListing(null)}
-              >
-                <X size={24} style={{ color: "#64748b" }} />
-              </button>
-            </div>
-
-            <div className="modal-body">
-              {/* Price Banner */}
-              <div className="modal-price-banner">
-                <div className="modal-price">{selectedListing.price} BGN</div>
-                <div className="modal-price-label">per month</div>
-              </div>
-
-              {/* Location */}
-              <div className="modal-location">
-                <MapPin size={20} style={{ color: "#2563eb" }} />
-                <span className="modal-location-text">
-                  {selectedListing.dorm}
-                </span>
-              </div>
-
-              {/* Description */}
-              <h3 className="modal-section-title">Description</h3>
-              <p className="modal-description">{selectedListing.description}</p>
-
-              {/* Additional Info */}
-              <div className="modal-info-box">
-                <div className="modal-info-row">
-                  <strong>Posted:</strong>{" "}
-                  {new Date(selectedListing.createdAt).toLocaleDateString()}
-                </div>
-                <div className="modal-info-row">
-                  <strong>Expires:</strong>{" "}
-                  {new Date(selectedListing.expiresAt).toLocaleDateString()}
-                </div>
-                <div className="modal-info-row">
-                  <strong>Status:</strong>{" "}
-                  {selectedListing.isActive ? "Active" : "Inactive"}
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="modal-actions">
-              {selectedListing.posterId === currentUser.id ? (
-                <>
-                  <button
-                    className="btn-edit"
-                    onClick={() => {
-                      // Navigate to edit page
-                      alert("Edit listing functionality");
-                    }}
-                  >
-                    Edit Listing
-                  </button>
-                  <button
-                    className="btn-delete"
-                    onClick={() => handleDeleteListing(selectedListing.id)}
-                  >
-                    Delete
-                  </button>
-                </>
-              ) : (
-                <button
-                  className="btn-contact"
-                  onClick={() => {
-                    // Open contact/message modal
-                    alert("Contact poster functionality");
-                  }}
-                >
-                  Contact Poster
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

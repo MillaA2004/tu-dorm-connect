@@ -244,21 +244,22 @@
   gap: 1.5rem;
 }
 
-/* Listing Card */
+/* Listing Card - Matching EventCard Style */
 .listing-card {
-  background: white;
   border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 1.1rem 1.3rem;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .listing-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  border-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
 }
 
 .listing-card-header {
@@ -532,130 +533,4 @@
 .btn-contact:hover {
   box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
   transform: translateY(-2px);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .listings-header {
-    padding: 1rem;
-  }
-
-  .listings-header-title {
-    font-size: 1.5rem;
-  }
-
-  .listings-container {
-    padding: 1rem;
-  }
-
-  .listings-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .search-row {
-    flex-direction: column;
-  }
-
-  .search-input-wrapper {
-    width: 100%;
-  }
-
-  .filters-section {
-    grid-template-columns: 1fr;
-  }
-
-  .modal-overlay {
-    padding: 1rem;
-  }
-
-  .modal-content {
-    padding: 1.5rem;
-  }
-
-  .modal-title {
-    font-size: 1.5rem;
-  }
-
-  .modal-price {
-    font-size: 2rem;
-  }
-
-  .modal-actions {
-    flex-direction: column;
-  }
-}
-
-@media (max-width: 480px) {
-  .listings-header-container {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .btn-primary {
-    justify-content: center;
-  }
-
-  .listing-card {
-    padding: 1rem;
-  }
-
-  .listing-card-title {
-    font-size: 1rem;
-  }
-
-  .listing-card-price {
-    font-size: 1.25rem;
-  }
-}
-
-/* Utility Classes */
-.flex {
-  display: flex;
-}
-
-.flex-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.gap-sm {
-  gap: 0.5rem;
-}
-
-.gap-md {
-  gap: 1rem;
-}
-
-.gap-lg {
-  gap: 1.5rem;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.mb-0 {
-  margin-bottom: 0;
-}
-
-.mb-sm {
-  margin-bottom: 0.5rem;
-}
-
-.mb-md {
-  margin-bottom: 1rem;
-}
-
-.mb-lg {
-  margin-bottom: 1.5rem;
-}
-
-.fw-600 {
-  font-weight: 600;
-}
-
-.fw-700 {
-  font-weight: 700;
 }
