@@ -27,6 +27,20 @@ export interface EventItem extends NewEvent {
   creator: UserSummary;
 }
 
+export interface NewListing {
+  title: string;
+  description: string;
+  price: number;
+  dorm: string;
+  posterId: number;
+  expiryDays: number;
+}
+export interface ListingItem extends NewListing {
+  id: number;
+  createdAt: string;
+  expiresAt: string;
+  isActive: boolean;
+}
 
 export interface Message {
   id: string;

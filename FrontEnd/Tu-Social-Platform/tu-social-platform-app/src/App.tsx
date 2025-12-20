@@ -17,33 +17,31 @@ import MyEventsPage from "./pages/MyEventsPage";
 import MyJoinedEventsPage from "./pages/MyJoinedEventsPage";
 import PostPage from "./pages/PostPage";
 import PostDetailsPage from "./pages/PostDetailsPage";
+import ListingPage from "./pages/ListingPage";
 
 const App: React.FC = () => {
   return (
     <AuthProvider>
-    <APIProvider apiKey={MAPS_API_KEY}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/events" element={<EventsPage />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/events/:id" element={<EventDetailsPage />} />
-          <Route
-            path="/events/new"
-            element={<CreateEventPage/>}
-          />
-          <Route path="/events/:id/edit" element={<EditEventPage />} />
-          <Route path = "/register" element = {<RegisterPage/>} />
-          <Route path = "/login" element = {<LoginPage/>} />
-          <Route path="/profile/:userId" element={<UserProfilePage />} />
-          <Route path="/profile/me" element={<UserProfilePage />} />
-          <Route path = "/events/joined" element= {<MyJoinedEventsPage/>} />
-          <Route path="/events/mine" element={<MyEventsPage />} />
-          <Route path = "/posts" element = {<PostPage />} />
-          <Route path="/posts/:postId" element={<PostDetailsPage />} />
-          
-        </Routes>
-      </BrowserRouter>
-    </APIProvider>
+      <APIProvider apiKey={MAPS_API_KEY}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/listings" element={<ListingPage />} />
+            <Route path="/events" element={<EventsPage />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/events/:id" element={<EventDetailsPage />} />
+            <Route path="/events/new" element={<CreateEventPage />} />
+            <Route path="/events/:id/edit" element={<EditEventPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/profile/:userId" element={<UserProfilePage />} />
+            <Route path="/profile/me" element={<UserProfilePage />} />
+            <Route path="/events/joined" element={<MyJoinedEventsPage />} />
+            <Route path="/events/mine" element={<MyEventsPage />} />
+            <Route path="/posts" element={<PostPage />} />
+            <Route path="/posts/:postId" element={<PostDetailsPage />} />
+          </Routes>
+        </BrowserRouter>
+      </APIProvider>
     </AuthProvider>
   );
 };

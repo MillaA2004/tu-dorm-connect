@@ -145,9 +145,9 @@ const HomePage: React.FC = () => {
             </button>
             <button
               className="hero-action-button"
-              onClick={() => handleClick("/roommate")}
+              onClick={() => handleClick("/listings")}
             >
-              Find a roommate
+              Find a Roomie
             </button>
             <button
               className="hero-action-button"
