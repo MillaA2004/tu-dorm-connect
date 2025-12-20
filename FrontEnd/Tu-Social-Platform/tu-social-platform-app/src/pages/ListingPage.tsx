@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import ListingList from "../components/ListingList";
 import { type ListingItem } from "../types";
+import { questionnaireService } from "../services/QuestionnaireService";
 import { listingService } from "../services/ListingService";
 import { useAuth } from "../services/AuthContext";
 
@@ -14,6 +15,7 @@ const ListingsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDorm, setSelectedDorm] = useState("all");
   const [maxPrice, setMaxPrice] = useState("");
+  const [hasQuestionnaire, setHasQuestionnaire] = useState<boolean>(false);
 
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -37,6 +39,17 @@ const ListingsPage: React.FC = () => {
   useEffect(() => {
     fetchAll();
   }, []);
+
+  // Check if user has completed questionnaire
+  useEffect(() => {
+    const checkQuestionnaire = async () => {
+      if (user) {
+        const completed = await questionnaireService.hasCompleted(user.id);
+        setHasQuestionnaire(completed);
+      }
+    };
+    checkQuestionnaire();
+  }, [user]);
 
   // Get unique dorm names
   const dormNames = useMemo(() => {
@@ -96,6 +109,25 @@ const ListingsPage: React.FC = () => {
       setError("Failed to search listings.");
     } finally {
       if (!controller.signal.aborted) setLoading(false);
+    }
+  };
+
+  const handleCreateListing = async () => {
+    if (!user) {
+      alert("Please log in to create a listing.");
+      return;
+    }
+
+    const completed = await questionnaireService.hasCompleted(user.id);
+    if (completed) {
+      navigate("/listings/new");
+    } else {
+      const proceed = window.confirm(
+        "To create a listing, you must complete the compatibility questionnaire. This helps find the best matches for your room. Proceed to questionnaire?"
+      );
+      if (proceed) {
+        navigate("/questionnaire");
+      }
     }
   };
 
@@ -161,7 +193,7 @@ const ListingsPage: React.FC = () => {
         >
           <h1 style={{ margin: 0, fontSize: "1.7rem" }}>Listings</h1>
           <button
-            onClick={() => navigate("/listings/new")}
+            onClick={handleCreateListing}
             style={{
               padding: "0.5rem 1.1rem",
               borderRadius: 999,
@@ -179,6 +211,56 @@ const ListingsPage: React.FC = () => {
             + Create listing
           </button>
         </div>
+
+        {/* Matching System Banner */}
+        {user && !hasQuestionnaire && (
+          <div
+            style={{
+              background: "linear-gradient(135deg, #eff6ff, #dbeafe)",
+              border: "2px solid #60a5fa",
+              borderRadius: 12,
+              padding: "1rem 1.25rem",
+              marginBottom: "1.25rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "1rem",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div
+                style={{
+                  fontWeight: 600,
+                  marginBottom: "0.25rem",
+                  color: "#1e40af",
+                }}
+              >
+                🎯 Find Your Perfect Roommate Match!
+              </div>
+              <p style={{ margin: 0, fontSize: "0.9rem", color: "#3b82f6" }}>
+                Complete the compatibility questionnaire to see personalized
+                matches
+              </p>
+            </div>
+            <button
+              onClick={() => navigate("/questionnaire")}
+              style={{
+                padding: "0.6rem 1.2rem",
+                borderRadius: 999,
+                border: "none",
+                background: "#2563eb",
+                color: "white",
+                cursor: "pointer",
+                fontWeight: 600,
+                fontSize: "0.9rem",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Take Questionnaire
+            </button>
+          </div>
+        )}
 
         {/* Navigation buttons */}
         <div
@@ -206,6 +288,24 @@ const ListingsPage: React.FC = () => {
           >
             My listings
           </button>
+
+          {user && hasQuestionnaire && (
+            <button
+              type="button"
+              onClick={() => navigate(`/matches/${user.id}`)}
+              style={{
+                padding: "0.55rem 0.95rem",
+                borderRadius: 999,
+                border: "1px solid #2563eb",
+                background: "#eff6ff",
+                color: "#2563eb",
+                cursor: "pointer",
+                fontWeight: 700,
+              }}
+            >
+              🎯 View My Matches
+            </button>
+          )}
         </div>
 
         {/* Search + Filters */}

@@ -22,6 +22,8 @@ import CreateListingPage from "./pages/CreateListingPage";
 import ListingDetailsPage from "./pages/ListingDetailsPage";
 import EditListingPage from "./pages/EditListingPage";
 import MyListingsPage from "./pages/MyListingPage";
+import QuestionnairePage from "./pages/QuestionnairePage";
+import MatchesPage from "./pages/MatchesPage";
 
 const App: React.FC = () => {
   return (
@@ -34,6 +36,8 @@ const App: React.FC = () => {
             <Route path="/listings/:id" element={<ListingDetailsPage />} />
             <Route path="/listings/:id/edit" element={<EditListingPage />} />
             <Route path="/listings/mine" element={<MyListingsPage />} />
+            <Route path="/questionnaire" element={<QuestionnairePage />} />
+            <Route path="/matches/:viewerId" element={<MatchesPage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/home" element={<HomePage />} />
             <Route path="/events/:id" element={<EventDetailsPage />} />

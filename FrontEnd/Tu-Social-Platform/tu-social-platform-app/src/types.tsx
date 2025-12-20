@@ -62,6 +62,42 @@ export interface ListingResponseDTO {
   posterId: number;
 }
 
+export interface QuestionnaireData {
+  smokes: boolean | null;
+  drinks: boolean | null;
+  partyHome: boolean | null;
+  stayAtHome: boolean | null;
+  cleanliness: number | null;
+  sharesCleaning: boolean | null;
+  mbti: string;
+  age: number | null;
+  specialty: string;
+  earlyRiser: boolean | null;
+  bedtime: number | null;
+  studiesInRoom: boolean | null;
+  needsQuiet: number | null;
+  guestFrequency: number | null;
+  prefersSocialRoommate: boolean | null;
+  cooksInDorm: boolean | null;
+  foodSharing: number | null;
+  entertainmentFrequency: number | null;
+  usesHeadphones: boolean | null;
+  personalSpaceImportance: number | null;
+  sharesItems: boolean | null;
+}
+
+export interface UserMatchDTO {
+  id: number;
+  viewerId: number;
+  posterId: number;
+  posterName: string;
+  posterProfileImage?: string;
+  listingId?: number;
+  listingTitle?: string;
+  score: number;
+  createdAt: string;
+}
+
 export interface Message {
   id: string;
   text: string;
