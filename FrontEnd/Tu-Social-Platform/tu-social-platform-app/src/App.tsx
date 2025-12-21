@@ -24,6 +24,10 @@ import EditListingPage from "./pages/EditListingPage";
 import MyListingsPage from "./pages/MyListingPage";
 import QuestionnairePage from "./pages/QuestionnairePage";
 import MatchesPage from "./pages/MatchesPage";
+import DormListPage from "./pages/DormListPage";
+import AddDorm from "./pages/AddDorm";
+import EditDorm from "./pages/EditDorm";
+import DormDetailsPage from "./pages/DormDetailsPage";
 
 const App: React.FC = () => {
   return (
@@ -54,6 +58,33 @@ const App: React.FC = () => {
           </Routes>
         </BrowserRouter>
       </APIProvider>
+    <APIProvider apiKey={MAPS_API_KEY}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/events" element={<EventsPage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/events/:id" element={<EventDetailsPage />} />
+          <Route
+            path="/events/new"
+            element={<CreateEventPage/>}
+          />
+          <Route path="/events/:id/edit" element={<EditEventPage />} />
+          <Route path = "/register" element = {<RegisterPage/>} />
+          <Route path = "/login" element = {<LoginPage/>} />
+          <Route path="/profile/:userId" element={<UserProfilePage />} />
+          <Route path="/profile/me" element={<UserProfilePage />} />
+          <Route path = "/events/joined" element= {<MyJoinedEventsPage/>} />
+          <Route path="/events/mine" element={<MyEventsPage />} />
+          <Route path = "/posts" element = {<PostPage />} />
+          <Route path="/posts/:postId" element={<PostDetailsPage />} />
+          <Route path="/dorms" element={<DormListPage />} />
+          <Route path="/dorms/add" element={<AddDorm />} />
+          <Route path="/dorms/:id/edit" element={<EditDorm />} />
+          <Route path="/dorms/:id" element={<DormDetailsPage />} />
+
+        </Routes>
+      </BrowserRouter>
+    </APIProvider>
     </AuthProvider>
   );
 };

@@ -11,6 +11,7 @@ import { NotificationsPanel } from "./NotificationsPanel";
 import { notificationService } from "../services/NotificationService";
 import { chatService } from "../services/ChatService";
 import { logoutUser } from "../services/AuthService";
+import { useAuth } from "../services/AuthContext.tsx";
 
 
 interface HeaderProps {
@@ -28,6 +29,10 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
   const [unreadMsgCount, setUnreadMsgCount] = useState<number>(0);
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+
+  const user = useAuth();
+  const isAdmin = user.user?.role === "Admin";
+
 
   const handleLogout = () => {
   logoutUser();          
@@ -175,6 +180,20 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
                 Posts
               </Link>
             </li>
+            {isAdmin && (
+              <>
+                <li>
+                  <Link to="/dorms/add" onClick={toggleSidebar}>
+                    Add Dorm
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/admin" onClick={toggleSidebar}>
+                    Admin
+                  </Link>
+                </li>
+              </>
+            )}
           </ul>
         </div>
 

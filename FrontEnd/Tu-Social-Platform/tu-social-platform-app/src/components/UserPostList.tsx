@@ -63,6 +63,6 @@ const UserPostList: React.FC<Props> = ({ userId, refreshKey }) => {
       ))}
     </div>
   );
-};
+}; 
 
 export default UserPostList;
