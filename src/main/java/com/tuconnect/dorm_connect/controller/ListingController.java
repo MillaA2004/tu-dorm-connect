@@ -2,22 +2,15 @@ package com.tuconnect.dorm_connect.controller;
 
 import com.tuconnect.dorm_connect.dto.Listing.ListingRequestDTO;
 import com.tuconnect.dorm_connect.dto.Listing.ListingResponseDTO;
-import com.tuconnect.dorm_connect.model.Listing;
-import com.tuconnect.dorm_connect.model.User;
 import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.ListingService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -39,8 +32,14 @@ public class ListingController {
     }
 
     @GetMapping("/active")
-    public ResponseEntity<List<ListingResponseDTO>> getActiveListings() {
-        return ResponseEntity.ok(listingService.getActiveListings());
+    public ResponseEntity<List<ListingResponseDTO>> getActiveListings(
+            @RequestParam(required = false) Long viewerId) {
+
+        if (viewerId != null) {
+            return ResponseEntity.ok(listingService.getCompatibleListings(viewerId));
+        } else {
+            return ResponseEntity.ok(listingService.getActiveListings());
+        }
     }
 
     @GetMapping("/{id}")
@@ -80,9 +79,10 @@ public class ListingController {
 
     @GetMapping("/search")
     public ResponseEntity<List<ListingResponseDTO>> searchListings(
-            @RequestParam(required = false) String keyword
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long viewerId
     ) {
-        List<ListingResponseDTO> listings = listingService.searchListings(keyword);
+        List<ListingResponseDTO> listings = listingService.searchListings(keyword, viewerId);
         return ResponseEntity.ok(listings);
     }
 
