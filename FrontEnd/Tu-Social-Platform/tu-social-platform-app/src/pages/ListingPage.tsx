@@ -35,7 +35,7 @@ const ListingsPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await listingService.getAllListings();
+      const data = await listingService.getAllListings(user?.id);
       setListings(data);
     } catch (err) {
       console.error(err);
@@ -90,7 +90,6 @@ const ListingsPage: React.FC = () => {
 
     const q = searchTerm.trim();
 
-    // Cancel previous search
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -99,18 +98,17 @@ const ListingsPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      // If no search term, fetch all
       if (!q) {
         await fetchAll();
         return;
       }
 
-      // Search with keyword
       const data = await listingService.searchListings(
         q,
-        selectedDorm,
+        user?.id,
         controller.signal
       );
+
       if (!controller.signal.aborted) setListings(data);
     } catch (err: any) {
       if (err?.name === "CanceledError" || err?.name === "AbortError") return;
@@ -126,17 +124,29 @@ const ListingsPage: React.FC = () => {
       alert("Please log in to create a listing.");
       return;
     }
+    try {
+      const userListings = await listingService.getListingsByUserId(user.id);
 
-    const completed = await questionnaireService.hasCompleted(user.id);
-    if (completed) {
-      navigate("/listings/new");
-    } else {
-      const proceed = window.confirm(
-        "To create a listing, you must complete the compatibility questionnaire. This helps find the best matches for your room. Proceed to questionnaire?"
-      );
-      if (proceed) {
-        navigate("/questionnaire");
+      if (userListings.length > 0) {
+        alert(
+          "You already have an active listing. You must delete it or wait for it to expire before creating a new one."
+        );
+        return; 
       }
+      const completed = await questionnaireService.hasCompleted(user.id);
+      if (completed) {
+        navigate("/listings/new");
+      } else {
+        const proceed = window.confirm(
+          "To create a listing, you must complete the compatibility questionnaire. This helps find the best matches for your room. Proceed to questionnaire?"
+        );
+        if (proceed) {
+          navigate("/questionnaire");
+        }
+      }
+    } catch (err) {
+      console.error("Failed to check eligibility", err);
+      alert("Something went wrong. Please try again.");
     }
   };
 

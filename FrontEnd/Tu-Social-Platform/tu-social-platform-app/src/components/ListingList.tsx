@@ -22,9 +22,10 @@ const ListingList: React.FC<Props> = ({
   return (
     <div
       style={{
+        // CHANGED: Use a simple grid stack instead of columns
         display: "grid",
         gap: "1.25rem",
-        gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+        // Removed 'gridTemplateColumns' so it defaults to full width (1 column)
       }}
     >
       {listings.map((listing) => (

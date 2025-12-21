@@ -13,15 +13,15 @@ import {
 } from "../services/UserService";
 import { useAuth } from "../services/AuthContext";
 import Header from "../components/Header";
-import MyPostList from "../components/MyPostList";
-import MyEventList from "../components/UserEventList";
+import UserPostList from "../components/UserPostList";
+import UserEventList from "../components/UserEventList";
+import UserListingList from "../components/UserListingList";
 import type { EventItem } from "../types";
-
 
 import { chatService } from "../services/ChatService";
 import { ChatWindow } from "../components/ChatWindow";
 
-type Tab = "posts" | "events";
+type Tab = "posts" | "events" | "listings";
 
 const UserProfilePage: React.FC = () => {
   const { userId: userIdParam } = useParams<{ userId?: string }>();
@@ -35,11 +35,13 @@ const UserProfilePage: React.FC = () => {
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [activeTab, setActiveTab] = useState<Tab>("posts");
+  const [activeTab, setActiveTab] = useState<Tab>("listings");
 
- 
   const [chatOpen, setChatOpen] = useState(false);
-  const [chatState, setChatState] = useState<null | { chatId: number; title: string }>(null);
+  const [chatState, setChatState] = useState<null | {
+    chatId: number;
+    title: string;
+  }>(null);
 
   useEffect(() => {
     let isCancelled = false;
@@ -80,7 +82,10 @@ const UserProfilePage: React.FC = () => {
       } catch (err: any) {
         if (isCancelled) return;
 
-        if (err?.message === "USER_NOT_FOUND" || (err as any)?.code === "USER_NOT_FOUND") {
+        if (
+          err?.message === "USER_NOT_FOUND" ||
+          (err as any)?.code === "USER_NOT_FOUND"
+        ) {
           setNotFound(true);
         } else {
           console.error("Failed to load user:", err?.response ?? err);
@@ -99,12 +104,14 @@ const UserProfilePage: React.FC = () => {
   }, [userIdParam, user?.email]);
 
   useEffect(() => {
-    setActiveTab("posts");
+    setActiveTab("listings");
   }, [userIdParam]);
 
   if (!userIdParam && !user) {
     return (
-      <main style={{ maxWidth: "1000px", margin: "24px auto", padding: "0 16px" }}>
+      <main
+        style={{ maxWidth: "1000px", margin: "24px auto", padding: "0 16px" }}
+      >
         <p>You must be logged in to view your profile.</p>
       </main>
     );
@@ -112,7 +119,9 @@ const UserProfilePage: React.FC = () => {
 
   if (loading) {
     return (
-      <main style={{ maxWidth: "1000px", margin: "24px auto", padding: "0 16px" }}>
+      <main
+        style={{ maxWidth: "1000px", margin: "24px auto", padding: "0 16px" }}
+      >
         <p>Loading profile...</p>
       </main>
     );
@@ -120,7 +129,9 @@ const UserProfilePage: React.FC = () => {
 
   if (notFound) {
     return (
-      <main style={{ maxWidth: "1000px", margin: "24px auto", padding: "0 16px" }}>
+      <main
+        style={{ maxWidth: "1000px", margin: "24px auto", padding: "0 16px" }}
+      >
         <p>User not found.</p>
       </main>
     );
@@ -128,16 +139,22 @@ const UserProfilePage: React.FC = () => {
 
   if (!profile) {
     return (
-      <main style={{ maxWidth: "1000px", margin: "24px auto", padding: "0 16px" }}>
-        {error ? <p style={{ color: "crimson" }}>{error}</p> : <p>Could not load profile.</p>}
+      <main
+        style={{ maxWidth: "1000px", margin: "24px auto", padding: "0 16px" }}
+      >
+        {error ? (
+          <p style={{ color: "crimson" }}>{error}</p>
+        ) : (
+          <p>Could not load profile.</p>
+        )}
       </main>
     );
   }
 
   const isCurrentUser = !!user && !!userDto && userDto.email === user.email;
 
-  
-  const isAdmin = (user as any)?.role === "Admin" || (user as any)?.isAdmin === true;
+  const isAdmin =
+    (user as any)?.role === "Admin" || (user as any)?.isAdmin === true;
   const canDelete = (isCurrentUser || isAdmin) && !!userDto?.userId;
 
   const handleSaveProfile = async (updated: UserProfileUpdate) => {
@@ -183,14 +200,12 @@ const UserProfilePage: React.FC = () => {
     }
   };
 
-  
   const handleMessage = async () => {
     if (!userDto?.userId) return;
 
     try {
       setError(null);
 
-      
       const chat = await chatService.createDirectChat(userDto.userId);
 
       const title =
@@ -216,8 +231,12 @@ const UserProfilePage: React.FC = () => {
     <>
       <Header />
 
-      <main style={{ maxWidth: "1000px", margin: "24px auto", padding: "0 16px" }}>
-        {error && <p style={{ color: "crimson", marginBottom: "12px" }}>{error}</p>}
+      <main
+        style={{ maxWidth: "1000px", margin: "24px auto", padding: "0 16px" }}
+      >
+        {error && (
+          <p style={{ color: "crimson", marginBottom: "12px" }}>{error}</p>
+        )}
 
         <UserDetails
           {...profile}
@@ -228,44 +247,73 @@ const UserProfilePage: React.FC = () => {
           onDelete={handleDeleteProfile}
         />
 
-        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 24, marginBottom: 12 }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+            justifyContent: "center",
+            marginTop: 24,
+            marginBottom: 12,
+          }}
+        >
           <button
-            className={`hero-action-button ${activeTab === "posts" ? "active" : ""}`}
+            className={`hero-action-button ${
+              activeTab === "posts" ? "active" : ""
+            }`}
             onClick={() => setActiveTab("posts")}
           >
             Posts
           </button>
 
           <button
-            className={`hero-action-button ${activeTab === "events" ? "active" : ""}`}
+            className={`hero-action-button ${
+              activeTab === "events" ? "active" : ""
+            }`}
             onClick={() => setActiveTab("events")}
           >
             Events
+          </button>
+
+          <button
+            className={`hero-action-button ${
+              activeTab === "listings" ? "active" : ""
+            }`}
+            onClick={() => setActiveTab("listings")}
+          >
+            Listings
           </button>
         </div>
 
         {shownUserId && activeTab === "posts" && (
           <section style={{ marginTop: 12 }}>
-            <MyPostList userId={shownUserId} />
+            <UserPostList userId={shownUserId} />
           </section>
         )}
 
         {shownUserId && activeTab === "events" && (
           <section style={{ marginTop: 12 }}>
-            <MyEventList userId={shownUserId} onCheckLocation={handleCheckLocation} />
+            <UserEventList
+              userId={shownUserId}
+              onCheckLocation={handleCheckLocation}
+            />
+          </section>
+        )}
+
+        {shownUserId && activeTab === "listings" && (
+          <section style={{ marginTop: 12 }}>
+            <UserListingList userId={shownUserId} />
           </section>
         )}
       </main>
 
-      
       <ChatWindow
         isOpen={chatOpen}
         chatId={chatState?.chatId ?? null}
         chatTitle={chatState?.title ?? "Chat"}
         isGroup={false}
         isAdmin={false}
-        otherUserId={isCurrentUser ? null : (userDto?.userId ?? null)} //ako neshto se scbupi gledai tuk!
-          onClose={() => {
+        otherUserId={isCurrentUser ? null : userDto?.userId ?? null} //ako neshto se scbupi gledai tuk!
+        onClose={() => {
           setChatOpen(false);
           setChatState(null);
         }}

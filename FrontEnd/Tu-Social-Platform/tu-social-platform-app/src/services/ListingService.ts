@@ -4,14 +4,23 @@ import { type ListingItem } from "../types";
 const API_BASE = "/listings";
 
 class ListingService {
-  async getAllListings(): Promise<ListingItem[]> {
-    const res = await apiClient.get(`${API_BASE}/active`);
+  // Updated: Accepts optional viewerId for gender filtering
+  async getAllListings(viewerId?: number): Promise<ListingItem[]> {
+    const params: any = {};
+    if (viewerId) params.viewerId = viewerId;
+
+    const res = await apiClient.get(`${API_BASE}/active`, { params });
     return res.data;
   }
 
-  async searchListings(keyword: string, type: string, signal?: AbortSignal) {
+  // Updated: Replaced 'type' with 'viewerId' since filtering happens on Backend now
+  async searchListings(
+    keyword: string,
+    viewerId?: number,
+    signal?: AbortSignal
+  ) {
     const params: any = { keyword };
-    if (type && type !== "all") params.type = type;
+    if (viewerId) params.viewerId = viewerId;
 
     const res = await apiClient.get(`${API_BASE}/search`, { params, signal });
     return res.data;

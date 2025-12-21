@@ -90,24 +90,6 @@ const MyListingsPage: React.FC = () => {
           }}
         >
           <h1 style={{ margin: 0, fontSize: "1.7rem" }}>My Listings</h1>
-          <button
-            onClick={() => navigate("/listings/new")}
-            style={{
-              padding: "0.5rem 1.1rem",
-              borderRadius: 999,
-              border: "none",
-              background:
-                "linear-gradient(135deg, rgb(37,99,235), rgb(56,189,248))",
-              color: "white",
-              cursor: "pointer",
-              fontWeight: 600,
-              fontSize: "0.9rem",
-              boxShadow: "0 6px 16px rgba(37,99,235,0.35)",
-              whiteSpace: "nowrap",
-            }}
-          >
-            + Create listing
-          </button>
         </div>
 
         {/* Back button */}

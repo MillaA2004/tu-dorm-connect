@@ -214,6 +214,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
             </button>
           </div>
         ) : (
+        onContact && (
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -233,6 +234,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
           >
             Contact
           </button>
+        )
         )}
       </div>
 
