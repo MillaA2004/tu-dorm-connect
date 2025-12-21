@@ -35,56 +35,42 @@ const App: React.FC = () => {
       <APIProvider apiKey={MAPS_API_KEY}>
         <BrowserRouter>
           <Routes>
+            {/* Home */}
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/" element={<HomePage />} />{" "}
+            {/* Auth */}
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            {/* Profile */}
+            <Route path="/profile/:userId" element={<UserProfilePage />} />
+            <Route path="/profile/me" element={<UserProfilePage />} />
+            {/* Listings (Roommates) */}
             <Route path="/listings" element={<ListingPage />} />
             <Route path="/listings/new" element={<CreateListingPage />} />
             <Route path="/listings/:id" element={<ListingDetailsPage />} />
             <Route path="/listings/:id/edit" element={<EditListingPage />} />
             <Route path="/listings/mine" element={<MyListingsPage />} />
+            {/* Matching */}
             <Route path="/questionnaire" element={<QuestionnairePage />} />
             <Route path="/matches/:viewerId" element={<MatchesPage />} />
+            {/* Events */}
             <Route path="/events" element={<EventsPage />} />
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/events/:id" element={<EventDetailsPage />} />
             <Route path="/events/new" element={<CreateEventPage />} />
+            <Route path="/events/:id" element={<EventDetailsPage />} />
             <Route path="/events/:id/edit" element={<EditEventPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/profile/:userId" element={<UserProfilePage />} />
-            <Route path="/profile/me" element={<UserProfilePage />} />
             <Route path="/events/joined" element={<MyJoinedEventsPage />} />
             <Route path="/events/mine" element={<MyEventsPage />} />
+            {/* Posts */}
             <Route path="/posts" element={<PostPage />} />
             <Route path="/posts/:postId" element={<PostDetailsPage />} />
+            {/* Dorms */}
+            <Route path="/dorms" element={<DormListPage />} />
+            <Route path="/dorms/add" element={<AddDorm />} />
+            <Route path="/dorms/:id" element={<DormDetailsPage />} />
+            <Route path="/dorms/:id/edit" element={<EditDorm />} />
           </Routes>
         </BrowserRouter>
       </APIProvider>
-    <APIProvider apiKey={MAPS_API_KEY}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/events" element={<EventsPage />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/events/:id" element={<EventDetailsPage />} />
-          <Route
-            path="/events/new"
-            element={<CreateEventPage/>}
-          />
-          <Route path="/events/:id/edit" element={<EditEventPage />} />
-          <Route path = "/register" element = {<RegisterPage/>} />
-          <Route path = "/login" element = {<LoginPage/>} />
-          <Route path="/profile/:userId" element={<UserProfilePage />} />
-          <Route path="/profile/me" element={<UserProfilePage />} />
-          <Route path = "/events/joined" element= {<MyJoinedEventsPage/>} />
-          <Route path="/events/mine" element={<MyEventsPage />} />
-          <Route path = "/posts" element = {<PostPage />} />
-          <Route path="/posts/:postId" element={<PostDetailsPage />} />
-          <Route path="/dorms" element={<DormListPage />} />
-          <Route path="/dorms/add" element={<AddDorm />} />
-          <Route path="/dorms/:id/edit" element={<EditDorm />} />
-          <Route path="/dorms/:id" element={<DormDetailsPage />} />
-
-        </Routes>
-      </BrowserRouter>
-    </APIProvider>
     </AuthProvider>
   );
 };
