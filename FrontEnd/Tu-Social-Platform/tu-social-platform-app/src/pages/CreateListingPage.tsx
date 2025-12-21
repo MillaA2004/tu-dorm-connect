@@ -18,18 +18,39 @@ const CreateListingPage: React.FC = () => {
           paddingTop: "8%",
         }}
       >
-        <button
-          onClick={() => navigate("/listings")}
+        <div
           style={{
-            border: "none",
-            background: "none",
-            color: "#4f46e5",
-            cursor: "pointer",
+            display: "flex",
+            justifyContent: "flex-end",
             marginBottom: "1rem",
           }}
         >
-          ← Back to listings
-        </button>
+          <button
+            onClick={() => navigate("/listings")}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              padding: "0.5rem 1.2rem",
+              backgroundColor: "white",
+              border: "1px solid #d1d5db",
+              borderRadius: "9999px", 
+              color: "#1f2937",
+              fontSize: "0.9rem",
+              fontWeight: 600,
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.backgroundColor = "#f9fafb")
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.backgroundColor = "white")
+            }
+          >
+            <span>←</span> Back to listings
+          </button>
+        </div>
 
         <ListingForm />
       </div>

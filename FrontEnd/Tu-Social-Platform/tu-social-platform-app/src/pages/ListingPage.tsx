@@ -328,7 +328,7 @@ const ListingsPage: React.FC = () => {
               opacity: user ? 1 : 0.6,
             }}
           >
-            My listings
+            My listing
           </button>
 
           {user && hasQuestionnaire && (
@@ -364,7 +364,7 @@ const ListingsPage: React.FC = () => {
           <input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search listings by title or location"
+            placeholder="Search listings by keywords..."
             style={{
               flex: "1 1 320px",
               padding: "0.65rem 0.9rem",

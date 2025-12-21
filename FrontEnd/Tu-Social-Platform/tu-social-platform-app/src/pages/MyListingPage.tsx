@@ -64,8 +64,7 @@ const MyListingsPage: React.FC = () => {
   };
 
   const handleContact = (id: number) => {
-    // For own listings, this shouldn't be called, but just in case
-    alert(`This is your own listing`);
+    alert(`This is your own listing.`);
   };
 
   return (
@@ -79,35 +78,46 @@ const MyListingsPage: React.FC = () => {
           paddingTop: "8%",
         }}
       >
+        {/* HEADER SECTION: TITLE + BUTTON INLINE */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
-            marginBottom: "1.25rem",
             alignItems: "center",
-            gap: "1rem",
-            flexWrap: "wrap",
+            marginBottom: "2rem",
           }}
         >
-          <h1 style={{ margin: 0, fontSize: "1.7rem" }}>My Listings</h1>
+          <h1 style={{ margin: 0, fontSize: "2rem" }}>My Listing</h1>
+
+          <button
+            onClick={() => navigate("/listings")}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              padding: "0.5rem 1.2rem",
+              backgroundColor: "white",
+              border: "1px solid #d1d5db",
+              borderRadius: "9999px",
+              color: "#1f2937",
+              fontSize: "0.9rem",
+              fontWeight: 600,
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.backgroundColor = "#f9fafb")
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.backgroundColor = "white")
+            }
+          >
+            <span>←</span> Back to listings
+          </button>
         </div>
 
-        {/* Back button */}
-        <button
-          onClick={() => navigate("/listings")}
-          style={{
-            border: "none",
-            background: "none",
-            color: "#4f46e5",
-            cursor: "pointer",
-            marginBottom: "1rem",
-            padding: 0,
-          }}
-        >
-          ← Back to all listings
-        </button>
-
-        {loading && <p>Loading your listings...</p>}
+        {/* CONTENT SECTION */}
+        {loading && <p>Loading your listing...</p>}
         {error && <p style={{ color: "red" }}>{error}</p>}
 
         {!loading && !error && (
@@ -123,10 +133,10 @@ const MyListingsPage: React.FC = () => {
                 }}
               >
                 <p style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>
-                  You haven't created any listings yet
+                  You haven't created a listing yet
                 </p>
                 <p style={{ color: "#6b7280", marginBottom: "1.5rem" }}>
-                  Start by creating your first listing to find a roommate!
+                  Start by creating your own listing to find a roomie!
                 </p>
                 <button
                   onClick={() => navigate("/listings/new")}
