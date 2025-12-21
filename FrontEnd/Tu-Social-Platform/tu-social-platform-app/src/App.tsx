@@ -17,6 +17,10 @@ import MyEventsPage from "./pages/MyEventsPage";
 import MyJoinedEventsPage from "./pages/MyJoinedEventsPage";
 import PostPage from "./pages/PostPage";
 import PostDetailsPage from "./pages/PostDetailsPage";
+import DormListPage from "./pages/DormListPage";
+import AddDorm from "./pages/AddDorm";
+import EditDorm from "./pages/EditDorm";
+import DormDetailsPage from "./pages/DormDetailsPage";
 
 const App: React.FC = () => {
   return (
@@ -40,7 +44,11 @@ const App: React.FC = () => {
           <Route path="/events/mine" element={<MyEventsPage />} />
           <Route path = "/posts" element = {<PostPage />} />
           <Route path="/posts/:postId" element={<PostDetailsPage />} />
-          
+          <Route path="/dorms" element={<DormListPage />} />
+          <Route path="/dorms/add" element={<AddDorm />} />
+          <Route path="/dorms/:id/edit" element={<EditDorm />} />
+          <Route path="/dorms/:id" element={<DormDetailsPage />} />
+
         </Routes>
       </BrowserRouter>
     </APIProvider>

@@ -53,3 +53,19 @@ export interface NotificationItem {
   type?: "like" | "comment" | "event" | "system";
 }
 
+
+
+export type Dorm = {
+  id: string;
+  name: string;
+  address?: string;
+  city?: string;
+  priceFrom?: number;
+  imageUrl?: string;
+  location: { lat: number; lng: number };
+};
+
+
+
+
+

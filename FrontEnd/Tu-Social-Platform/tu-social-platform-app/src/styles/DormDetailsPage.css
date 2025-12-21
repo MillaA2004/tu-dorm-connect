@@ -1,0 +1,538 @@
+/* =========================
+   Dorm Details Page (FULL)
+   ========================= */
+
+.ddpPage {
+  padding: 18px;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #111827;
+  margin-top: 6%;
+}
+
+.ddpCentered {
+  min-height: 50vh;
+  display: grid;
+  place-items: center;
+}
+
+.ddpError {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.ddpTopBar {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.ddpTopTitle {
+  flex: 1;
+  min-width: 0;
+}
+
+.ddpH1 {
+  font-size: 28px;
+  line-height: 1.15;
+  margin: 0 0 8px 0;
+}
+
+.ddpMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: #374151;
+}
+
+.ddpMetaItem {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.ddpDot {
+  color: #9ca3af;
+}
+
+.ddpMuted {
+  color: #6b7280;
+}
+
+.ddpGrid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 16px;
+}
+
+@media (max-width: 980px) {
+  .ddpGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card */
+.ddpCard {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 8px 18px rgba(17, 24, 39, 0.06);
+}
+
+.ddpCard + .ddpCard {
+  margin-top: 16px;
+}
+
+.ddpCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ddpH2 {
+  font-size: 18px;
+  margin: 0;
+}
+
+/* Buttons */
+.ddpBtn {
+  border: 1px solid transparent;
+  background: #111827;
+  color: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.04s ease, opacity 0.2s ease, background 0.2s ease,
+    border-color 0.2s ease;
+  user-select: none;
+}
+
+.ddpBtn:active {
+  transform: translateY(1px);
+}
+
+.ddpBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ddpBtnGhost {
+  background: transparent;
+  color: #111827;
+  border-color: #e5e7eb;
+}
+
+.ddpBtnOutline {
+  background: transparent;
+  color: #111827;
+  border-color: #e5e7eb;
+}
+
+.ddpBtnPrimary {
+  background: #2563eb;
+}
+
+.ddpBtnDangerOutline {
+  background: transparent;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.ddpBtnDangerOutline:hover {
+  background: #fef2f2;
+}
+
+.ddpLink {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.ddpLink:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   Carousel (NO CROP GUARANTEED)
+   ========================= */
+
+.ddpCarousel {
+  position: relative;
+}
+
+/* Main preview frame */
+.ddpCarFrame {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  background-color: #f3f4f6;
+
+  width: 100%;
+  height: clamp(260px, 45vw, 520px);
+
+  /* ✅ background image approach never crops */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+
+  /* optional: nicer look */
+  box-shadow: inset 0 0 0 1px rgba(17, 24, 39, 0.03);
+}
+
+/* Arrows */
+.ddpCarBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid rgba(229, 231, 235, 0.9);
+  background: rgba(255, 255, 255, 0.92);
+  color: #111827;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 26px;
+  font-weight: 900;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 22px rgba(17, 24, 39, 0.12);
+  backdrop-filter: blur(6px);
+}
+
+.ddpCarBtn:hover {
+  background: rgba(255, 255, 255, 1);
+}
+
+.ddpCarBtnLeft {
+  left: 10px;
+}
+
+.ddpCarBtnRight {
+  right: 10px;
+}
+
+/* Thumbnails */
+.ddpThumbs {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-top: 12px;
+}
+
+.ddpThumb {
+  border: 2px solid transparent;
+  padding: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: transparent;
+  cursor: pointer;
+  flex: 0 0 auto;
+  width: 72px;
+  height: 52px;
+}
+
+.ddpThumbActive {
+  border-color: #2563eb;
+}
+
+.ddpThumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* thumbnails can crop, that’s normal */
+  display: block;
+}
+
+/* Empty states */
+.ddpEmpty {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border: 1px dashed #e5e7eb;
+  border-radius: 12px;
+  padding: 14px;
+  background: #fafafa;
+}
+
+.ddpEmptySmall {
+  padding: 12px;
+}
+
+.ddpEmptyIcon {
+  font-size: 22px;
+}
+
+.ddpEmptyTitle {
+  font-weight: 800;
+}
+
+/* =========================
+   Reviews
+   ========================= */
+
+.ddpReviewComposer {
+  margin-bottom: 14px;
+}
+
+.ddpNotice {
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.ddpNoticeTitle {
+  font-weight: 800;
+  margin-bottom: 3px;
+}
+
+.ddpForm {
+  display: grid;
+  gap: 12px;
+}
+
+.ddpFormRow {
+  display: grid;
+  gap: 6px;
+}
+
+.ddpLabel {
+  font-size: 13px;
+  font-weight: 800;
+  color: #374151;
+}
+
+.ddpRatingRow {
+  display: grid;
+  gap: 8px;
+}
+
+.ddpRatingValue {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ddpTextarea {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+  resize: vertical;
+}
+
+.ddpTextarea:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 4px rgba(147, 197, 253, 0.35);
+}
+
+.ddpCharHint {
+  font-size: 12px;
+  color: #6b7280;
+  text-align: right;
+}
+
+.ddpFormActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ddpReviewList {
+  display: grid;
+  gap: 10px;
+}
+
+.ddpReviewItem {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  background: #ffffff;
+}
+
+.ddpReviewTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.ddpReviewAuthor {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+}
+
+.ddpAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: #111827;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  flex: 0 0 auto;
+}
+
+.ddpReviewName {
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ddpBadge {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  color: #3730a3;
+  font-weight: 800;
+}
+
+.ddpReviewMeta {
+  font-size: 13px;
+  color: #374151;
+}
+
+.ddpReviewComment {
+  margin: 0;
+  color: #111827;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+/* Stars */
+.stars {
+  color: #f59e0b;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.starsEmpty {
+  color: #e5e7eb;
+}
+
+/* =========================
+   Right sidebar details
+   ========================= */
+
+.ddpRight {
+  min-width: 0;
+}
+
+.ddpSticky {
+  position: sticky;
+  top: calc(var(--app-header-h, 72px) + 16px);
+}
+
+.ddpPill {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  color: #374151;
+  font-weight: 800;
+}
+
+.ddpDetails {
+  display: grid;
+  gap: 10px;
+}
+
+.ddpDetailRow {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.ddpDetailLabel {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 800;
+}
+
+.ddpDetailValue {
+  color: #111827;
+  font-weight: 650;
+  min-width: 0;
+}
+
+.ddpDescription {
+  font-weight: 550;
+  line-height: 1.5;
+}
+
+.ddpDetailBlock {
+  display: grid;
+  gap: 6px;
+}
+
+.ddpCoords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 6px;
+  color: #374151;
+  font-weight: 700;
+}
+
+.ddpDivider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 10px 0;
+}
+
+.ddpSidebarActions {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.ddpAdminActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.ddpBtnDanger {
+  background: #b91c1c;
+  border-color: transparent;
+}
+
+.ddpBtnDanger:hover {
+  background: #991b1b;
+}
+
+.ddpAuthorLink {
+  color: #111827;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.ddpAuthorLink:hover {
+  text-decoration: underline;
+}
+
+
+
+/* Small screens: un-sticky sidebar */
+@media (max-width: 980px) {
+  .ddpSticky {
+    position: static;
+  }
+}

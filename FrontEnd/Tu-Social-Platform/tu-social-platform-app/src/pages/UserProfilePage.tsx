@@ -16,6 +16,7 @@ import Header from "../components/Header";
 import MyPostList from "../components/MyPostList";
 import MyEventList from "../components/UserEventList";
 import type { EventItem } from "../types";
+import LocationModal from "../components/LocationModal";
 
 
 import { chatService } from "../services/ChatService";
@@ -40,6 +41,8 @@ const UserProfilePage: React.FC = () => {
  
   const [chatOpen, setChatOpen] = useState(false);
   const [chatState, setChatState] = useState<null | { chatId: number; title: string }>(null);
+  
+  const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
 
   useEffect(() => {
     let isCancelled = false;
@@ -206,9 +209,9 @@ const UserProfilePage: React.FC = () => {
     }
   };
 
-  const handleCheckLocation = (event: EventItem) => {
-    console.log("Check location for event:", event);
-  };
+  const handleCheckLocation = (event: EventItem) => setSelectedEvent(event);
+  const handleCloseLocation = () => setSelectedEvent(null);
+
 
   const shownUserId = userDto?.userId;
 
@@ -249,6 +252,10 @@ const UserProfilePage: React.FC = () => {
             <MyPostList userId={shownUserId} />
           </section>
         )}
+
+        {selectedEvent && (
+  <LocationModal event={selectedEvent} onClose={handleCloseLocation} />
+)}
 
         {shownUserId && activeTab === "events" && (
           <section style={{ marginTop: 12 }}>

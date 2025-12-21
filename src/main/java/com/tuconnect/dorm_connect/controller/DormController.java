@@ -2,12 +2,17 @@ package com.tuconnect.dorm_connect.controller;
 
 import com.tuconnect.dorm_connect.dto.Dorm.DormRequestDTO;
 import com.tuconnect.dorm_connect.dto.Dorm.DormResponseDTO;
+import com.tuconnect.dorm_connect.dto.Dorm.DormUpdateRequestDTO;
 import com.tuconnect.dorm_connect.service.DormService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -31,17 +36,24 @@ public class DormController {
         return ResponseEntity.ok(dormService.getDormById(id));
     }
 
-    @PostMapping
-    public ResponseEntity<DormResponseDTO> createDorm(@RequestBody DormRequestDTO dto) {
-        return ResponseEntity.ok(dormService.createDorm(dto));
+    @PostMapping(value = "/dorms", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public DormResponseDTO createDorm(
+            @RequestPart("dto") DormRequestDTO dto,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            Authentication authentication
+    ) throws IOException {
+        return dormService.createDorm(dto, authentication, files);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<DormResponseDTO> updateDorm(
+
+    @PutMapping(value="/dorms/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public DormResponseDTO updateDorm(
             @PathVariable Long id,
-            @RequestBody DormRequestDTO dto
-    ) {
-        return ResponseEntity.ok(dormService.updateDorm(id, dto));
+            @RequestPart("dto") DormUpdateRequestDTO dto,
+            @RequestPart(value="files", required=false) List<MultipartFile> files,
+            Authentication authentication
+    ) throws IOException {
+        return dormService.updateDorm(id, dto, authentication, files);
     }
 
     @DeleteMapping("/{id}")
@@ -50,31 +62,5 @@ public class DormController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<DormResponseDTO> getDormByName(@RequestParam String name) {
-        return ResponseEntity.ok(dormService.getDormByName(name));
-    }
 
-    @GetMapping("/filter/price-max")
-    public ResponseEntity<List<DormResponseDTO>> getDormsByPriceMax(@RequestParam Double maxPrice) {
-        return ResponseEntity.ok(dormService.getDormsByPriceMax(maxPrice));
-    }
-
-    @GetMapping("/filter/block")
-    public ResponseEntity<List<DormResponseDTO>> getDormsByBlock(@RequestParam String block) {
-        return ResponseEntity.ok(dormService.getDormsByBlock(block));
-    }
-
-    @GetMapping("/search/keyword")
-    public ResponseEntity<List<DormResponseDTO>> searchDorms(@RequestParam String q) {
-        return ResponseEntity.ok(dormService.searchDorms(q));
-    }
-
-    @GetMapping("/filter/price-range")
-    public ResponseEntity<List<DormResponseDTO>> getDormsByPriceRange(
-            @RequestParam Double min,
-            @RequestParam Double max
-    ) {
-        return ResponseEntity.ok(dormService.getDormsByPriceRange(min, max));
-    }
 }
