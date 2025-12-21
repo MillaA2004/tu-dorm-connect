@@ -19,7 +19,7 @@ public class AdminBootstrap implements CommandLineRunner {
     @Value("${app.bootstrap-admin.enabled:false}")
     private boolean enabled;
 
-    @Value("${app.bootstrap-admin.userid:99999}")
+    @Value("${app.bootstrap-admin.userid:999}")
     private Long userId;
 
     @Value("${app.bootstrap-admin.email:}")
@@ -56,7 +56,6 @@ public class AdminBootstrap implements CommandLineRunner {
         }
 
         User admin = User.builder()
-                .id(userId)
                 .firstName(firstName)
                 .lastName(lastName)
                 .email(email)
@@ -67,6 +66,8 @@ public class AdminBootstrap implements CommandLineRunner {
                 .academicYear(academicYear)
                 .role(Roles.Admin)
                 .suspendedUntil(null)
+                .deleted(false)
+                .deletedAt(null)
                 .build();
 
         userRepository.save(admin);

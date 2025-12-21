@@ -51,8 +51,6 @@ public class AuthController {
 
             if (user.isDeleted()) {
                 throw new DisabledException("Account deleted");
-                // TODO: Don't return OK
-                return ResponseEntity.ok();
             }
 
             Object principal = authentication.getPrincipal();

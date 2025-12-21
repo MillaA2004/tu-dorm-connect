@@ -8,7 +8,6 @@ import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.CloudinaryService;
 import com.tuconnect.dorm_connect.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.TableGenerator;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
