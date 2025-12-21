@@ -29,6 +29,19 @@ const MatchesPage: React.FC = () => {
         setMatches(data.sort((a, b) => b.score - a.score));
       } catch (err) {
         console.error(err);
+        if (
+          typeof err === "object" &&
+          err !== null &&
+          "response" in err &&
+          typeof (err as any).response === "object" &&
+          (err as any).response !== null &&
+          "status" in (err as any).response &&
+          (err as any).response.status === 404
+        ) {
+          alert("Session invalid or user not found. Please log in again.");
+          navigate("/login");
+          return;
+        }
         setError("Failed to load matches.");
       } finally {
         setLoading(false);
@@ -52,10 +65,13 @@ const MatchesPage: React.FC = () => {
     return "Low Match";
   };
 
-  const getInitials = (name: string) => {
+  const getInitials = (name?: string | null) => {
+    if (!name || typeof name !== "string") return "?";
+
     return name
-      .split(" ")
-      .map((n) => n[0])
+      .trim()
+      .split(/\s+/)
+      .map((n) => n[0] ?? "")
       .join("")
       .toUpperCase()
       .slice(0, 2);
@@ -212,7 +228,7 @@ const MatchesPage: React.FC = () => {
               >
                 {matches.map((match) => (
                   <div
-                    key={match.id}
+                    key={match.poster.id ?? match.score}
                     style={{
                       background: "white",
                       borderRadius: 16,
@@ -228,7 +244,7 @@ const MatchesPage: React.FC = () => {
                       if (match.listingId) {
                         navigate(`/listings/${match.listingId}`);
                       } else {
-                        navigate(`/profile/${match.posterId}`);
+                        navigate(`/profile/${match.poster.id}`);
                       }
                     }}
                     onMouseEnter={(e) => {
@@ -244,10 +260,10 @@ const MatchesPage: React.FC = () => {
                   >
                     {/* Avatar */}
                     <div style={{ flexShrink: 0 }}>
-                      {match.posterProfileImage ? (
+                      {match.poster.profileImageUrl ? (
                         <img
-                          src={match.posterProfileImage}
-                          alt={match.posterName}
+                          src={match.poster.profileImageUrl}
+                          alt={match.poster.firstName + " " + match.poster.lastName}
                           style={{
                             width: 60,
                             height: 60,
@@ -271,7 +287,7 @@ const MatchesPage: React.FC = () => {
                             fontSize: "1.2rem",
                           }}
                         >
-                          {getInitials(match.posterName)}
+                          {getInitials(match.poster.firstName + " " + match.poster.lastName)}
                         </div>
                       )}
                     </div>
@@ -279,7 +295,7 @@ const MatchesPage: React.FC = () => {
                     {/* Info */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <h3 style={{ margin: "0 0 0.25rem", fontSize: "1.1rem" }}>
-                        {match.posterName}
+                        {match.poster.firstName + " " + match.poster.lastName}
                       </h3>
                       {match.listingTitle && (
                         <p

@@ -18,8 +18,8 @@ const EditListingPage: React.FC = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState<number | "">("");
-  const [dorm, setDorm] = useState("");
-  const [expiryDays, setExpiryDays] = useState<number | "">("");
+  const [dormName, setDorm] = useState("");
+  const [expiryDays, setExpiryDays] = useState<number | "">(30);
 
   const [saving, setSaving] = useState(false);
 
@@ -39,8 +39,8 @@ const EditListingPage: React.FC = () => {
         setTitle(data.title);
         setDescription(data.description);
         setPrice(data.price);
-        setDorm(data.dorm);
-        setExpiryDays(data.expiryDays ?? "");
+        setDorm(data.dormName);
+        setExpiryDays(data.expiryDays ?? 30);
       } catch (err) {
         console.error(err);
         setListing(null);
@@ -67,7 +67,7 @@ const EditListingPage: React.FC = () => {
 
     if (!title.trim()) return alert("Add a title");
     if (!description.trim()) return alert("Add a description");
-    if (!dorm.trim()) return alert("Add a dorm name");
+    if (!dormName.trim()) return alert("Add a dorm name");
     if (price === "" || Number(price) <= 0)
       return alert("Set a positive price");
     if (expiryDays === "" || Number(expiryDays) <= 0)
@@ -77,7 +77,7 @@ const EditListingPage: React.FC = () => {
       title: title.trim(),
       description: description.trim(),
       price: Number(price),
-      dorm: dorm.trim(),
+      dormName: dormName.trim(),
       posterId: user.id,
       expiryDays: Number(expiryDays),
     };
@@ -255,7 +255,7 @@ const EditListingPage: React.FC = () => {
           {/* Dorm */}
           <div style={{ display: "grid", gap: "0.35rem" }}>
             <label style={{ fontWeight: 500 }}>Dorm</label>
-            <input
+            <select
               style={{
                 width: "100%",
                 padding: "0.6rem 0.75rem",
@@ -263,10 +263,15 @@ const EditListingPage: React.FC = () => {
                 border: "1px solid #d4d4d8",
                 fontSize: "0.95rem",
               }}
-              value={dorm}
+              value={dormName}
               onChange={(e) => setDorm(e.target.value)}
-              placeholder="Johnson Hall, Smith Residence, etc."
-            />
+            >
+              <option value="">Select dorm</option>
+              <option value="Block 14">Block 14</option>
+              <option value="Block 3">Block 3</option>
+              <option value="Block 16">Block 16</option>
+              <option value="Block 54">Block 54</option>
+            </select>
           </div>
 
           {/* Price + Expiry Days */}
@@ -298,7 +303,7 @@ const EditListingPage: React.FC = () => {
             </div>
 
             <div style={{ display: "grid", gap: "0.35rem" }}>
-              <label style={{ fontWeight: 500 }}>Expiry (days)</label>
+              <label style={{ fontWeight: 500 }}>Days to expire</label>
               <input
                 type="number"
                 min={1}

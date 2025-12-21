@@ -3,7 +3,6 @@ export interface LatLng {
   lng: number;
 }
 
-
 export interface UserSummary {
   id: number;
   firstName: string;
@@ -31,7 +30,7 @@ export interface NewListing {
   title: string;
   description: string;
   price: number;
-  dorm: string;
+  dormName: string;
   posterId: number;
   expiryDays: number;
 }
@@ -45,7 +44,7 @@ export interface ListingItem extends NewListing {
 export interface ListingRequestDTO {
   title: string;
   description: string;
-  dorm: string;
+  dormName: string;
   price: number;
   expiryDays: number | null;
 }
@@ -54,7 +53,7 @@ export interface ListingResponseDTO {
   id: number;
   title: string;
   description: string;
-  dorm: string;
+  dormName: string;
   price: number;
   createdAt: string;
   expiresAt: string | null;
@@ -86,22 +85,25 @@ export interface QuestionnaireData {
   sharesItems: boolean | null;
 }
 
+// types.ts
 export interface UserMatchDTO {
-  id: number;
-  viewerId: number;
-  posterId: number;
-  posterName: string;
-  posterProfileImage?: string;
-  listingId?: number;
-  listingTitle?: string;
+  poster: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    profileImageUrl: string; 
+    major?: string;       
+    academicYear?: number;   
+  };
   score: number;
-  createdAt: string;
+  listingId?: number;        
+  listingTitle?: string;     
 }
 
 export interface Message {
   id: string;
   text: string;
-  createdAt: string; 
+  createdAt: string;
   isRead: boolean;
 }
 
@@ -110,7 +112,7 @@ export interface Conversation {
   name: string;
   avatarUrl?: string;
   lastMessage: string;
-  lastMessageAt: string; 
+  lastMessageAt: string;
   unreadCount: number;
 }
 
@@ -118,8 +120,7 @@ export interface NotificationItem {
   id: string;
   title: string;
   description: string;
-  createdAt: string; 
+  createdAt: string;
   isRead: boolean;
   type?: "like" | "comment" | "event" | "system";
 }
-

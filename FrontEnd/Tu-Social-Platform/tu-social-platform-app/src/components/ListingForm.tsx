@@ -10,7 +10,7 @@ const ListingForm: React.FC = () => {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [dorm, setDorm] = useState("");
+  const [dormName, setDorm] = useState("");
   const [price, setPrice] = useState<number | "">("");
   const [expiryDays, setExpiryDays] = useState<number | "">("");
 
@@ -23,13 +23,13 @@ const ListingForm: React.FC = () => {
 
     if (!title.trim()) return alert("Add a title");
     if (!description.trim()) return alert("Add a description");
-    if (!dorm.trim()) return alert("Select a dorm");
+    if (!dormName.trim()) return alert("Select a dorm");
     if (price === "" || price <= 0) return alert("Set a positive price");
 
     const payload: ListingRequestDTO = {
       title: title.trim(),
       description: description.trim(),
-      dorm: dorm.trim(),
+      dormName: dormName.trim(),
       price: Number(price),
       expiryDays: expiryDays === "" ? null : Number(expiryDays),
     };
@@ -125,15 +125,14 @@ const ListingForm: React.FC = () => {
             border: "1px solid #d4d4d8",
             fontSize: "0.95rem",
           }}
-          value={dorm}
+          value={dormName}
           onChange={(e) => setDorm(e.target.value)}
         >
           <option value="">Select dorm</option>
-          <option value="Block 1">Block 1</option>
-          <option value="Block 2">Block 2</option>
+          <option value="Block 14">Block 14</option>
           <option value="Block 3">Block 3</option>
-          <option value="Block 4">Block 4</option>
-          <option value="Block 5">Block 5</option>
+          <option value="Block 16">Block 16</option>
+          <option value="Block 54">Block 54</option>
         </select>
       </div>
 
@@ -150,6 +149,7 @@ const ListingForm: React.FC = () => {
           <input
             type="number"
             min={1}
+            step="0.01"
             style={{
               padding: "0.6rem 0.75rem",
               borderRadius: 8,
@@ -160,7 +160,7 @@ const ListingForm: React.FC = () => {
             onChange={(e) =>
               setPrice(e.target.value === "" ? "" : Number(e.target.value))
             }
-            placeholder="e.g. 350"
+            placeholder="e.g. 70.99"
           />
         </div>
 

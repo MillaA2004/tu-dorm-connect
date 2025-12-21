@@ -87,7 +87,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
           <div>
             <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>
-              {listing.dorm}
+              {listing.dormName}
             </div>
             <div style={{ fontSize: "0.8rem", color: "#6b7280" }}>
               {isOwner ? "Your Listing" : "Available"}

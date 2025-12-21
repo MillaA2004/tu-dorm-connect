@@ -199,7 +199,7 @@ const ListingDetailsPage: React.FC = () => {
               >
                 Dorm
               </span>
-              <span style={{ fontWeight: 500 }}>{listing.dorm}</span>
+              <span style={{ fontWeight: 500 }}>{listing.dormName}</span>
             </div>
 
             <div>
@@ -355,7 +355,7 @@ const ListingDetailsPage: React.FC = () => {
                   Location
                 </span>
                 <span style={{ fontWeight: 500, fontSize: "0.95rem" }}>
-                  {listing.dorm}
+                  {listing.dormName}
                 </span>
               </div>
 

@@ -51,9 +51,9 @@ const ListingsPage: React.FC = () => {
     checkQuestionnaire();
   }, [user]);
 
-  // Get unique dorm names
+  // Get unique dormName names
   const dormNames = useMemo(() => {
-    return ["all", ...new Set(listings.map((l) => l.dorm))];
+    return ["all", ...new Set(listings.map((l) => l.dormName))];
   }, [listings]);
 
   // Apply filters
@@ -62,7 +62,7 @@ const ListingsPage: React.FC = () => {
 
     // Dorm filter
     if (selectedDorm !== "all") {
-      filtered = filtered.filter((l) => l.dorm === selectedDorm);
+      filtered = filtered.filter((l) => l.dormName === selectedDorm);
     }
 
     // Price filter
@@ -362,9 +362,9 @@ const ListingsPage: React.FC = () => {
             }}
           >
             <option value="all">All dorms</option>
-            {dormNames.slice(1).map((dorm) => (
-              <option key={dorm} value={dorm}>
-                {dorm}
+            {dormNames.slice(1).map((dormName) => (
+              <option key={dormName} value={dormName}>
+                {dormName}
               </option>
             ))}
           </select>
