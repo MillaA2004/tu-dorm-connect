@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import type { ListingItem } from "../types";
 import { listingService } from "../services/ListingService";
+import { chatService } from "../services/ChatService";
+import { ChatWindow } from "../components/ChatWindow";
 import { useAuth } from "../services/AuthContext";
 
 const ListingDetailsPage: React.FC = () => {
@@ -21,6 +23,13 @@ const ListingDetailsPage: React.FC = () => {
     if (!user || !listing) return false;
     return listing.posterId === user.id;
   }, [user, listing]);
+
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatState, setChatState] = useState<{
+    chatId: number;
+    title: string;
+    otherUserId: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!Number.isFinite(listingId)) {
@@ -64,11 +73,35 @@ const ListingDetailsPage: React.FC = () => {
     }
   };
 
-  const handleContact = () => {
-    if (!user) return alert("Please log in to contact the poster.");
-    // Navigate to messaging or open contact modal
-    alert(`Contact poster for listing ${listing?.id}`);
-    // navigate(`/messages/new?listingId=${listing?.id}`);
+  const handleContact = async () => {
+    if (!user) {
+      alert("Please log in to contact the poster.");
+      return;
+    }
+
+    if (!listing) return;
+
+    // Prevent messaging yourself
+    if (listing.posterId === user.id) {
+      alert("You cannot message yourself!");
+      return;
+    }
+
+    try {
+      // 1. Create or get existing chat
+      const chat = await chatService.createDirectChat(listing.posterId);
+
+      // 2. Open the window
+      setChatState({
+        chatId: Number(chat.chatId),
+        title: `Chat: ${listing.title}`, // Contextual title
+        otherUserId: listing.posterId,
+      });
+      setChatOpen(true);
+    } catch (err) {
+      console.error("Failed to initiate chat", err);
+      alert("Failed to open chat. Please try again.");
+    }
   };
 
   if (loading) {
@@ -274,9 +307,22 @@ const ListingDetailsPage: React.FC = () => {
                 boxShadow: "0 10px 25px rgba(79,70,229,0.25)",
               }}
             >
-              Contact poster
+              Contact
             </button>
           )}
+
+          <ChatWindow
+            isOpen={chatOpen}
+            chatId={chatState?.chatId ?? null}
+            chatTitle={chatState?.title ?? "Chat"}
+            isGroup={false}
+            isAdmin={false}
+            otherUserId={chatState?.otherUserId ?? null}
+            onClose={() => {
+              setChatOpen(false);
+              setChatState(null);
+            }}
+          />
 
           {isPoster && (
             <div
@@ -341,23 +387,6 @@ const ListingDetailsPage: React.FC = () => {
                 gap: "0.75rem",
               }}
             >
-              <div>
-                <span
-                  style={{
-                    display: "block",
-                    fontSize: "0.75rem",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                    color: "#6b7280",
-                    marginBottom: "0.25rem",
-                  }}
-                >
-                  Location
-                </span>
-                <span style={{ fontWeight: 500, fontSize: "0.95rem" }}>
-                  {listing.dormName}
-                </span>
-              </div>
 
               <div>
                 <span

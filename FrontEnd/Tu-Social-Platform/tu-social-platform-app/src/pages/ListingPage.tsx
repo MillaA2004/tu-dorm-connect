@@ -5,6 +5,8 @@ import ListingList from "../components/ListingList";
 import { type ListingItem } from "../types";
 import { questionnaireService } from "../services/QuestionnaireService";
 import { listingService } from "../services/ListingService";
+import { chatService } from "../services/ChatService";
+import { ChatWindow } from "../components/ChatWindow";
 import { useAuth } from "../services/AuthContext";
 
 const ListingsPage: React.FC = () => {
@@ -21,6 +23,13 @@ const ListingsPage: React.FC = () => {
   const navigate = useNavigate();
 
   const abortRef = useRef<AbortController | null>(null);
+
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatState, setChatState] = useState<{
+    chatId: number;
+    title: string;
+    otherUserId: number;
+  } | null>(null);
 
   const fetchAll = async () => {
     try {
@@ -164,10 +173,33 @@ const ListingsPage: React.FC = () => {
     }
   };
 
-  const handleContact = (id: number) => {
-    // Navigate to messaging or open contact modal
-    alert(`Contact poster for listing ${id}`);
-    // navigate(`/messages/new?listingId=${id}`);
+  const handleContact = async (id: number) => {
+    if (!user) {
+      alert("Please log in to contact the poster.");
+      return;
+    }
+
+    const listing = listings.find((l) => l.id === id);
+    if (!listing) return;
+
+    if (listing.posterId === user.id) {
+      alert("You cannot message yourself!");
+      return;
+    }
+
+    try {
+      const chat = await chatService.createDirectChat(listing.posterId);
+
+      setChatState({
+        chatId: Number(chat.chatId),
+        title: `Chat: ${listing.title}`, 
+        otherUserId: listing.posterId,
+      });
+      setChatOpen(true);
+    } catch (err) {
+      console.error("Failed to initiate chat", err);
+      alert("Failed to open chat. Please try again.");
+    }
   };
 
   return (
@@ -427,6 +459,18 @@ const ListingsPage: React.FC = () => {
             )}
           </>
         )}
+        <ChatWindow
+          isOpen={chatOpen}
+          chatId={chatState?.chatId ?? null}
+          chatTitle={chatState?.title ?? "Chat"}
+          isGroup={false}
+          isAdmin={false}
+          otherUserId={chatState?.otherUserId ?? null}
+          onClose={() => {
+            setChatOpen(false);
+            setChatState(null);
+          }}
+        />
       </div>
     </>
   );
