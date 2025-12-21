@@ -16,7 +16,7 @@ const MyEventList: React.FC<Props> = ({ userId, refreshKey, onCheckLocation }) =
 
   const loadEvents = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setError(null); 
 
     try {
       const data = await eventService.getEventsCreatedByUser(userId);
@@ -44,7 +44,7 @@ const MyEventList: React.FC<Props> = ({ userId, refreshKey, onCheckLocation }) =
     );
   }
 
-  return <EventList events={events} onCheckLocation={onCheckLocation} />;
+  return <EventList events={events} onCheckLocation={onCheckLocation} />; 
 };
 
 export default MyEventList;
