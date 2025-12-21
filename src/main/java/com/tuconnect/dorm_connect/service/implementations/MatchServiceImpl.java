@@ -65,6 +65,7 @@ public class MatchServiceImpl implements MatchService {
         List<UserMatch> matches = posters.stream()
                 .filter(poster -> !poster.getId().equals(viewer.getId()))
                 .filter(poster -> poster.getGender() == viewer.getGender())
+                .filter(poster -> poster.getListings().stream().anyMatch(Listing::getIsActive))
                 .map(poster -> {
                     double score = matchingService.calculateMatchScore(viewerQ, poster.getQuestionnaire());
                     return createMatch(viewer, poster, score);
@@ -92,9 +93,8 @@ public class MatchServiceImpl implements MatchService {
         List<UserMatch> allMatches = viewers.stream()
                 .flatMap(viewer -> posters.stream()
                         .filter(poster -> !viewer.getId().equals(poster.getId()))
-                        // prevent duplicate (viewer,poster) and (poster,viewer)
                         .filter(poster -> poster.getGender() == viewer.getGender())
-                        .filter(poster -> viewer.getId() < poster.getId())
+                        .filter(poster -> poster.getListings().stream().anyMatch(Listing::getIsActive))
                         .map(poster -> {
                             double score = matchingService.calculateMatchScore(
                                     viewer.getQuestionnaire(), poster.getQuestionnaire()
