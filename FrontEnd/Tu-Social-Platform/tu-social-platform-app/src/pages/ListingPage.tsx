@@ -60,21 +60,17 @@ const ListingsPage: React.FC = () => {
     checkQuestionnaire();
   }, [user]);
 
-  // Get unique dormName names
   const dormNames = useMemo(() => {
     return ["all", ...new Set(listings.map((l) => l.dormName))];
   }, [listings]);
 
-  // Apply filters
   const filteredListings = useMemo(() => {
     let filtered = [...listings];
 
-    // Dorm filter
     if (selectedDorm !== "all") {
       filtered = filtered.filter((l) => l.dormName === selectedDorm);
     }
 
-    // Price filter
     if (maxPrice) {
       const maxPriceNum = parseFloat(maxPrice);
       if (!isNaN(maxPriceNum)) {
@@ -233,7 +229,7 @@ const ListingsPage: React.FC = () => {
             flexWrap: "wrap",
           }}
         >
-          <h1 style={{ margin: 0, fontSize: "1.7rem" }}>Listings</h1>
+          <h1 style={{ margin: 0, fontSize: "1.7rem" }}>Find a Roomie</h1>
           <button
             onClick={handleCreateListing}
             style={{
@@ -254,7 +250,6 @@ const ListingsPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Matching System Banner */}
         {user && !hasQuestionnaire && (
           <div
             style={{
@@ -304,7 +299,6 @@ const ListingsPage: React.FC = () => {
           </div>
         )}
 
-        {/* Navigation buttons */}
         <div
           style={{
             display: "flex",
@@ -350,7 +344,6 @@ const ListingsPage: React.FC = () => {
           )}
         </div>
 
-        {/* Search + Filters */}
         <form
           onSubmit={handleSearchSubmit}
           style={{

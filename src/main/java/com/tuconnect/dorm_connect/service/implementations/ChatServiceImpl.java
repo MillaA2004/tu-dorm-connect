@@ -75,6 +75,8 @@ public class ChatServiceImpl implements ChatService {
 
 
 
+
+
     private ChatDTO toDtoWithLastMessage(Chat chat, User me) {
 
         Long adminId = chatMemberRepository
@@ -91,6 +93,19 @@ public class ChatServiceImpl implements ChatService {
                 .findFirstByChatChatIdOrderBySentAtDesc(chat.getChatId())
                 .map(messageMapper::toDto)
                 .orElse(null);
+
+        List<ChatMemberDTO> members = chatMemberRepository.findAllByChatChatId(chat.getChatId())
+                .stream()
+                .map(cm -> new ChatMemberDTO(
+                        cm.getChatMemberId(),
+                        cm.getUser().getId(),
+                        cm.getUser().getFirstName(),
+                        cm.getUser().getLastName(),
+                        cm.getChatRole(),
+                        cm.getUser().getProfileImageUrl()
+                ))
+                .toList();
+
 
 
         Instant lastReadAt = chatMemberRepository
@@ -112,7 +127,7 @@ public class ChatServiceImpl implements ChatService {
                 dto.name(),
                 dto.groupChat(),
                 adminId,
-                dto.members(),
+                members,
                 lastMessage,
                 unreadCount
         );
@@ -248,7 +263,8 @@ public class ChatServiceImpl implements ChatService {
                         cm.getUser().getId(),
                         cm.getUser().getFirstName(),
                         cm.getUser().getLastName(),
-                        cm.getChatRole()
+                        cm.getChatRole(),
+                        cm.getUser().getProfileImageUrl()
                 ))
                 .toList();
     }
