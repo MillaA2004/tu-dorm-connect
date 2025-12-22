@@ -5,6 +5,7 @@ public record ChatMemberDTO(
         Long userId,
         String firstName,
         String lastName,
-        String chatRole
+        String chatRole,
+        String imageUrl
 ) {
 }

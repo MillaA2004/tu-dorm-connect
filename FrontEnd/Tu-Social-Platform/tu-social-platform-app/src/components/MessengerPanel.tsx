@@ -50,6 +50,8 @@ const mapChatToConversation =
     const isGroup = c.groupChat;
     const members = c.members ?? [];
 
+    
+
     if (isGroup) {
       return {
         id: String(c.chatId),
@@ -70,6 +72,9 @@ const mapChatToConversation =
       `${other?.firstName ?? ""} ${other?.lastName ?? ""}`.trim() || "Direct chat";
 
     const otherAvatar = other?.imageUrl ?? "";
+
+    
+
 
     return {
       id: String(c.chatId),
@@ -98,6 +103,7 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose })
     isGroup: boolean;
     isAdmin: boolean;
     otherUserId: number | null;
+    otherAvatarUrl: string;
   }>(null);
 
   useEffect(() => {
@@ -116,6 +122,7 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose })
       try {
         setLoading(true);
         const data = await chatService.getMyChats();
+        console.log("getMyChats raw:", data);
 
         
         const mapped = data.map(mapChatToConversation(currentUserId));
@@ -184,6 +191,7 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose })
                         isGroup: conv.isGroup,
                         isAdmin,
                         otherUserId,
+                        otherAvatarUrl: conv.avatarUrl ?? "",
                       });
 
                       if (conv.unreadCount > 0) {
@@ -241,6 +249,7 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose })
         isGroup={!!selected?.isGroup}
         isAdmin={!!selected?.isAdmin}
         otherUserId={selected?.otherUserId ?? null}
+        otherAvatarUrl={selected?.otherAvatarUrl ?? ""}
         onClose={() => setSelected(null)}
       />
     </>
