@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -12,7 +12,9 @@ import { notificationService } from "../services/NotificationService";
 import { chatService } from "../services/ChatService";
 import { logoutUser } from "../services/AuthService";
 import { useAuth } from "../services/AuthContext.tsx";
-
+import { chatSocket } from "../services/ChatSocket";
+import type { StompSubscription } from "@stomp/stompjs";
+import type { MessageDTO } from "../services/MessageService";
 
 interface HeaderProps {
   showButtons?: boolean;
@@ -30,16 +32,23 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
-  const user = useAuth();
-  const isAdmin = user.user?.role === "Admin";
+  const auth = useAuth();
+  const isAdmin = auth.user?.role === "Admin";
 
+  const currentUserId: number | null = useMemo(() => {
+    const id = (auth.user as any)?.userId ?? (auth.user as any)?.id ?? null;
+    return id == null ? null : Number(id);
+  }, [auth.user]);
+
+  
+  const notifUnreadSubRef = useRef<StompSubscription | null>(null);
+  const msgSubsRef = useRef<Map<number, StompSubscription>>(new Map());
 
   const handleLogout = () => {
-  logoutUser();          
-  setIsSidebarOpen(false); 
-  navigate("/login", { replace: true }); 
-};
-
+    logoutUser();
+    setIsSidebarOpen(false);
+    navigate("/login", { replace: true });
+  };
 
   const loadUnreadNotifCount = async () => {
     try {
@@ -65,7 +74,6 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
     setIsMessagesOpen(next);
     setIsNotificationsOpen(false);
 
-   
     if (next) await loadUnreadMsgCount();
   };
 
@@ -74,7 +82,6 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
     setIsNotificationsOpen(next);
     setIsMessagesOpen(false);
 
-    
     if (next) await loadUnreadNotifCount();
   };
 
@@ -84,6 +91,90 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
     loadUnreadNotifCount();
     loadUnreadMsgCount();
   }, [showButtons]);
+
+  
+  useEffect(() => {
+    if (!showButtons) return;
+    if (!auth.token) return; 
+    
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        notifUnreadSubRef.current?.unsubscribe();
+        notifUnreadSubRef.current = null;
+
+        notifUnreadSubRef.current = await chatSocket.subscribe(
+          "/user/queue/notifications.unread",
+          (payload: { unreadCount: number }) => {
+            if (cancelled) return;
+            if (typeof payload?.unreadCount === "number") {
+              setUnreadNotifCount(payload.unreadCount);
+            }
+          }
+        );
+      } catch (e) {
+        console.error("Failed to subscribe to notifications unread count", e);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      notifUnreadSubRef.current?.unsubscribe();
+      notifUnreadSubRef.current = null;
+    };
+  }, [showButtons]);
+
+ 
+  useEffect(() => {
+  if (!showButtons) return;
+  if (!auth.token) return; 
+  if (currentUserId == null) return;
+
+  const token = auth.token; 
+
+  msgSubsRef.current.forEach((s) => s.unsubscribe());
+  msgSubsRef.current.clear();
+
+  let cancelled = false;
+
+  (async () => {
+    try {
+      await chatSocket.connect(token); 
+
+      const chats = await chatService.getMyChats();
+       const chatIds = chats
+        .map((c: any) => Number(c.chatId))
+        .filter((id) => Number.isFinite(id) && id > 0);
+
+      for (const id of chatIds) {
+        if (msgSubsRef.current.has(id)) continue;
+
+        const sub = await chatSocket.subscribe(`/topic/chats/${id}`, (msg: MessageDTO) => {
+          if (cancelled) return;
+
+          
+          if (msg?.userId != null && Number(msg.userId) === Number(currentUserId)) return;
+
+          setUnreadMsgCount((prev) => prev + 1);
+        });
+
+        msgSubsRef.current.set(id, sub);
+      }
+    } catch (e) {
+      console.error("Failed to subscribe to chat topics for unread badge", e);
+    }
+  })();
+
+  return () => {
+    cancelled = true;
+    msgSubsRef.current.forEach((s) => s.unsubscribe());
+    msgSubsRef.current.clear();
+  };
+}, [showButtons, auth.token, currentUserId]);
+
+
 
   return (
     <>
@@ -113,9 +204,7 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
             >
               <MailOutlineIcon style={{ fontSize: 26 }} />
               {unreadMsgCount > 0 && (
-                <span className="notif-badge">
-                  {unreadMsgCount > 99 ? "99+" : unreadMsgCount}
-                </span>
+                <span className="notif-badge">{unreadMsgCount > 99 ? "99+" : unreadMsgCount}</span>
               )}
             </button>
 
