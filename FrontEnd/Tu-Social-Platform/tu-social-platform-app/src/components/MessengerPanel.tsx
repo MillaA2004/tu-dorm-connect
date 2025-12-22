@@ -1,9 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { Conversation } from "../types";
 import "../styles/Messenger.css";
 import { chatService, type ChatDTO } from "../services/ChatService";
 import { ChatWindow } from "./ChatWindow";
 import { useAuth } from "../services/AuthContext";
+import { chatSocket } from "../services/ChatSocket";
+import type { StompSubscription } from "@stomp/stompjs";
+import type { MessageDTO } from "../services/MessageService";
 
 type ConversationEx = Conversation & {
   chatIdNum: number;
@@ -43,14 +46,11 @@ const formatChatTimestamp = (iso: string) => {
   return sent.toLocaleDateString([], { day: "2-digit", month: "short" });
 };
 
-
 const mapChatToConversation =
   (currentUserId: number) =>
   (c: ChatDTO): ConversationEx => {
     const isGroup = c.groupChat;
     const members = c.members ?? [];
-
-    
 
     if (isGroup) {
       return {
@@ -67,14 +67,9 @@ const mapChatToConversation =
     }
 
     const other = members.find((m) => Number(m.userId) !== Number(currentUserId));
-
     const otherName =
       `${other?.firstName ?? ""} ${other?.lastName ?? ""}`.trim() || "Direct chat";
-
     const otherAvatar = other?.imageUrl ?? "";
-
-    
-
 
     return {
       id: String(c.chatId),
@@ -106,6 +101,9 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose })
     otherAvatarUrl: string;
   }>(null);
 
+  
+  const subsRef = useRef<Map<number, StompSubscription>>(new Map());
+
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -115,6 +113,7 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose })
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
+  
   useEffect(() => {
     if (!isOpen) return;
 
@@ -122,11 +121,8 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose })
       try {
         setLoading(true);
         const data = await chatService.getMyChats();
-        console.log("getMyChats raw:", data);
 
-        
         const mapped = data.map(mapChatToConversation(currentUserId));
-
         mapped.sort((a, b) => +new Date(b.lastMessageAt) - +new Date(a.lastMessageAt));
         setChats(mapped);
       } catch (e) {
@@ -137,6 +133,65 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose })
       }
     })();
   }, [isOpen, currentUserId]);
+
+  
+  useEffect(() => {
+    if (!isOpen) return;
+
+    
+    subsRef.current.forEach((sub) => sub.unsubscribe());
+    subsRef.current.clear();
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        
+        for (const conv of chats) {
+          const chatId = conv.chatIdNum;
+          if (!chatId || subsRef.current.has(chatId)) continue;
+
+          const sub = await chatSocket.subscribeToChat(chatId, (msg) => {
+            if (cancelled) return;
+
+            const m = msg as MessageDTO;
+
+            setChats((prev) => {
+              
+              const updated = prev.map((c) => {
+                if (c.chatIdNum !== chatId) return c;
+
+                const isCurrentlyOpen = selected?.chatId === chatId;
+                const nextUnread = isCurrentlyOpen ? 0 : (c.unreadCount ?? 0) + 1;
+
+                return {
+                  ...c,
+                  lastMessage: m.content ?? c.lastMessage,
+                  lastMessageAt: m.sentAt ?? c.lastMessageAt,
+                  unreadCount: nextUnread,
+                };
+              });
+
+              
+              updated.sort((a, b) => +new Date(b.lastMessageAt) - +new Date(a.lastMessageAt));
+              return updated;
+            });
+          });
+
+          subsRef.current.set(chatId, sub);
+        }
+      } catch (e) {
+        console.error("Failed to subscribe for chat list updates", e);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      subsRef.current.forEach((sub) => sub.unsubscribe());
+      subsRef.current.clear();
+    };
+    
+  }, [isOpen, chats, selected?.chatId]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -172,7 +227,9 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose })
             {filtered.map((conv) => {
               const isAdmin =
                 conv.isGroup &&
-                conv.members?.some((m: any) => m.userId === currentUserId && m.chatRole === "Admin");
+                conv.members?.some(
+                  (m: any) => m.userId === currentUserId && String(m.chatRole) === "Admin"
+                );
 
               const otherUserId =
                 !conv.isGroup
@@ -255,3 +312,4 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({ isOpen, onClose })
     </>
   );
 };
+
