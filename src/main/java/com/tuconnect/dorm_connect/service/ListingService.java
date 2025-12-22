@@ -15,7 +15,7 @@ public interface ListingService {
 
     List<ListingResponseDTO> getActiveListings();
 
-    public List<ListingResponseDTO> getCompatibleListings(Long viewerId);
+    List<ListingResponseDTO> getCompatibleListings(Long viewerId);
 
     List<ListingResponseDTO> getListingsByUserId(Long posterId);
 

@@ -18,8 +18,6 @@ import UserEventList from "../components/UserEventList";
 import UserListingList from "../components/UserListingList";
 import type { EventItem } from "../types";
 import LocationModal from "../components/LocationModal";
-
-
 import { chatService } from "../services/ChatService";
 import { ChatWindow } from "../components/ChatWindow";
 
@@ -44,7 +42,7 @@ const UserProfilePage: React.FC = () => {
     chatId: number;
     title: string;
   }>(null);
-  
+
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
 
   useEffect(() => {
@@ -156,7 +154,6 @@ const UserProfilePage: React.FC = () => {
   }
 
   const isCurrentUser = !!user && !!userDto && userDto.email === user.email;
-
   const isAdmin =
     (user as any)?.role === "Admin" || (user as any)?.isAdmin === true;
   const canDelete = (isCurrentUser || isAdmin) && !!userDto?.userId;
@@ -166,9 +163,7 @@ const UserProfilePage: React.FC = () => {
 
     try {
       setError(null);
-
       const userId = userDto.userId;
-
       const updatedDto: UserDTO = {
         ...userDto,
         firstName: updated.firstName,
@@ -209,9 +204,7 @@ const UserProfilePage: React.FC = () => {
 
     try {
       setError(null);
-
       const chat = await chatService.createDirectChat(userDto.userId);
-
       const title =
         `${profile.firstName} ${profile.lastName}`.trim() ||
         chat.name ||
@@ -227,8 +220,6 @@ const UserProfilePage: React.FC = () => {
 
   const handleCheckLocation = (event: EventItem) => setSelectedEvent(event);
   const handleCloseLocation = () => setSelectedEvent(null);
-
-
   const shownUserId = userDto?.userId;
 
   return (
@@ -295,8 +286,8 @@ const UserProfilePage: React.FC = () => {
         )}
 
         {selectedEvent && (
-  <LocationModal event={selectedEvent} onClose={handleCloseLocation} />
-)}
+          <LocationModal event={selectedEvent} onClose={handleCloseLocation} />
+        )}
 
         {shownUserId && activeTab === "events" && (
           <section style={{ marginTop: 12 }}>
@@ -320,6 +311,7 @@ const UserProfilePage: React.FC = () => {
         chatTitle={chatState?.title ?? "Chat"}
         isGroup={false}
         isAdmin={false}
+        otherAvatarUrl={userDto?.profileImageUrl ?? ""}
         otherUserId={isCurrentUser ? null : userDto?.userId ?? null} //ako neshto se scbupi gledai tuk!
         onClose={() => {
           setChatOpen(false);

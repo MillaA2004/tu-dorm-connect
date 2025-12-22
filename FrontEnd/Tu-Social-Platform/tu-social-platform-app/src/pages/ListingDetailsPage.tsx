@@ -88,13 +88,11 @@ const ListingDetailsPage: React.FC = () => {
     }
 
     try {
-      // 1. Create or get existing chat
       const chat = await chatService.createDirectChat(listing.posterId);
 
-      // 2. Open the window
       setChatState({
         chatId: Number(chat.chatId),
-        title: `Chat: ${listing.title}`, // Contextual title
+        title: `Chat: ${listing.title}`, 
         otherUserId: listing.posterId,
       });
       setChatOpen(true);
