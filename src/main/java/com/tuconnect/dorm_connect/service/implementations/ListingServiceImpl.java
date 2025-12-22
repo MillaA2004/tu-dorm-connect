@@ -34,6 +34,15 @@ public class ListingServiceImpl implements ListingService {
         User poster = userRepository.findById(posterId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
+        List<Listing> existingListings = listingRepository.findByPosterIdAndIsActiveTrueAndExpiresAtAfter(
+                posterId,
+                LocalDateTime.now()
+        );
+
+        if (!existingListings.isEmpty()) {
+            throw new IllegalStateException("You already have an active listing. Please wait for it to expire or delete it before creating a new one.");
+        }
+
         Questionnaire questionnaire = questionnaireRepository.findByUserId(posterId);
         if (questionnaire == null) {
             throw new IllegalStateException("User must complete questionnaire before posting a listing.");
@@ -61,6 +70,22 @@ public class ListingServiceImpl implements ListingService {
     public List<ListingResponseDTO> getActiveListings() {
         List<Listing> listings = listingRepository.findByIsActiveTrueAndExpiresAtAfter(LocalDateTime.now());
         return listingMapper.toResponseDTOList(listings);
+    }
+
+    @Override
+    public List<ListingResponseDTO> getCompatibleListings(Long viewerId) {
+        User viewer = userRepository.findById(viewerId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        List<Listing> listings = listingRepository.findByIsActiveTrueAndExpiresAtAfterAndPoster_Gender(
+                LocalDateTime.now(),
+                viewer.getGender()
+        );
+        List<Listing> filtered = listings.stream()
+                .filter(l -> !l.getPoster().getId().equals(viewerId))
+                .toList();
+
+        return listingMapper.toResponseDTOList(filtered);
     }
 
     @Override
@@ -107,7 +132,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     @Transactional
-    public List<ListingResponseDTO> searchListings(String keyword) {
+    public List<ListingResponseDTO> searchListings(String keyword, Long viewerId) {
         List<Listing> listings;
 
            if (keyword != null) {
@@ -117,6 +142,16 @@ public class ListingServiceImpl implements ListingService {
                 );
             } else {
                 listings = listingRepository.findByIsActiveTrueAndExpiresAtAfter(LocalDateTime.now());
+            }
+
+            if (viewerId != null) {
+                User viewer = userRepository.findById(viewerId)
+                        .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+                listings = listings.stream()
+                        .filter(l -> l.getPoster().getGender() == viewer.getGender())
+                        .filter(l -> !l.getPoster().getId().equals(viewerId))
+                        .toList();
             }
 
            return listingMapper.toResponseDTOList(listings);

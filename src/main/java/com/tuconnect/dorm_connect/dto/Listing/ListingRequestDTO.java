@@ -19,10 +19,7 @@ public record ListingRequestDTO(
         Double price,
 
         @NotBlank(message = "Dorm is required")
-        String dorm,
-
-        @NotNull(message = "User ID is required")
-        Long posterId,
+        String dormName,
 
         @Positive(message = "Expiry days must be positive")
         Integer expiryDays

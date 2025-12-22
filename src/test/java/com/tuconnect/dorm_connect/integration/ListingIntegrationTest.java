@@ -4,12 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tuconnect.dorm_connect.dto.Listing.ListingRequestDTO;
 import com.tuconnect.dorm_connect.model.Listing;
 import com.tuconnect.dorm_connect.model.Questionnaire;
-import com.tuconnect.dorm_connect.model.Roles;
 import com.tuconnect.dorm_connect.model.User;
+import com.tuconnect.dorm_connect.model.Roles;
+import com.tuconnect.dorm_connect.model.User.Gender;
 import com.tuconnect.dorm_connect.repository.ListingRepository;
 import com.tuconnect.dorm_connect.repository.QuestionnaireRepository;
 import com.tuconnect.dorm_connect.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +18,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import java.time.LocalDateTime;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -44,22 +48,25 @@ class ListingIntegrationTest {
     @Autowired
     private QuestionnaireRepository questionnaireRepository;
 
-    private User poster = new User();
+    private User poster;
 
     @BeforeEach
     void setUp() {
+        listingRepository.deleteAll();
+        questionnaireRepository.deleteAll();
         userRepository.deleteAll();
 
+        poster = new User();
         poster.setFirstName("Milla");
         poster.setLastName("Angelova");
         poster.setEmail("test@example.com");
         poster.setPassword("password");
         poster.setAcademicYear(3);
         poster.setMajor("ISN");
-        poster.setGender(User.Gender.FEMALE);
+        poster.setGender(Gender.FEMALE);
         poster.setRole(Roles.User);
-
         poster = userRepository.save(poster);
+
         Questionnaire q = new Questionnaire();
         q.setUser(poster);
         q.setSmokes(true);
@@ -94,7 +101,6 @@ class ListingIntegrationTest {
                 "Desc",
                 100.0,
                 "Dorm A",
-                poster.getId(),
                 5
         );
 
@@ -108,33 +114,87 @@ class ListingIntegrationTest {
         assertThat(listingRepository.count()).isEqualTo(1);
     }
 
-    @Test void getActiveListings_shouldReturnOnlyActive() throws Exception {
-        Listing listing = new Listing();
-        listing.setTitle("Active");
-        listing.setDescription("Desc");
-        listing.setPrice(100.0);
-        listing.setDorm("Dorm A");
-        listing.setPoster(poster);
-        listing.setIsActive(true);
-        listingRepository.save(listing);
+    @Test
+    void getActiveListings_shouldReturnAll_WhenGuest() throws Exception {
+        createActiveListing(poster, "Guest View");
+
         mockMvc.perform(get("/listings/active"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value("Active"));
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].title").value("Guest View"));
     }
-    @Test void deleteListing_shouldDeactivateListing() throws Exception {
-        Listing listing = new Listing();
-        listing.setTitle("ToDelete");
-        listing.setDescription("Desc");
-        listing.setPrice(100.0);
-        listing.setDorm("Dorm A");
-        listing.setPoster(poster);
-        listing.setIsActive(true);
 
-        listing = listingRepository.save(listing);
+    @Test
+    void getActiveListings_shouldFilter_WhenUserLoggedIn() throws Exception {
+        User femaleUser = createHelperUser("jane@test.com", Gender.FEMALE);
+        createActiveListing(femaleUser, "Female Listing");
 
-        mockMvc.perform(delete("/listings/{id}", listing.getId()) .param("currentUserId", poster.getId().toString()))
+        User maleUser = createHelperUser("john@test.com", Gender.MALE);
+        createActiveListing(maleUser, "Male Listing");
+
+        createActiveListing(poster, "My Own Listing");
+
+        mockMvc.perform(get("/listings/active")
+                        .param("viewerId", poster.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].title").value("Female Listing"));
+    }
+
+    @Test
+    void searchListings_shouldFilter_WhenUserLoggedIn() throws Exception {
+        User maleUser = createHelperUser("john@test.com", Gender.MALE);
+        createActiveListing(maleUser, "Quiet Room (Male)");
+
+        User femaleUser = createHelperUser("jane@test.com", Gender.FEMALE);
+        createActiveListing(femaleUser, "Quiet Room (Female)"); // Compatible
+
+        // Act: Search for "Quiet" as the Female 'poster'
+        mockMvc.perform(get("/listings/search")
+                        .param("keyword", "Quiet")
+                        .param("viewerId", poster.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1))) // Should only find 1
+                .andExpect(jsonPath("$[0].title").value("Quiet Room (Female)"));
+    }
+
+    @Test
+    void deleteListing_shouldDeactivateListing() throws Exception {
+        Listing listing = createActiveListing(poster, "ToDelete");
+
+        mockMvc.perform(delete("/listings/{id}", listing.getId())
+                        .param("currentUserId", poster.getId().toString()))
                 .andExpect(status().isNoContent());
+
         Listing updated = listingRepository.findById(listing.getId()).orElseThrow();
         assertThat(updated.getIsActive()).isFalse();
+    }
+
+    // --- Helper Methods ---
+
+    private User createHelperUser(String email, Gender gender) {
+        User u = new User();
+        u.setFirstName("Helper");
+        u.setLastName("User");
+        u.setEmail(email);
+        u.setPassword("pass");
+        u.setGender(gender);
+        u.setAcademicYear(2);
+        u.setMajor("Computer Science");
+        u.setRole(Roles.User);
+        return userRepository.save(u);
+    }
+
+    private Listing createActiveListing(User owner, String title) {
+        Listing listing = new Listing();
+        listing.setTitle(title);
+        listing.setDescription("Description");
+        listing.setPrice(100.0);
+        listing.setDorm("Dorm A");
+        listing.setPoster(owner);
+        listing.setIsActive(true);
+        listing.setCreatedAt(LocalDateTime.now());
+        listing.setExpiresAt(LocalDateTime.now().plusDays(10));
+        return listingRepository.save(listing);
     }
 }

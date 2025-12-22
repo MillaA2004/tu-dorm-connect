@@ -1,6 +1,7 @@
 package com.tuconnect.dorm_connect.repository;
 
 import com.tuconnect.dorm_connect.model.Listing;
+import com.tuconnect.dorm_connect.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,6 +24,11 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
     List<Listing> findByDormAndIsActiveTrueAndExpiresAtAfter(
             String dorm,
             LocalDateTime now
+    );
+
+    List<Listing> findByIsActiveTrueAndExpiresAtAfterAndPoster_Gender(
+            LocalDateTime now,
+            User.Gender gender
     );
 
     @Query("SELECT l FROM Listing l WHERE " +

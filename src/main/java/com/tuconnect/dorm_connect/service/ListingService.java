@@ -15,6 +15,8 @@ public interface ListingService {
 
     List<ListingResponseDTO> getActiveListings();
 
+    public List<ListingResponseDTO> getCompatibleListings(Long viewerId);
+
     List<ListingResponseDTO> getListingsByUserId(Long posterId);
 
     List<ListingResponseDTO> getListingsByDorm(String dormName);
@@ -23,7 +25,7 @@ public interface ListingService {
 
     void deleteListing(Long id, Long currentUserId);
 
-    List<ListingResponseDTO> searchListings(String keyword);
+    List<ListingResponseDTO> searchListings(String keyword, Long viewerId);
 
     List<ListingResponseDTO> getListingsByPriceMax(Double maxPrice);
 }

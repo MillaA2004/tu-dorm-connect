@@ -17,6 +17,7 @@ public interface ListingMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "expiresAt", ignore = true)
     @Mapping(target = "preferencesJson", ignore = true)
+    @Mapping(target = "dorm", source = "dormName")
     @Mapping(target = "isActive", constant = "true")
     Listing toEntity(ListingRequestDTO dto);
 
@@ -24,13 +25,14 @@ public interface ListingMapper {
     List<ListingResponseDTO> toResponseDTOList(List<Listing> listings);
 
     @Mapping(target = "posterId", source = "poster.id")
+    @Mapping(target = "dormName", source = "dorm")
     ListingResponseDTO toResponseDTO(Listing listing);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "poster", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "expiresAt", ignore = true)
-    @Mapping(target = "dorm", source = "dorm")
+    @Mapping(target = "dorm", source = "dormName")
     @Mapping(target = "preferencesJson", ignore = true)
     @Mapping(target = "isActive", ignore = true)
     void updateEntityFromDTO(ListingRequestDTO dto, @MappingTarget Listing listing);

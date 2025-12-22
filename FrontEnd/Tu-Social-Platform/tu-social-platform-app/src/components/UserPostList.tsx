@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { postService, type PostResponse } from "../services/PostService";
-import PostCard from "../components/PostCard";
+import PostCard from "./PostCard";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
-  userId: number;       
+  userId: number;
   refreshKey?: number;
 };
 
-const MyPostList: React.FC<Props> = ({ userId, refreshKey }) => {
+const UserPostList: React.FC<Props> = ({ userId, refreshKey }) => {
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,4 +65,4 @@ const MyPostList: React.FC<Props> = ({ userId, refreshKey }) => {
   );
 }; 
 
-export default MyPostList;
+export default UserPostList;

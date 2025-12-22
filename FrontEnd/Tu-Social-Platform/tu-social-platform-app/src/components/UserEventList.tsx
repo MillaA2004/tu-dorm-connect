@@ -9,7 +9,11 @@ type Props = {
   onCheckLocation: (event: EventItem) => void;
 };
 
-const MyEventList: React.FC<Props> = ({ userId, refreshKey, onCheckLocation }) => {
+const UserEventList: React.FC<Props> = ({
+  userId,
+  refreshKey,
+  onCheckLocation,
+}) => {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,4 +51,4 @@ const MyEventList: React.FC<Props> = ({ userId, refreshKey, onCheckLocation }) =
   return <EventList events={events} onCheckLocation={onCheckLocation} />; 
 };
 
-export default MyEventList;
+export default UserEventList;

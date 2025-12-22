@@ -172,7 +172,7 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
             </li>
             <li>
               <Link to="/listings" onClick={toggleSidebar}>
-                Find roomate
+                Find a Roomie
               </Link>
             </li>
             <li>
