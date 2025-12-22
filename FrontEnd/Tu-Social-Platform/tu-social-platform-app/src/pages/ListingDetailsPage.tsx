@@ -124,6 +124,7 @@ const ListingDetailsPage: React.FC = () => {
     return (
       <>
         <Header />
+
         <div
           style={{
             maxWidth: 1100,
@@ -190,21 +191,42 @@ const ListingDetailsPage: React.FC = () => {
             boxShadow: "0 15px 40px rgba(15,23,42,0.08)",
           }}
         >
-          <span
-            style={{
-              display: "inline-block",
-              padding: "0.15rem 0.8rem",
-              borderRadius: 999,
-              background: listing.isActive ? "#dcfce7" : "#fee2e2",
-              color: listing.isActive ? "#16a34a" : "#dc2626",
-              fontSize: "0.8rem",
-              textTransform: "uppercase",
-              letterSpacing: "0.04em",
-              fontWeight: 600,
-            }}
-          >
-            {listing.isActive ? "Active" : "Inactive"}
-          </span>
+          {(() => {
+            const isExpired = new Date(listing.expiresAt) < new Date();
+            const isLive = listing.isActive && !isExpired;
+
+            let label = "Inactive";
+            let bg = "#fee2e2";
+            let color = "#dc2626";
+
+            if (isLive) {
+              label = "Active";
+              bg = "#dcfce7"; 
+              color = "#16a34a";
+            } else if (listing.isActive && isExpired) {
+              label = "Expired";
+              bg = "#ffedd5"; 
+              color = "#c2410c";
+            }
+
+            return (
+              <span
+                style={{
+                  display: "inline-block",
+                  padding: "0.15rem 0.8rem",
+                  borderRadius: 999,
+                  background: bg,
+                  color: color,
+                  fontSize: "0.8rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  fontWeight: 600,
+                }}
+              >
+                {label}
+              </span>
+            );
+          })()}
 
           <h1 style={{ fontSize: "1.8rem", margin: "0.4rem 0 1rem" }}>
             {listing.title}
@@ -385,7 +407,6 @@ const ListingDetailsPage: React.FC = () => {
                 gap: "0.75rem",
               }}
             >
-
               <div>
                 <span
                   style={{

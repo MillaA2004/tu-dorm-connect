@@ -32,6 +32,7 @@ public class MatchServiceImpl implements MatchService {
     private final UserMatchMapper userMatchMapper;
 
     private static final double MIN_SCORE = 60.0;
+    LocalDateTime now = LocalDateTime.now();
 
     private UserMatch createMatch(User viewer, User poster, double score) {
         return UserMatch.builder()
@@ -65,7 +66,8 @@ public class MatchServiceImpl implements MatchService {
         List<UserMatch> matches = posters.stream()
                 .filter(poster -> !poster.getId().equals(viewer.getId()))
                 .filter(poster -> poster.getGender() == viewer.getGender())
-                .filter(poster -> poster.getListings().stream().anyMatch(Listing::getIsActive))
+                .filter(poster -> poster.getListings().stream()
+                        .anyMatch(l -> l.getIsActive() && l.getExpiresAt().isAfter(now)))
                 .map(poster -> {
                     double score = matchingService.calculateMatchScore(viewerQ, poster.getQuestionnaire());
                     return createMatch(viewer, poster, score);
@@ -94,7 +96,8 @@ public class MatchServiceImpl implements MatchService {
                 .flatMap(viewer -> posters.stream()
                         .filter(poster -> !viewer.getId().equals(poster.getId()))
                         .filter(poster -> poster.getGender() == viewer.getGender())
-                        .filter(poster -> poster.getListings().stream().anyMatch(Listing::getIsActive))
+                        .filter(poster -> poster.getListings().stream()
+                                .anyMatch(l -> l.getIsActive() && l.getExpiresAt().isAfter(now)))
                         .map(poster -> {
                             double score = matchingService.calculateMatchScore(
                                     viewer.getQuestionnaire(), poster.getQuestionnaire()

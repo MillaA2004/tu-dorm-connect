@@ -25,7 +25,6 @@ const MatchesPage: React.FC = () => {
         setLoading(true);
         setError(null);
         const data = await matchService.getMatchesForViewer(user.id, minScore);
-        // Sort by score descending
         setMatches(data.sort((a, b) => b.score - a.score));
       } catch (err) {
         console.error(err);
@@ -67,7 +66,6 @@ const MatchesPage: React.FC = () => {
 
   const getInitials = (name?: string | null) => {
     if (!name || typeof name !== "string") return "?";
-
     return name
       .trim()
       .split(/\s+/)
@@ -88,7 +86,7 @@ const MatchesPage: React.FC = () => {
           paddingTop: "8%",
         }}
       >
-        {/* Header */}
+        {/* Header Container */}
         <div
           style={{
             display: "flex",
@@ -99,6 +97,7 @@ const MatchesPage: React.FC = () => {
             flexWrap: "wrap",
           }}
         >
+          {/* Title Section */}
           <div>
             <h1 style={{ margin: "0 0 0.25rem", fontSize: "1.8rem" }}>
               Your Roommate Matches
@@ -108,39 +107,62 @@ const MatchesPage: React.FC = () => {
             </p>
           </div>
 
-          <button
-            onClick={() => navigate("/questionnaire")}
-            style={{
-              padding: "0.6rem 1.2rem",
-              borderRadius: 999,
-              border: "1px solid #d4d4d8",
-              background: "white",
-              color: "#374151",
-              cursor: "pointer",
-              fontWeight: 600,
-              fontSize: "0.9rem",
-            }}
-          >
-            Update Questionnaire
-          </button>
+          <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+            <button
+              onClick={() => navigate("/listings")}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                padding: "0.5rem 1.2rem",
+                backgroundColor: "white",
+                border: "1px solid #d1d5db",
+                borderRadius: "9999px",
+                color: "#1f2937",
+                fontSize: "0.9rem",
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.backgroundColor = "#f9fafb")
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.backgroundColor = "white")
+              }
+            >
+              <span>←</span> Back to listings
+            </button>
+
+            <button
+              onClick={() => navigate("/questionnaire")}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                padding: "0.5rem 1.2rem",
+                backgroundColor: "white",
+                border: "1px solid #d1d5db",
+                borderRadius: "9999px",
+                color: "#1f2937",
+                fontSize: "0.9rem",
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.backgroundColor = "#f9fafb")
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.backgroundColor = "white")
+              }
+            >
+              Update Questionnaire
+            </button>
+          </div>
         </div>
 
-        {/* Back button */}
-        <button
-          onClick={() => navigate("/listings")}
-          style={{
-            border: "none",
-            background: "none",
-            color: "#4f46e5",
-            cursor: "pointer",
-            marginBottom: "1.5rem",
-            padding: 0,
-          }}
-        >
-          ← Back to listings
-        </button>
-
-        {/* Filter */}
+        {/* Filter Section */}
         <div
           style={{
             background: "white",
@@ -263,7 +285,9 @@ const MatchesPage: React.FC = () => {
                       {match.poster.profileImageUrl ? (
                         <img
                           src={match.poster.profileImageUrl}
-                          alt={match.poster.firstName + " " + match.poster.lastName}
+                          alt={
+                            match.poster.firstName + " " + match.poster.lastName
+                          }
                           style={{
                             width: 60,
                             height: 60,
@@ -287,7 +311,9 @@ const MatchesPage: React.FC = () => {
                             fontSize: "1.2rem",
                           }}
                         >
-                          {getInitials(match.poster.firstName + " " + match.poster.lastName)}
+                          {getInitials(
+                            match.poster.firstName + " " + match.poster.lastName
+                          )}
                         </div>
                       )}
                     </div>
