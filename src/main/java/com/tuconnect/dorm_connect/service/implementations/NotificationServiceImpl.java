@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -22,11 +23,11 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final NotificationMapper notificationMapper;
+    private final NotificationPushServiceImpl notificationPushService;
 
     @Override
     public void notifyPostCommented(Long postAuthorId, Long commenterId, Long postId) {
         if (postAuthorId.equals(commenterId)) return;
-
 
         User recipient = userRepository.getReferenceById(postAuthorId);
         User actor = userRepository.getReferenceById(commenterId);
@@ -42,6 +43,15 @@ public class NotificationServiceImpl implements NotificationService {
                 .build();
 
         notificationRepository.save(n);
+
+
+        NotificationDTO dto = notificationMapper.toDto(n);
+        String recipientEmail = recipient.getEmail();
+
+        notificationPushService.pushToUser(recipientEmail, dto);
+
+        long unread = notificationRepository.countByRecipient_IdAndReadAtIsNull(recipient.getId());
+        notificationPushService.pushUnreadCount(recipientEmail, unread);
     }
 
     @Override
@@ -62,13 +72,21 @@ public class NotificationServiceImpl implements NotificationService {
                 .build();
 
         notificationRepository.save(n);
+
+
+        NotificationDTO dto = notificationMapper.toDto(n);
+        String recipientEmail = recipient.getEmail();
+
+        notificationPushService.pushToUser(recipientEmail, dto);
+
+        long unread = notificationRepository.countByRecipient_IdAndReadAtIsNull(recipient.getId());
+        notificationPushService.pushUnreadCount(recipientEmail, unread);
     }
 
     @Override
     public void markAsRead(Long notificationId, Long recipientId) {
         Notification n = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
-
 
         if (!n.getRecipient().getId().equals(recipientId)) {
             throw new RuntimeException("Not allowed");
@@ -77,6 +95,11 @@ public class NotificationServiceImpl implements NotificationService {
         if (n.getReadAt() == null) {
             n.setReadAt(LocalDateTime.now());
             notificationRepository.save(n);
+
+
+            String email = n.getRecipient().getEmail();
+            long unread = notificationRepository.countByRecipient_IdAndReadAtIsNull(recipientId);
+            notificationPushService.pushUnreadCount(email, unread);
         }
     }
 
@@ -97,3 +120,4 @@ public class NotificationServiceImpl implements NotificationService {
         return notificationRepository.countByRecipient_IdAndReadAtIsNull(userId);
     }
 }
+

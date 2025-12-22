@@ -6,6 +6,7 @@ import com.tuconnect.dorm_connect.dto.Messages.SendMessageRequest;
 import com.tuconnect.dorm_connect.service.MessageService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,9 +18,11 @@ import org.springframework.web.bind.annotation.*;
 public class MessageController {
 
     private final MessageService messageService;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public MessageController(MessageService messageService) {
+    public MessageController(MessageService messageService,SimpMessagingTemplate messagingTemplate) {
         this.messageService = messageService;
+        this.messagingTemplate=messagingTemplate;
     }
 
 
@@ -39,17 +42,24 @@ public class MessageController {
     }
 
 
+
+
     @PostMapping
     public MessageDTO sendMessage(
             @PathVariable Long chatId,
             Authentication authentication,
             @Valid @RequestBody SendMessageRequest request
     ) {
-        return messageService.sendMessage(
+        MessageDTO saved = messageService.sendMessage(
                 chatId,
                 authentication.getName(),
                 request.content()
         );
+
+
+        messagingTemplate.convertAndSend("/topic/chats/" + chatId, saved);
+
+        return saved;
     }
 
 
