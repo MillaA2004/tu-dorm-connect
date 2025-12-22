@@ -30,7 +30,7 @@ const CreatePostForm: React.FC<Props> = ({ onCreated }) => {
       setBusy(false);
     }
   };
-
+ 
 
 return (
   <section className="createPost">
