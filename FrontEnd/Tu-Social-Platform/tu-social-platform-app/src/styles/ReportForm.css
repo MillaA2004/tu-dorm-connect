@@ -1,0 +1,78 @@
+.reportModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 999999; /* very high on purpose */
+}
+
+.reportModalCard {
+  width: 100%;
+  max-width: 560px;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.reportModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.reportModalTitle {
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.reportModalCloseBtn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+.reportModalCloseBtn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.reportModalBody {
+  padding: 14px 16px;
+}
+
+.reportModalHint {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 10px;
+}
+
+.reportModalTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #cfcfcf;
+  outline: none;
+  resize: vertical;
+}
+
+.reportModalTextarea:focus {
+  border-color: #7aa7ff;
+}
+
+.reportModalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid #eee;
+}

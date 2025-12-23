@@ -233,14 +233,27 @@ const UserProfilePage: React.FC = () => {
           <p style={{ color: "crimson", marginBottom: "12px" }}>{error}</p>
         )}
 
-        <UserDetails
+        {/* <UserDetails
           {...profile}
           isCurrentUser={isCurrentUser}
           canDelete={canDelete}
           onSaveProfile={handleSaveProfile}
           onMessage={handleMessage}
           onDelete={handleDeleteProfile}
-        />
+        /> */}
+        {shownUserId != null && (
+  <UserDetails
+    {...profile}
+    userId={shownUserId}
+    isCurrentUser={isCurrentUser}
+    canDelete={canDelete}
+    onSaveProfile={handleSaveProfile}
+    onMessage={handleMessage}
+    onDelete={handleDeleteProfile}
+  />
+)}
+
+
 
         <div
           style={{

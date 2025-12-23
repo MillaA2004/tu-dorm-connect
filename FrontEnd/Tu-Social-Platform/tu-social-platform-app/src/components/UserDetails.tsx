@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "../styles/UserDetails.css";
+import ReportForm from "../components/ReportForm";
 
 export type UserProfileData = {
+  userId: number;
   firstName: string;
   lastName: string;
   major: string;
@@ -27,6 +29,7 @@ type UserDetailsProps = UserProfileData & {
 };
 
 const UserDetails: React.FC<UserDetailsProps> = ({
+  userId,
   firstName,
   lastName,
   major,
@@ -40,8 +43,10 @@ const UserDetails: React.FC<UserDetailsProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const [draft, setDraft] = useState<UserProfileData>({
+    userId,
     firstName,
     lastName,
     major,
@@ -53,7 +58,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {
-    setDraft({ firstName, lastName, major, academicYear, profileImageUrl });
+    setDraft({ userId, firstName, lastName, major, academicYear, profileImageUrl });
     setPreviewImageUrl(profileImageUrl);
     setSelectedFile(null);
   }, [firstName, lastName, major, academicYear, profileImageUrl]);
@@ -91,7 +96,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({
   };
 
   const handleCancel = () => {
-    setDraft({ firstName, lastName, major, academicYear, profileImageUrl });
+    setDraft({ userId, firstName, lastName, major, academicYear, profileImageUrl });
     setPreviewImageUrl(profileImageUrl);
     setSelectedFile(null);
     setIsEditing(false);
@@ -241,6 +246,8 @@ const UserDetails: React.FC<UserDetailsProps> = ({
             </button>
           )
         ) : (
+          <>
+          
           <button
             className="user-details__button user-details__button--secondary"
             onClick={onMessage}
@@ -248,7 +255,26 @@ const UserDetails: React.FC<UserDetailsProps> = ({
           >
             Message
           </button>
+
+          <button
+      className="user-details__button user-details__button--danger"
+      type="button"
+      onClick={() => setReportOpen(true)}
+      disabled={isDeleting}
+    >
+      Report
+    </button>
+    </>
         )}
+
+        <ReportForm
+  isOpen={reportOpen}
+  onClose={() => setReportOpen(false)}
+  targetId={userId}
+  targetType="USER"
+  title={`Report ${display.firstName} ${display.lastName}`}
+/>
+
 
         
         {canDelete && (
