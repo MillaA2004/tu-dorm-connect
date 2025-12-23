@@ -31,6 +31,11 @@ public class Report {
     @Column(nullable = false)
     private String reason;
 
+    @Builder.Default
+    @Column(name = "is_viewed", nullable = false)
+    private Boolean isViewed = false;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reporter_id", nullable = false)
     private User reporter;

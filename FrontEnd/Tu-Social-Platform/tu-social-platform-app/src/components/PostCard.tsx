@@ -4,6 +4,7 @@ import { postService } from "../services/PostService";
 import { commentService } from "../services/CommentService";
 import { useAuth } from "../services/AuthContext";
 import { Link } from "react-router-dom";
+import ReportForm from "../components/ReportForm";
 
 type Props = {
   post: PostResponse;
@@ -36,6 +37,10 @@ const PostCard: React.FC<Props> = ({
 }) => {
   const { user } = useAuth();
 
+  const isAdmin =
+  (user as any)?.role === "Admin" || (user as any)?.isAdmin === true;
+
+
   const isMyPost = useMemo(
     () => post.author.id === user?.id,
     [post.author.id, user?.id]
@@ -49,7 +54,7 @@ const PostCard: React.FC<Props> = ({
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingText, setEditingText] = useState("");
-
+  const [reportOpen, setReportOpen] = useState(false);
  
   const [editingPost, setEditingPost] = useState(false);
   const [postEditText, setPostEditText] = useState(post.content);
@@ -213,34 +218,37 @@ const PostCard: React.FC<Props> = ({
           <div className="postDate">{formatDate(post.createdAt)}</div>
         </div>
 
-        {isMyPost && (
-          <div className="postActions" onClick={(e) => e.stopPropagation()}>
-            <button
-              className="hero-action-button danger"
-              disabled={busy}
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                void deletePost();
-              }}
-            >
-              Delete
-            </button>
+      {(isMyPost || isAdmin) && (
+  <div className="postActions" onClick={(e) => e.stopPropagation()}>
+    {/* Delete: creator OR admin */}
+    <button
+      className="hero-action-button danger"
+      disabled={busy}
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        void deletePost();
+      }}
+    >
+      Delete
+    </button>
 
-            <button
-              className="hero-action-button"
-              disabled={busy}
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setError(null);
-                setEditingPost((v) => !v);
-                if (editingPost) setPostEditText(post.content);
-              }}
-              style={{ marginLeft: 8 }}
-            >
-              {editingPost ? "Cancel" : "Edit"}
-            </button>
+            {isMyPost && (
+      <button
+        className="hero-action-button"
+        disabled={busy}
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setError(null);
+          setEditingPost((v) => !v);
+          if (editingPost) setPostEditText(post.content);
+        }}
+        style={{ marginLeft: 8 }}
+      >
+        {editingPost ? "Cancel" : "Edit"}
+      </button>
+    )}
           </div>
         )}
       </header>
@@ -291,6 +299,28 @@ const PostCard: React.FC<Props> = ({
             ? "Hide comments"
             : `View comments (${post.comments.length})`}
         </button>
+
+        <button
+  className="linkBtn danger"
+  onClick={(e) => {
+    e.stopPropagation();
+    setReportOpen(true);
+  }}
+>
+  Report
+</button>
+
+<ReportForm
+  isOpen={reportOpen}
+  onClose={() => setReportOpen(false)}
+  targetId={post.id}
+  targetType="POST"
+  title="Report this post"
+/>
+
+
+
+
       </div>
 
       {/* COMMENTS */}
@@ -431,8 +461,11 @@ const PostCard: React.FC<Props> = ({
             </div>
           </form>
         </section>
+
+        
       )}
     </article>
+    
   );
 };
 

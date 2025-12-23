@@ -7,6 +7,7 @@ import com.tuconnect.dorm_connect.model.User;
 import com.tuconnect.dorm_connect.repository.*;
 import com.tuconnect.dorm_connect.service.ReportService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,12 +47,22 @@ public class ReportServiceImpl implements ReportService {
         return mapToResponse(saved);
     }
 
+
     @Override
     public List<ReportResponse> getAllReports() {
         return reportRepository.findAll().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
+
+    public void markReportAsViewed(Long reportId) {
+        var report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new RuntimeException("Report not found"));
+
+        report.setIsViewed(true);
+        reportRepository.save(report);
+    }
+
 
     private void validateTargetExists(ReportRequest request) {
         boolean exists = switch (request.targetType()) {
@@ -72,7 +83,8 @@ public class ReportServiceImpl implements ReportService {
                 report.getReportedEntityType(),
                 report.getReason(),
                 report.getReporter().getId(),
-                report.getCreatedAt()
+                report.getCreatedAt(),
+                report.getIsViewed()
         );
     }
 }

@@ -277,8 +277,8 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/admin" onClick={toggleSidebar}>
-                    Admin
+                  <Link to="/reports" onClick={toggleSidebar}>
+                    Reports
                   </Link>
                 </li>
               </>

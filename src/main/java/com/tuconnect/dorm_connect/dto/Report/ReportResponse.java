@@ -9,5 +9,6 @@ public record ReportResponse(
     ReportTargetType targetType,
     String reason,
     Long reporterId,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    Boolean isViewed
 ) {}

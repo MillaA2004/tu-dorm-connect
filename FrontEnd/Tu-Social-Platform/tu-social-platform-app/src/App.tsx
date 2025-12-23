@@ -28,6 +28,7 @@ import DormListPage from "./pages/DormListPage";
 import AddDorm from "./pages/AddDorm";
 import EditDorm from "./pages/EditDorm";
 import DormDetailsPage from "./pages/DormDetailsPage";
+import ReportsPage from "./pages/ReportsPage";
 
 const App: React.FC = () => {
   return (
@@ -68,6 +69,9 @@ const App: React.FC = () => {
             <Route path="/dorms/add" element={<AddDorm />} />
             <Route path="/dorms/:id" element={<DormDetailsPage />} />
             <Route path="/dorms/:id/edit" element={<EditDorm />} />
+            {/* Admin */}
+            <Route path="/reports" element={<ReportsPage />} />
+
           </Routes>
         </BrowserRouter>
       </APIProvider>

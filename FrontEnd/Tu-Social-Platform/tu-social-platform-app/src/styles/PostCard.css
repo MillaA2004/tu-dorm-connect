@@ -322,6 +322,11 @@
   margin-top: 10px;
   display: flex;
   justify-content: flex-start;
+  gap: 15px;
+}
+
+.commentsToggleRow .reportBtn {
+  margin-left: auto; 
 }
 
 
@@ -356,6 +361,9 @@
 .authorName:hover {
   text-decoration: underline;  
 }
+
+
+
 
 
 
