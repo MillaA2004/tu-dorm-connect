@@ -61,10 +61,6 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
     private Questionnaire questionnaire;
 
-    @ManyToOne
-    @JoinColumn(name = "dorm_id")
-    private Dorm dorm;
-
     @OneToMany(mappedBy = "poster", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Listing> listings;
 
