@@ -43,4 +43,12 @@ public class AdminUserController {
         userService.setRole(userId, request.role());
         return ResponseEntity.noContent().build();
     }
+
+    @PreAuthorize("hasAuthority('Admin')")
+    @PostMapping("/email/{email}/role")
+    public ResponseEntity<Void> setRoleByEmail(@PathVariable String email, @Valid @RequestBody SetUserRoleRequest request) {
+        Long userId = userService.getUserIdFromEmail(email);
+        userService.setRole(userId, request.role());
+        return ResponseEntity.noContent().build();
+    }
 }
