@@ -31,7 +31,7 @@ const MyJoinedEventsPage: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await eventService.getEventsUserParticipatesIn(user.id);
+        const data = await eventService.getMyParticipatingEvents();
         setEvents(data);
       } catch (err) {
         console.error(err);

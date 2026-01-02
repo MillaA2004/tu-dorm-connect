@@ -132,19 +132,20 @@ const EditDorm: React.FC = () => {
   };
 
   
-  if (!isAdmin) {
-    return (
-      <div className="addDormPage">
-        <div className="addDormCard">
-          <h2>Access denied</h2>
-          <p>Only admins can edit dorms.</p>
-          <button className="btn" onClick={() => navigate("/")} type="button">
+   if (!isAdmin) {
+  return (
+    <>
+      <Header />
+      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "2rem 1.5rem", paddingTop: "8%" }}>
+        <h2>Access denied</h2>
+        <p style={{ color: "crimson" }}>Access denied. Admins only.</p>
+        <button className="btn" onClick={() => navigate("/home")} type="button">
             Go home
           </button>
-        </div>
-      </div>
-    );
-  }
+      </main>
+    </>
+  );
+}
 
   if (loadingDorm) {
     return <div style={{ padding: 16 }}>Loading dorm…</div>;

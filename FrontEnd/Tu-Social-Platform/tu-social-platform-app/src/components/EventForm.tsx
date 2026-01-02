@@ -74,7 +74,7 @@ const EventForm: React.FC = () => {
     try {
       setIsSubmitting(true);
 
-      await eventService.createEvent(user.id, payload);
+      await eventService.createEvent(payload);
 
       
       setTitle("");
