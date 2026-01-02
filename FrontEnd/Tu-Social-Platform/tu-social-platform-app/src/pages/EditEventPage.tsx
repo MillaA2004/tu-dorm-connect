@@ -107,7 +107,7 @@ const EditEventPage: React.FC = () => {
 
     try {
       setSaving(true);
-      await eventService.updateEvent(event.id, user.id, payload);
+      await eventService.updateEvent(event.id, payload);
       navigate(`/events/${event.id}`);
     } catch (err) {
       console.error(err);

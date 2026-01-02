@@ -42,7 +42,7 @@ const EventDetailsPage: React.FC = () => {
 
   try {
     setDeleting(true);
-    await eventService.deleteEvent(event.id, user.id);
+    await eventService.deleteEvent(event.id);
     navigate("/events");
   } catch (err) {
     console.error(err);
@@ -123,7 +123,7 @@ const getInitials = (firstName?: string, lastName?: string) =>
 
   try {
     setIsUpdatingParticipation(true);
-    const updated = await eventService.joinEvent(event.id, user.id);
+    const updated = await eventService.joinEvent(event.id);
     setEvent(updated);
   } catch (err: any) {
     console.error(err);
@@ -145,7 +145,7 @@ const handleLeave = async () => {
 
   try {
     setIsUpdatingParticipation(true);
-    const updated = await eventService.leaveEvent(event.id, user.id);
+    const updated = await eventService.leaveEvent(event.id);
     setEvent(updated);
   } catch (err: any) {
     console.error(err);
@@ -168,7 +168,7 @@ const handleRemoveParticipant = async (participantId: number) => {
 
   try {
     setRemovingParticipantId(participantId);
-    const updated = await eventService.removeParticipant(event.id, participantId, user.id);
+    const updated = await eventService.removeParticipant(event.id, participantId);
     setEvent(updated);
   } catch (err: any) {
     console.error(err);

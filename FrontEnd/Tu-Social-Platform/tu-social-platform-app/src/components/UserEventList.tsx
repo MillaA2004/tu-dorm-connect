@@ -21,7 +21,7 @@ const UserEventList: React.FC<Props> = ({
   const loadEvents = useCallback(async () => {
     setLoading(true);
     setError(null); 
-
+ 
     try {
       const data = await eventService.getEventsCreatedByUser(userId);
       setEvents(data);
