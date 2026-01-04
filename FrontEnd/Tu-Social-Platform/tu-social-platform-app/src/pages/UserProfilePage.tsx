@@ -317,7 +317,7 @@ const UserProfilePage: React.FC = () => {
           </section>
         )}
       </main>
-
+ 
       <ChatWindow
         isOpen={chatOpen}
         chatId={chatState?.chatId ?? null}

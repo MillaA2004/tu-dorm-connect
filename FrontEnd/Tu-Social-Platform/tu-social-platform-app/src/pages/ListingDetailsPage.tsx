@@ -330,13 +330,14 @@ const ListingDetailsPage: React.FC = () => {
               Contact
             </button>
           )}
-
+ 
           <ChatWindow
             isOpen={chatOpen}
             chatId={chatState?.chatId ?? null}
             chatTitle={chatState?.title ?? "Chat"}
             isGroup={false}
             isAdmin={false}
+            otherAvatarUrl={""} // da se opravi!
             otherUserId={chatState?.otherUserId ?? null}
             onClose={() => {
               setChatOpen(false);
