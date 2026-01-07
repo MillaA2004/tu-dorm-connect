@@ -185,7 +185,7 @@ const EditListingPage: React.FC = () => {
         <div
           style={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "flex-start",
             marginBottom: "1rem",
           }}
         >
