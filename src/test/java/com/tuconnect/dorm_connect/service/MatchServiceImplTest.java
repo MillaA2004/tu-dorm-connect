@@ -7,10 +7,11 @@ import com.tuconnect.dorm_connect.model.*;
 import com.tuconnect.dorm_connect.repository.QuestionnaireRepository;
 import com.tuconnect.dorm_connect.repository.UserMatchRepository;
 import com.tuconnect.dorm_connect.repository.UserRepository;
-import com.tuconnect.dorm_connect.service.ServiceImpl.MatchServiceImpl;
+import com.tuconnect.dorm_connect.service.implementations.MatchServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,41 +44,47 @@ class MatchServiceImplTest {
         );
     }
 
+    private User createValidPoster(Long id, User.Gender gender) {
+        User poster = new User();
+        poster.setId(id);
+        poster.setGender(gender);
+
+        Questionnaire q = new Questionnaire();
+        poster.setQuestionnaire(q);
+
+        Listing listing = new Listing();
+        listing.setIsActive(true);
+        listing.setExpiresAt(LocalDateTime.now().plusDays(1));
+
+        poster.setListings(List.of(listing));
+        return poster;
+    }
+
     @Test
     void generateMatchesForViewer_shouldReturnMatchesAboveThreshold() {
-        // Arrange
         User viewer = new User();
         viewer.setId(1L);
+        viewer.setGender(User.Gender.MALE);
         Questionnaire viewerQ = new Questionnaire();
         viewerQ.setUser(viewer);
 
-        User poster = new User();
-        poster.setId(2L);
-        Questionnaire posterQ = new Questionnaire();
-        poster.setQuestionnaire(posterQ);
-        poster.setListings(List.of(new Listing()));
-
-        UserMatch match = UserMatch.builder()
-                .viewer(viewer)
-                .poster(poster)
-                .score(85.0)
-                .build();
+        User poster = createValidPoster(2L, User.Gender.MALE);
 
         UserMatchDTO dto = new UserMatchDTO(
-                new UserListingSummaryDTO(2L, "Bob", "Poster", "ISN", "pic", "Dorm", 2),
+                new UserListingSummaryDTO(2L, "Bob", "Poster", "ISN", "pic", 2),
                 85.0
         );
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(viewer));
         when(questionnaireRepository.findByUser(viewer)).thenReturn(Optional.of(viewerQ));
-        when(userRepository.findAll()).thenReturn(List.of(viewer, poster));
-        when(matchingService.calculateMatchScore(viewerQ, posterQ)).thenReturn(85.0);
+        when(userRepository.findByQuestionnaireIsNotNullAndListingsIsNotEmpty())
+                .thenReturn(List.of(poster));
+
+        when(matchingService.calculateMatchScore(any(), any())).thenReturn(85.0);
         when(userMatchMapper.toDTO(any(UserMatch.class))).thenReturn(dto);
 
-        // Act
         List<UserMatchDTO> result = matchService.generateMatchesForViewer(1L, null);
 
-        // Assert
         assertThat(result).hasSize(1);
         assertThat(result.get(0).score()).isEqualTo(85.0);
         verify(userMatchRepository).deleteByViewer(viewer);
@@ -85,28 +92,45 @@ class MatchServiceImplTest {
     }
 
     @Test
-    void generateMatchesForViewer_shouldReturnEmptyList_whenNoMatchesAboveThreshold() {
+    void generateMatchesForViewer_shouldReturnEmptyList_whenDifferentGender() {
+        // Arrange
         User viewer = new User();
         viewer.setId(1L);
+        viewer.setGender(User.Gender.FEMALE);
         Questionnaire viewerQ = new Questionnaire();
         viewerQ.setUser(viewer);
 
-        User poster = new User();
-        poster.setId(2L);
-        Questionnaire posterQ = new Questionnaire();
-        poster.setQuestionnaire(posterQ);
-        poster.setListings(List.of(new Listing()));
+        User poster = createValidPoster(2L, User.Gender.MALE); // Different Gender
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(viewer));
         when(questionnaireRepository.findByUser(viewer)).thenReturn(Optional.of(viewerQ));
-        when(userRepository.findAll()).thenReturn(List.of(viewer, poster));
-        when(matchingService.calculateMatchScore(viewerQ, posterQ)).thenReturn(30.0); // below threshold
+        when(userRepository.findByQuestionnaireIsNotNullAndListingsIsNotEmpty())
+                .thenReturn(List.of(poster));
 
         List<UserMatchDTO> result = matchService.generateMatchesForViewer(1L, null);
 
         assertThat(result).isEmpty();
-        verify(userMatchRepository).deleteByViewer(viewer);
-        verify(userMatchRepository).saveAll(List.of());
+    }
+
+    @Test
+    void generateMatchesForViewer_shouldReturnEmptyList_whenNoMatchesAboveThreshold() {
+        User viewer = new User();
+        viewer.setId(1L);
+        viewer.setGender(User.Gender.MALE);
+        Questionnaire viewerQ = new Questionnaire();
+        viewerQ.setUser(viewer);
+
+        User poster = createValidPoster(2L, User.Gender.MALE);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(viewer));
+        when(questionnaireRepository.findByUser(viewer)).thenReturn(Optional.of(viewerQ));
+        when(userRepository.findByQuestionnaireIsNotNullAndListingsIsNotEmpty())
+                .thenReturn(List.of(poster));
+
+        when(matchingService.calculateMatchScore(any(), any())).thenReturn(30.0);
+
+        List<UserMatchDTO> result = matchService.generateMatchesForViewer(1L, null);
+
+        assertThat(result).isEmpty();
     }
 }
-

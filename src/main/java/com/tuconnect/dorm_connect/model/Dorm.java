@@ -24,14 +24,13 @@ public class Dorm {
 
     private String address;
 
-    @Column(name = "block_number")
-    private String blockNumber;
-
-    @Column(name = "amenities_json", columnDefinition = "TEXT")
-    private String amenitiesJson;
+    private String description;
 
     @Column(nullable = false)
     private Double price;
+
+    @Column
+    private List<String> imageUrlsList;
 
     @Column
     private Double latitude;
@@ -42,9 +41,5 @@ public class Dorm {
     @OneToMany(mappedBy = "dorm")
     private List<Review> reviews;
 
-    @OneToMany(mappedBy = "dorm")
-    private List<User> livingPeople;
 
-    @OneToMany(mappedBy = "dorm")
-    private List<Listing> listings;
 }

@@ -31,7 +31,7 @@ const MyEventsPage: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await eventService.getEventsCreatedByUser(user.id);
+        const data = await eventService.getMyCreatedEvents();
         setEvents(data);
       } catch (err) {
         console.error(err);
@@ -55,7 +55,7 @@ const MyEventsPage: React.FC = () => {
       .sort((a, b) => {
         const aTime = new Date(a.dateTime).getTime();
         const bTime = new Date(b.dateTime).getTime();
-        // upcoming: soonest first, past: most recent first
+        
         return timeFilter === "upcoming" ? aTime - bTime : bTime - aTime;
       });
   }, [events, timeFilter]);
@@ -123,7 +123,7 @@ const MyEventsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Upcoming / Past toggle */}
+        
         <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.25rem" }}>
           <button
             type="button"

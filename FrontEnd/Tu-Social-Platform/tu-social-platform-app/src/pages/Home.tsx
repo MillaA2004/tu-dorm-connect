@@ -115,7 +115,7 @@ const HomePage: React.FC = () => {
             <h1>Welcome to our social platform</h1>
             <h2>for students of the Technical University</h2>
             <p>
-              Meet new people, find roommates, discover events and stay informed
+              Meet new people, find a roomie, discover events and stay informed
               about everything happening around campus.
             </p>
           </div>
@@ -145,9 +145,9 @@ const HomePage: React.FC = () => {
             </button>
             <button
               className="hero-action-button"
-              onClick={() => handleClick("/roommate")}
+              onClick={() => handleClick("/listings")}
             >
-              Find a roommate
+              Find a Roomie
             </button>
             <button
               className="hero-action-button"

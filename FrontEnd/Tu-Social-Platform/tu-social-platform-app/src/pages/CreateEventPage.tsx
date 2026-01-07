@@ -19,7 +19,7 @@ const CreateEventPage: React.FC = () => {
       }}
     >
       <button
-        onClick={() => navigate("/events")}
+        onClick={() => navigate("/events/mine")}
         style={{
           border: "none",
           background: "none",

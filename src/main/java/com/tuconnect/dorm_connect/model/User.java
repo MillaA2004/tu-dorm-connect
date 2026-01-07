@@ -3,6 +3,7 @@ package com.tuconnect.dorm_connect.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.util.List;
 
 @Entity
@@ -47,14 +48,16 @@ public class User {
     @Column(name = "role")
     private Roles role;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean deleted;
+
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
     private Questionnaire questionnaire;
 
-    @ManyToOne
-    @JoinColumn(name = "dorm_id")
-    private Dorm dorm;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "poster", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Listing> listings;
 
     @OneToMany(mappedBy = "user")
@@ -65,6 +68,13 @@ public class User {
 
     @ManyToMany(mappedBy = "participants")
     private List<Event> events;
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> posts;
+
+
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> receivedNotifications;
 
     public enum Gender {
         MALE,

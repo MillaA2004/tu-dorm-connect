@@ -5,6 +5,8 @@ import Header from "../components/Header";
 import type { EventItem } from "../types";
 import { eventService } from "../services/eventService";
 import { useAuth } from "../services/AuthContext";
+import ReportForm from "../components/ReportForm";
+
 
 const mapContainerStyle: React.CSSProperties = {
   width: "100%",
@@ -27,8 +29,10 @@ const EventDetailsPage: React.FC = () => {
 
   const [isUpdatingParticipation, setIsUpdatingParticipation] = useState(false);
   const [deleting, setDeleting] = useState(false);
- const [removingParticipantId, setRemovingParticipantId] = useState<number | null>(null);
-
+  const [removingParticipantId, setRemovingParticipantId] = useState<number | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
+ const isAdmin =
+  (user as any)?.role === "Admin" || (user as any)?.isAdmin === true;
 
  const handleDelete = async () => {
   if (!user || !event) return;
@@ -38,7 +42,7 @@ const EventDetailsPage: React.FC = () => {
 
   try {
     setDeleting(true);
-    await eventService.deleteEvent(event.id, user.id);
+    await eventService.deleteEvent(event.id);
     navigate("/events");
   } catch (err) {
     console.error(err);
@@ -119,7 +123,7 @@ const getInitials = (firstName?: string, lastName?: string) =>
 
   try {
     setIsUpdatingParticipation(true);
-    const updated = await eventService.joinEvent(event.id, user.id);
+    const updated = await eventService.joinEvent(event.id);
     setEvent(updated);
   } catch (err: any) {
     console.error(err);
@@ -141,7 +145,7 @@ const handleLeave = async () => {
 
   try {
     setIsUpdatingParticipation(true);
-    const updated = await eventService.leaveEvent(event.id, user.id);
+    const updated = await eventService.leaveEvent(event.id);
     setEvent(updated);
   } catch (err: any) {
     console.error(err);
@@ -164,7 +168,7 @@ const handleRemoveParticipant = async (participantId: number) => {
 
   try {
     setRemovingParticipantId(participantId);
-    const updated = await eventService.removeParticipant(event.id, participantId, user.id);
+    const updated = await eventService.removeParticipant(event.id, participantId);
     setEvent(updated);
   } catch (err: any) {
     console.error(err);
@@ -397,6 +401,7 @@ const handleRemoveParticipant = async (participantId: number) => {
           </p>
 
           {!isCreator && (
+            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
   <button
     onClick={isParticipant ? handleLeave : handleJoin}
     disabled={isUpdatingParticipation}
@@ -422,43 +427,74 @@ const handleRemoveParticipant = async (participantId: number) => {
       : "Join event"}
   </button>
 
-
   
-)}
-
-{isCreator && (
-  <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.75rem" }}>
-    <button
-      onClick={() => navigate(`/events/${event.id}/edit`)}
+ <button
+      type="button"
+      onClick={() => setReportOpen(true)}
       style={{
-        border: "1px solid #d4d4d8",
+        border: "1px solid #ef4444",
         background: "white",
-        color: "#374151",
+        color: "#ef4444",
         padding: "0.6rem 1.4rem",
         borderRadius: 999,
-        fontWeight: 600,
+        fontWeight: 700,
         cursor: "pointer",
       }}
     >
-      Edit
+      Report
     </button>
 
-    <button
-      onClick={handleDelete}
-      style={{
-        border: "none",
-        background: "#ef4444",
-        color: "white",
-        padding: "0.6rem 1.4rem",
-        borderRadius: 999,
-        fontWeight: 600,
-        cursor: "pointer",
-      }}
-    >
-      Delete
-    </button>
   </div>
 )}
+
+<ReportForm
+  isOpen={reportOpen}
+  onClose={() => setReportOpen(false)}
+  targetId={event.id}
+  targetType="EVENT"
+  title="Report this event"
+/>
+
+
+
+{(isCreator || isAdmin) && (
+  <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.75rem" }}>
+    {isCreator && (
+      <button
+        onClick={() => navigate(`/events/${event.id}/edit`)}
+        style={{
+          border: "1px solid #d4d4d8",
+          background: "white",
+          color: "#374151",
+          padding: "0.6rem 1.4rem",
+          borderRadius: 999,
+          fontWeight: 600,
+          cursor: "pointer",
+        }}
+      >
+        Edit
+      </button>
+    )}
+
+    {(isCreator || isAdmin) && (
+      <button
+        onClick={handleDelete}
+        style={{
+          border: "none",
+          background: "#ef4444",
+          color: "white",
+          padding: "0.6rem 1.4rem",
+          borderRadius: 999,
+          fontWeight: 600,
+          cursor: "pointer",
+        }}
+      >
+        Delete
+      </button>
+    )}
+  </div>
+)}
+
 
 
         </main>

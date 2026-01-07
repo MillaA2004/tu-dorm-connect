@@ -4,6 +4,7 @@ import com.tuconnect.dorm_connect.dto.Review.ReviewRequestDTO;
 import com.tuconnect.dorm_connect.dto.Review.ReviewResponseDTO;
 import com.tuconnect.dorm_connect.service.ReviewService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,10 +19,6 @@ public class ReviewController {
         this.service = service;
     }
 
-    @GetMapping
-    public ResponseEntity<List<ReviewResponseDTO>> getAll() {
-        return ResponseEntity.ok(service.getAllReviews());
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ReviewResponseDTO> getById(@PathVariable Long id) {
@@ -29,16 +26,17 @@ public class ReviewController {
     }
 
     @PostMapping
-    public ResponseEntity<ReviewResponseDTO> create(@RequestBody ReviewRequestDTO dto) {
-        return ResponseEntity.ok(service.createReview(dto));
+    public ResponseEntity<ReviewResponseDTO> create(@RequestBody ReviewRequestDTO dto, Authentication authentication) {
+        return ResponseEntity.ok(service.createReview(dto, authentication));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ReviewResponseDTO> update(
             @PathVariable Long id,
-            @RequestBody ReviewRequestDTO dto
+            @RequestBody ReviewRequestDTO dto,
+            Authentication authentication
     ) {
-        return ResponseEntity.ok(service.updateReview(id, dto));
+        return ResponseEntity.ok(service.updateReview(id, dto, authentication));
     }
 
     @DeleteMapping("/{id}")
@@ -52,8 +50,5 @@ public class ReviewController {
         return ResponseEntity.ok(service.getReviewsByDorm(dormId));
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ReviewResponseDTO>> getByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(service.getReviewsByUser(userId));
-    }
+
 }

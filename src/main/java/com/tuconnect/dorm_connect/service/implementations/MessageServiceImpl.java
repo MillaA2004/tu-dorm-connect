@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
+
+
 @Service
 public class MessageServiceImpl implements MessageService {
 
@@ -27,31 +29,37 @@ public class MessageServiceImpl implements MessageService {
     private final ChatService chatService;
     private final MessageMapper messageMapper;
 
-    @Autowired
-    public MessageServiceImpl(MessageRepository messageRepository,ChatRepository chatRepository,UserRepository userRepository,ChatService chatService,MessageMapper messageMapper) {
-        this.chatRepository=chatRepository;
+    public MessageServiceImpl(
+            MessageRepository messageRepository,
+            ChatRepository chatRepository,
+            UserRepository userRepository,
+            ChatService chatService,
+            MessageMapper messageMapper
+    ) {
         this.messageRepository = messageRepository;
-        this.messageMapper=messageMapper;
-        this.chatService=chatService;
-        this.userRepository=userRepository;
+        this.chatRepository = chatRepository;
+        this.userRepository = userRepository;
+        this.chatService = chatService;
+        this.messageMapper = messageMapper;
     }
 
+    private User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    }
 
-    public MessageDTO sendMessage(Long chatId, Long senderId, String content) {
+    @Override
+    public MessageDTO sendMessage(Long chatId, String senderEmail, String content) {
+
         if (content == null || content.isBlank()) {
             throw new IllegalArgumentException("Message content cannot be empty");
         }
 
-
-        chatService.assertUserInChat(senderId, chatId);
-
+        User sender = getUserByEmail(senderEmail);
+        chatService.assertUserInChat(sender.getId(), chatId);
 
         Chat chat = chatRepository.findById(chatId)
-                .orElseThrow(() -> new EntityNotFoundException("Chat not found: " + chatId));
-
-        User sender = userRepository.findById(senderId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found: " + senderId));
-
+                .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
 
         Message message = new Message();
         message.setChat(chat);
@@ -60,23 +68,51 @@ public class MessageServiceImpl implements MessageService {
         message.setSentAt(Instant.now());
 
         Message saved = messageRepository.save(message);
-
-
         return messageMapper.toDto(saved);
     }
 
-
-
-    public Page<MessageDTO> getMessages(Long chatId, Long requesterId, int page, int size) {
-
-        chatService.assertUserInChat(requesterId, chatId);
-
+    @Override
+    public Page<MessageDTO> getMessages(
+            Long chatId,
+            String requesterEmail,
+            int page,
+            int size
+    ) {
+        User requester = getUserByEmail(requesterEmail);
+        chatService.assertUserInChat(requester.getId(), chatId);
 
         PageRequest pageable = PageRequest.of(page, size);
-        Page<Message> messagesPage =
-                messageRepository.findByChatChatIdOrderBySentAtAsc(chatId, pageable);
+
+        return messageRepository
+                .findByChatChatIdOrderBySentAtAsc(chatId, pageable)
+                .map(messageMapper::toDto);
+    }
+
+    @Override
+    public MessageDTO editMessage(Long chatId, Long messageId, String requesterEmail, String content) {
+        if (content == null || content.isBlank()) {
+            throw new IllegalArgumentException("Message content cannot be empty");
+        }
+
+        User requester = getUserByEmail(requesterEmail);
+        chatService.assertUserInChat(requester.getId(), chatId);
+
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new EntityNotFoundException("Message not found"));
 
 
-        return messagesPage.map(messageMapper::toDto);
+        if (!message.getChat().getChatId().equals(chatId)) {
+            throw new IllegalArgumentException("Message does not belong to this chat");
+        }
+
+
+        if (!message.getSender().getId().equals(requester.getId())) {
+            throw new org.springframework.security.access.AccessDeniedException("You can edit only your own messages");
+        }
+
+        message.setContent(content.trim());
+
+        Message saved = messageRepository.save(message);
+        return messageMapper.toDto(saved);
     }
 }

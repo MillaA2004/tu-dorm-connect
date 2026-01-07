@@ -1,0 +1,79 @@
+.dormCard {
+  width: 280px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dormCard:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.4);
+  outline-offset: 4px;
+  border-radius: 14px;
+}
+
+.dormCard__media {
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.14);
+  background: #fff;
+}
+
+.dormCard__img {
+  display: block;
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+
+.dormCard__img--placeholder {
+  background: linear-gradient(135deg, #e5e7eb, #f3f4f6);
+}
+
+.dormCard__body {
+  margin-top: 10px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px 12px 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.14);
+}
+
+.dormCard__titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.dormCard__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #111827;
+}
+
+.dormCard__pill {
+  flex: 0 0 auto;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.1);
+  color: rgb(37, 99, 235);
+  font-weight: 700;
+}
+
+.dormCard__meta {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.3;
+}
+
+.dormCard__cta {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgb(37, 99, 235);
+}

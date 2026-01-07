@@ -104,7 +104,7 @@ const EventsPage: React.FC = () => {
 
     try {
       setJoiningEventId(event.id);
-      const updated = await eventService.joinEvent(event.id, user.id);
+      const updated = await eventService.joinEvent(event.id);
       setEvents((prev) => prev.map((e) => (e.id === event.id ? updated : e)));
     } catch (err) {
       console.error(err);

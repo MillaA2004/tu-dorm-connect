@@ -24,9 +24,6 @@ public class Review {
 
     private String comment;
 
-    @Column(name = "category_scores_json", columnDefinition = "TEXT")
-    private String categoryScoresJson;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

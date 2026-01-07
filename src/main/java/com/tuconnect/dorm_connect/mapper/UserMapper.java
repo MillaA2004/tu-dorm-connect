@@ -21,7 +21,6 @@ public interface UserMapper {
     @Mapping(target = "role", source = "dto.role")
     @Mapping(target = "events", ignore = true)
     @Mapping(target = "questionnaire", ignore = true)
-    @Mapping(target = "dorm", ignore = true)
     @Mapping(target = "listings", ignore = true)
     @Mapping(target = "reviews", ignore = true)
     @Mapping(target = "organizedEvents", ignore = true)

@@ -19,6 +19,7 @@ interface RegisterFormState {
   imageFile: File | null;
 }
 
+
 const RegisterForm: React.FC = () => {
   const [formData, setFormData] = useState<RegisterFormState>({
     firstName: "",

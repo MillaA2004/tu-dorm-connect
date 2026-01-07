@@ -3,18 +3,21 @@ package com.tuconnect.dorm_connect.service.implementations;
 import com.tuconnect.dorm_connect.dto.Event.EventRequestDTO;
 import com.tuconnect.dorm_connect.dto.Event.EventResponseDTO;
 import com.tuconnect.dorm_connect.mapper.EventMapper;
-import com.tuconnect.dorm_connect.model.Event;
-import com.tuconnect.dorm_connect.model.Roles;
-import com.tuconnect.dorm_connect.model.User;
+import com.tuconnect.dorm_connect.model.*;
+import com.tuconnect.dorm_connect.repository.ChatMemberRepository;
+import com.tuconnect.dorm_connect.repository.ChatRepository;
 import com.tuconnect.dorm_connect.repository.EventRepository;
 import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.service.EventService;
+import com.tuconnect.dorm_connect.service.NotificationService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,32 +30,65 @@ public class EventServiceImpl implements EventService {
 
     private final UserRepository userRepository;
 
+    private final NotificationService notificationService;
+
+    private final ChatRepository chatRepository;
+
+    private final ChatMemberRepository chatMemberRepository;
+
     @Autowired
-    public EventServiceImpl(EventMapper eventMapper,EventRepository eventRepository,UserRepository userRepository) {
+    public EventServiceImpl(EventMapper eventMapper,EventRepository eventRepository,UserRepository userRepository,NotificationService notificationService,ChatRepository chatRepository,ChatMemberRepository chatMemberRepository) {
         this.eventMapper = eventMapper;
         this.eventRepository= eventRepository;
         this.userRepository=userRepository;
+        this.notificationService = notificationService;
+        this.chatRepository=chatRepository;
+        this.chatMemberRepository=chatMemberRepository;
     }
 
 
-    public EventResponseDTO createEvent(Long creatorId, EventRequestDTO dto) {
-        User creator = userRepository.findById(creatorId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + creatorId));
+
+    @Transactional
+    public EventResponseDTO createEvent(Authentication authentication, EventRequestDTO dto) {
+        User creator = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + authentication.getName()));
+
 
         Event event = eventMapper.toEntity(dto);
         event.setCreator(creator);
         event.setCreatedAt(LocalDateTime.now());
 
+        Event savedEvent = eventRepository.save(event);
 
 
-        Event saved = eventRepository.save(event);
-        return eventMapper.toDTO(saved);
+        Chat chat = new Chat();
+        chat.setGroupChat(true);
+        chat.setName(savedEvent.getTitle());
+
+        Chat savedChat = chatRepository.save(chat);
+
+
+        ChatMember admin = new ChatMember();
+        admin.setChat(savedChat);
+        admin.setUser(creator);
+        admin.setChatRole("Admin");
+        admin.setLastReadAt(Instant.now());
+
+        chatMemberRepository.save(admin);
+
+
+        savedEvent.setChat(savedChat);
+        eventRepository.save(savedEvent);
+
+
+        return eventMapper.toDTO(savedEvent);
     }
 
+
     @Transactional
-    public EventResponseDTO updateEvent(Long creatorId, Long eventId, EventRequestDTO dto) {
-        User creator = userRepository.findById(creatorId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + creatorId));
+    public EventResponseDTO updateEvent(Authentication authentication, Long eventId, EventRequestDTO dto) {
+        User creator = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + authentication.getName()));
 
         Event currentEvent = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
@@ -75,13 +111,13 @@ public class EventServiceImpl implements EventService {
 
     }
 
-    public void deleteEvent(Long eventId, Long userId) {
+    public void deleteEvent(Long eventId, Authentication authentication) {
 
         Event currentEvent = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
 
-        User creator = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+        User creator = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + authentication.getName()));
 
         if (
                 !currentEvent.getCreator().equals(creator)
@@ -117,8 +153,12 @@ public class EventServiceImpl implements EventService {
 
 
     @Transactional
-    public List<EventResponseDTO> getAllEventsCreatedByUser(Long userId) {
-        return eventRepository.findAllByCreator_Id(userId)
+    public List<EventResponseDTO> getAllEventsByCreator(Authentication authentication) {
+
+        User creator = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + authentication.getName()));
+
+        return eventRepository.findAllByCreator_Id(creator.getId())
                 .stream()
                 .map(eventMapper::toDTO)
                 .toList();
@@ -126,20 +166,26 @@ public class EventServiceImpl implements EventService {
 
 
     @Transactional
-    public List<EventResponseDTO> getAllEventsAUserParticipatesIn(Long userId) {
-        return eventRepository.findAllByParticipants_Id(userId)
+    public List<EventResponseDTO> getAllEventsAUserParticipatesIn(Authentication authentication) {
+
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + authentication.getName()));
+
+        return eventRepository.findAllByParticipants_Id(user.getId())
                 .stream()
                 .map(eventMapper::toDTO)
                 .toList();
     }
 
+
+
     @Transactional
-    public EventResponseDTO joinEvent(Long eventId, Long userId) {
+    public EventResponseDTO joinEvent(Long eventId, Authentication authentication) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + authentication.getName()));
 
         if (event.getParticipants().contains(user)) {
             throw new IllegalArgumentException("User already joined this event.");
@@ -149,28 +195,55 @@ public class EventServiceImpl implements EventService {
             throw new IllegalStateException("Event is full.");
         }
 
+        if (LocalDateTime.now().isAfter(event.getDateTime())) {
+            throw new IllegalArgumentException("Event already happened.");
+        }
+
+
         event.getParticipants().add(user);
         if (user.getEvents() != null && !user.getEvents().contains(event)) {
             user.getEvents().add(event);
         }
 
-        LocalDateTime currTime = LocalDateTime.now();
+        Event savedEvent = eventRepository.save(event);
 
-        if(currTime.isAfter(event.getDateTime())) {
-            throw new IllegalArgumentException("Event already happened");
+
+        Chat chat = savedEvent.getChat();
+        if (chat != null) {
+            boolean alreadyMember = chatMemberRepository
+                    .existsByChatChatIdAndUserId(chat.getChatId(), user.getId());
+
+            if (!alreadyMember) {
+                ChatMember member = new ChatMember();
+                member.setChat(chat);
+                member.setUser(user);
+                member.setChatRole("Member");
+                member.setLastReadAt(Instant.now());
+
+                chatMemberRepository.save(member);
+            }
         }
 
-        Event saved = eventRepository.save(event);
-        return eventMapper.toDTO(saved);
+
+        if (savedEvent.getCreator() != null) {
+            notificationService.notifyEventJoined(
+                    savedEvent.getCreator().getId(),
+                    user.getId(),
+                    savedEvent.getEventId()
+            );
+        }
+
+        return eventMapper.toDTO(savedEvent);
     }
 
+
     @Transactional
-    public EventResponseDTO leaveEvent(Long eventId, Long userId) {
+    public EventResponseDTO leaveEvent(Long eventId, Authentication authentication) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + authentication.getName()));
 
         if (!event.getParticipants().contains(user)) {
             throw new IllegalArgumentException("User is not a participant of this event.");
@@ -186,13 +259,15 @@ public class EventServiceImpl implements EventService {
     }
 
     @Transactional
-    public EventResponseDTO removeParticipant(Long eventId, Long participantId, Long requesterId) {
+    public EventResponseDTO removeParticipant(Long eventId, Long participantId, Authentication authentication) {
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
 
+        User requester = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + authentication.getName()));
 
-        if (event.getCreator() == null || !event.getCreator().getId().equals(requesterId)) {
+        if (event.getCreator() == null || !event.getCreator().getId().equals(requester.getId())) {
             throw new AccessDeniedException("Only the event creator can remove participants.");
         }
 
@@ -225,6 +300,14 @@ public class EventServiceImpl implements EventService {
         String query = q.trim();
 
         return eventRepository.searchByTitleOrAddress(query)
+                .stream()
+                .map(eventMapper::toDTO)
+                .toList();
+    }
+
+    @Transactional
+    public List<EventResponseDTO> getAllEventsCreatedByUser(Long userId) {
+        return eventRepository.findAllByCreator_Id(userId)
                 .stream()
                 .map(eventMapper::toDTO)
                 .toList();

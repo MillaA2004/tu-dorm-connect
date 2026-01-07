@@ -1,8 +1,7 @@
 package com.tuconnect.dorm_connect.repository;
 
 import com.tuconnect.dorm_connect.model.Listing;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.tuconnect.dorm_connect.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,36 +12,32 @@ import java.util.List;
 
 @Repository
 public interface ListingRepository extends JpaRepository<Listing, Long> {
-    boolean existsByUserIdAndIsActiveTrue(Long userId);
+    boolean existsByPosterIdAndIsActiveTrue(Long posterId);
 
     List<Listing> findByIsActiveTrueAndExpiresAtAfter(LocalDateTime now);
 
-    List<Listing> findByUserIdAndIsActiveTrueAndExpiresAtAfter(
-            Long userId,
+    List<Listing> findByPosterIdAndIsActiveTrueAndExpiresAtAfter(
+            Long posterId,
             LocalDateTime now
     );
 
-    List<Listing> findByDormIdAndIsActiveTrueAndExpiresAtAfter(
-            Long dormId,
+    List<Listing> findByDormAndIsActiveTrueAndExpiresAtAfter(
+            String dorm,
             LocalDateTime now
+    );
+
+    List<Listing> findByIsActiveTrueAndExpiresAtAfterAndPoster_Gender(
+            LocalDateTime now,
+            User.Gender gender
     );
 
     @Query("SELECT l FROM Listing l WHERE " +
-            "(LOWER(l.title) LIKE %:keyword% OR LOWER(l.description) LIKE %:keyword%) " +
+            "(LOWER(l.title) LIKE %:keyword% OR LOWER(l.description) LIKE %:keyword% OR LOWER(l.dorm) LIKE %:keyword%) " +
             "AND l.isActive = true AND l.expiresAt > :now")
-    Page<Listing> searchByKeyword(
+    List<Listing> searchByKeyword(
             @Param("keyword") String keyword,
-            @Param("now") LocalDateTime now,
-            Pageable pageable
+            @Param("now") LocalDateTime now
     );
 
-    @Query("SELECT l FROM Listing l WHERE " +
-            "(LOWER(l.title) LIKE %:keyword% OR LOWER(l.description) LIKE %:keyword%) " +
-            "AND l.dorm.id = :dormId AND l.isActive = true AND l.expiresAt > :now")
-    Page<Listing> searchByKeywordAndDorm(
-            @Param("keyword") String keyword,
-            @Param("dormId") Long dormId,
-            @Param("now") LocalDateTime now,
-            Pageable pageable
-    );
+    List<Listing> findByIsActiveTrueAndExpiresAtAfterAndPriceLessThanEqual(LocalDateTime now, Double maxPrice);
 }

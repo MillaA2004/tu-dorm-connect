@@ -9,19 +9,23 @@ import java.util.List;
 
 public interface ListingService {
 
-    ListingResponseDTO createListing(ListingRequestDTO dto);
+    ListingResponseDTO createListing(Long posterId, ListingRequestDTO dto);
 
     ListingResponseDTO getListingById(Long id);
 
     List<ListingResponseDTO> getActiveListings();
 
-    List<ListingResponseDTO> getListingsByUserId(Long userId);
+    List<ListingResponseDTO> getCompatibleListings(Long viewerId);
 
-    List<ListingResponseDTO> getListingsByDorm(Long dormId);
+    List<ListingResponseDTO> getListingsByUserId(Long posterId);
+
+    List<ListingResponseDTO> getListingsByDorm(String dormName);
 
     ListingResponseDTO updateListing(Long id, ListingRequestDTO dto, Long currentUserId);
 
     void deleteListing(Long id, Long currentUserId);
 
-    Page<ListingResponseDTO> searchListings(String keyword, Long dormId, Pageable pageable);
+    List<ListingResponseDTO> searchListings(String keyword, Long viewerId);
+
+    List<ListingResponseDTO> getListingsByPriceMax(Double maxPrice);
 }

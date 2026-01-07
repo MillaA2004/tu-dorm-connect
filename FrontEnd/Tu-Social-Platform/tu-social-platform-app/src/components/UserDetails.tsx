@@ -1,38 +1,52 @@
 import React, { useEffect, useState } from "react";
 import "../styles/UserDetails.css";
+import ReportForm from "../components/ReportForm";
 
 export type UserProfileData = {
+  userId: number;
   firstName: string;
   lastName: string;
   major: string;
   academicYear: number;
-  profileImageUrl: string; 
+  profileImageUrl: string;
 };
 
 export type UserProfileUpdate = UserProfileData & {
-  
   newProfileImageFile?: File | null;
 };
 
 type UserDetailsProps = UserProfileData & {
   isCurrentUser: boolean;
+
+  
+  canDelete: boolean;
+
   onSaveProfile?: (updated: UserProfileUpdate) => void;
-  onMessage?: () => void;
+  onMessage?: () => Promise<void> | void;
+
+  
+  onDelete?: () => Promise<void> | void;
 };
 
 const UserDetails: React.FC<UserDetailsProps> = ({
+  userId,
   firstName,
   lastName,
   major,
   academicYear,
   profileImageUrl,
   isCurrentUser,
+  canDelete,
   onSaveProfile,
   onMessage,
+  onDelete,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const [draft, setDraft] = useState<UserProfileData>({
+    userId,
     firstName,
     lastName,
     major,
@@ -43,13 +57,11 @@ const UserDetails: React.FC<UserDetailsProps> = ({
   const [previewImageUrl, setPreviewImageUrl] = useState(profileImageUrl);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  
   useEffect(() => {
-    setDraft({ firstName, lastName, major, academicYear, profileImageUrl });
+    setDraft({ userId, firstName, lastName, major, academicYear, profileImageUrl });
     setPreviewImageUrl(profileImageUrl);
     setSelectedFile(null);
   }, [firstName, lastName, major, academicYear, profileImageUrl]);
-
 
   useEffect(() => {
     return () => {
@@ -59,10 +71,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({
     };
   }, [previewImageUrl]);
 
-  const handleChange = (
-    field: keyof UserProfileData,
-    value: string
-  ) => {
+  const handleChange = (field: keyof UserProfileData, value: string) => {
     setDraft((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -87,7 +96,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({
   };
 
   const handleCancel = () => {
-    setDraft({ firstName, lastName, major, academicYear, profileImageUrl });
+    setDraft({ userId, firstName, lastName, major, academicYear, profileImageUrl });
     setPreviewImageUrl(profileImageUrl);
     setSelectedFile(null);
     setIsEditing(false);
@@ -102,6 +111,22 @@ const UserDetails: React.FC<UserDetailsProps> = ({
       });
     }
     setIsEditing(false);
+  };
+
+  const handleDelete = async () => {
+    if (!onDelete) return;
+
+    const ok = window.confirm(
+      "Are you sure you want to delete this profile? This cannot be undone."
+    );
+    if (!ok) return;
+
+    try {
+      setIsDeleting(true);
+      await onDelete();
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const display = { ...draft, profileImageUrl: previewImageUrl };
@@ -142,17 +167,13 @@ const UserDetails: React.FC<UserDetailsProps> = ({
                 <input
                   className="user-details__input user-details__input--name"
                   value={draft.firstName}
-                  onChange={(e) =>
-                    handleChange("firstName", e.target.value)
-                  }
+                  onChange={(e) => handleChange("firstName", e.target.value)}
                   placeholder="First name"
                 />
                 <input
                   className="user-details__input user-details__input--name"
                   value={draft.lastName}
-                  onChange={(e) =>
-                    handleChange("lastName", e.target.value)
-                  }
+                  onChange={(e) => handleChange("lastName", e.target.value)}
                   placeholder="Last name"
                 />
               </div>
@@ -161,9 +182,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({
                 <input
                   className="user-details__input"
                   value={draft.major}
-                  onChange={(e) =>
-                    handleChange("major", e.target.value)
-                  }
+                  onChange={(e) => handleChange("major", e.target.value)}
                   placeholder="Major"
                 />
                 <span className="user-details__dot">•</span>
@@ -183,10 +202,14 @@ const UserDetails: React.FC<UserDetailsProps> = ({
                 {display.firstName} {display.lastName}
               </h1>
               <p className="user-details__meta">
-                <span className="user-details__major"> Major: {display.major}</span>
+                <span className="user-details__major">
+                  {" "}
+                  Major: {display.major}
+                </span>
                 <span className="user-details__dot">•</span>
-                <span className="user-details__year"> Academic Year:
-                  {display.academicYear}
+                <span className="user-details__year">
+                  {" "}
+                  Academic Year: {display.academicYear}
                 </span>
               </p>
             </>
@@ -201,12 +224,14 @@ const UserDetails: React.FC<UserDetailsProps> = ({
               <button
                 className="user-details__button user-details__button--secondary"
                 onClick={handleCancel}
+                disabled={isDeleting}
               >
                 Cancel
               </button>
               <button
                 className="user-details__button user-details__button--primary"
                 onClick={handleSave}
+                disabled={isDeleting}
               >
                 Save
               </button>
@@ -215,16 +240,50 @@ const UserDetails: React.FC<UserDetailsProps> = ({
             <button
               className="user-details__button user-details__button--primary"
               onClick={handleStartEdit}
+              disabled={isDeleting}
             >
               Edit profile
             </button>
           )
         ) : (
+          <>
+          
           <button
             className="user-details__button user-details__button--secondary"
             onClick={onMessage}
+            disabled={isDeleting}
           >
             Message
+          </button>
+
+          <button
+      className="user-details__button user-details__button--danger"
+      type="button"
+      onClick={() => setReportOpen(true)}
+      disabled={isDeleting}
+    >
+      Report
+    </button>
+    </>
+        )}
+
+        <ReportForm
+  isOpen={reportOpen}
+  onClose={() => setReportOpen(false)}
+  targetId={userId}
+  targetType="USER"
+  title={`Report ${display.firstName} ${display.lastName}`}
+/>
+
+
+        
+        {canDelete && (
+          <button
+            className="user-details__button user-details__button--danger"
+            onClick={handleDelete}
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete profile"}
           </button>
         )}
       </div>
@@ -233,3 +292,4 @@ const UserDetails: React.FC<UserDetailsProps> = ({
 };
 
 export default UserDetails;
+

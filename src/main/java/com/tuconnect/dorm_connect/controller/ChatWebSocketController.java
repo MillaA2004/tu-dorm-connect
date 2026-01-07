@@ -8,6 +8,10 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import java.security.Principal;
+
+
+
 @Controller
 @RequiredArgsConstructor
 public class ChatWebSocketController {
@@ -15,19 +19,21 @@ public class ChatWebSocketController {
     private final MessageService messageService;
     private final SimpMessagingTemplate messagingTemplate;
 
-
     @MessageMapping("/chats.sendMessage")
-    public void handleSendMessage(ChatMessageWSRequest payload) {
+    public void handleSendMessage(ChatMessageWSRequest payload, Principal principal) {
+
+        if (principal == null) {
+            throw new IllegalStateException("Unauthenticated WebSocket connection");
+        }
 
         Long chatId = payload.chatId();
-        Long userId = payload.userId();
         String content = payload.content();
 
 
-        MessageDTO saved = messageService.sendMessage(chatId, userId, content);
+        String email = principal.getName();
 
+        MessageDTO saved = messageService.sendMessage(chatId, email, content);
 
-        String destination = "/topic/chats/" + chatId;
-        messagingTemplate.convertAndSend(destination, saved);
+        messagingTemplate.convertAndSend("/topic/chats/" + chatId, saved);
     }
 }
