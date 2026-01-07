@@ -1,5 +1,6 @@
 package com.tuconnect.dorm_connect.service;
 
+import com.tuconnect.dorm_connect.dto.Dorm.DormSummaryDTO;
 import com.tuconnect.dorm_connect.dto.Listing.ListingRequestDTO;
 import com.tuconnect.dorm_connect.dto.Listing.ListingResponseDTO;
 import org.springframework.data.domain.Page;
@@ -17,13 +18,17 @@ public interface ListingService {
 
     List<ListingResponseDTO> getCompatibleListings(Long viewerId);
 
-    List<ListingResponseDTO> getListingsByUserId(Long posterId);
+    List<ListingResponseDTO> getListingsByUserId(Long userId);
 
-    List<ListingResponseDTO> getListingsByDorm(String dormName);
+    List<ListingResponseDTO> getListingsByDormName(String dormName);
 
-    ListingResponseDTO updateListing(Long id, ListingRequestDTO dto, Long currentUserId);
+    List<DormSummaryDTO> getAllDormsForDropdown();
 
-    void deleteListing(Long id, Long currentUserId);
+    List<ListingResponseDTO> getListingsByDormId(Long dormId);
+
+    ListingResponseDTO updateListing(Long id, ListingRequestDTO dto, Long currentPosterId);
+
+    void deleteListing(Long id, Long currentPosterId);
 
     List<ListingResponseDTO> searchListings(String keyword, Long viewerId);
 
