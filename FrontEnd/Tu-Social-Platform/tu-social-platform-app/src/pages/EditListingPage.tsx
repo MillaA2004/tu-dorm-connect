@@ -41,13 +41,11 @@ const EditListingPage: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        // ✅ FIX: Fetch Listing AND Dorm Options together
         const [listingData, dormsData] = await Promise.all([
           listingService.getListingById(listingId),
-          listingService.getDormOptions(), // Fetch dynamic list
+          listingService.getDormOptions(), 
         ]);
 
-        // Security check
         if (Number(listingData.poster.id) !== Number(user.id)) {
           setError("You are not allowed to edit this listing.");
           setLoading(false);
@@ -59,15 +57,11 @@ const EditListingPage: React.FC = () => {
           setDorms(dormsData);
         }
 
-        // ✅ FIX: Prefill form with correct data structure
         setTitle(listingData.title);
         setDescription(listingData.description);
         setPrice(listingData.price);
-
-        // This makes the dropdown pre-select correctly
         setDormId(String(listingData.dorm.id));
 
-        // Default to 30 if expiryDays isn't strictly tracked on the DTO yet
         setExpiryDays(30);
       } catch (err) {
         console.error(err);
