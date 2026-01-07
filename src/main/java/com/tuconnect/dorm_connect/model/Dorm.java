@@ -41,5 +41,6 @@ public class Dorm {
     @OneToMany(mappedBy = "dorm")
     private List<Review> reviews;
 
-
+    @OneToMany(mappedBy = "dorm")
+    private List<Listing> listings;
 }

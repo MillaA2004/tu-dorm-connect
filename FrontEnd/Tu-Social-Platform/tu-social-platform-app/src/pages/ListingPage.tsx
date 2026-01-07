@@ -2,20 +2,20 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import ListingList from "../components/ListingList";
-import { type ListingItem } from "../types";
+import type { ListingResponseDTO, DormSummary } from "../types";
 import { questionnaireService } from "../services/QuestionnaireService";
 import { listingService } from "../services/ListingService";
-import { chatService } from "../services/ChatService";
-import { ChatWindow } from "../components/ChatWindow";
 import { useAuth } from "../services/AuthContext";
 
 const ListingsPage: React.FC = () => {
-  const [listings, setListings] = useState<ListingItem[]>([]);
+  const [listings, setListings] = useState<ListingResponseDTO[]>([]);
+  const [dorms, setDorms] = useState<DormSummary[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDorm, setSelectedDorm] = useState("all");
+  const [selectedDormId, setSelectedDormId] = useState<string>("all");
   const [maxPrice, setMaxPrice] = useState("");
   const [hasQuestionnaire, setHasQuestionnaire] = useState<boolean>(false);
 
@@ -24,19 +24,16 @@ const ListingsPage: React.FC = () => {
 
   const abortRef = useRef<AbortController | null>(null);
 
-  const [chatOpen, setChatOpen] = useState(false);
-  const [chatState, setChatState] = useState<{
-    chatId: number;
-    title: string;
-    otherUserId: number;
-  } | null>(null);
-
   const fetchAll = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await listingService.getAllListings(user?.id);
-      setListings(data);
+      const [listingsData, dormsData] = await Promise.all([
+        listingService.getAllListings(user?.id),
+        listingService.getDormOptions(),
+      ]);
+      setListings(listingsData);
+      setDorms(dormsData);
     } catch (err) {
       console.error(err);
       setError("Failed to load listings.");
@@ -61,16 +58,18 @@ const ListingsPage: React.FC = () => {
   }, [user]);
 
   const dormNames = useMemo(() => {
-    return ["all", ...new Set(listings.map((l) => l.dormName))];
+    return ["all", ...new Set(listings.map((l) => l.dorm.dormName))];
   }, [listings]);
 
   const filteredListings = useMemo(() => {
     let filtered = [...listings];
 
-    if (selectedDorm !== "all") {
-      filtered = filtered.filter((l) => l.dormName === selectedDorm);
+    //by Dorm ID
+    if (selectedDormId !== "all") {
+      const idToMatch = Number(selectedDormId);
+      filtered = filtered.filter((l) => l.dorm.id === idToMatch);
     }
-
+    //by Max Price
     if (maxPrice) {
       const maxPriceNum = parseFloat(maxPrice);
       if (!isNaN(maxPriceNum)) {
@@ -79,7 +78,7 @@ const ListingsPage: React.FC = () => {
     }
 
     return filtered;
-  }, [listings, selectedDorm, maxPrice]);
+  }, [listings, selectedDormId, maxPrice]);
 
   const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,19 +94,19 @@ const ListingsPage: React.FC = () => {
       setError(null);
 
       if (!q) {
-        await fetchAll();
-        return;
+        // If search is cleared, reload all
+        const data = await listingService.getAllListings(user?.id);
+        setListings(data);
+      } else {
+        const data = await listingService.searchListings(
+          q,
+          user?.id,
+          controller.signal
+        );
+        if (!controller.signal.aborted) setListings(data);
       }
-
-      const data = await listingService.searchListings(
-        q,
-        user?.id,
-        controller.signal
-      );
-
-      if (!controller.signal.aborted) setListings(data);
     } catch (err: any) {
-      if (err?.name === "CanceledError" || err?.name === "AbortError") return;
+      if (err?.name === "CanceledError") return;
       console.error(err);
       setError("Failed to search listings.");
     } finally {
@@ -127,7 +126,7 @@ const ListingsPage: React.FC = () => {
         alert(
           "You already have an active listing. You must delete it or wait for it to expire before creating a new one."
         );
-        return; 
+        return;
       }
       const completed = await questionnaireService.hasCompleted(user.id);
       if (completed) {
@@ -148,9 +147,10 @@ const ListingsPage: React.FC = () => {
 
   const handleClearFilters = async () => {
     setSearchTerm("");
-    setSelectedDorm("all");
+    setSelectedDormId("all");
     setMaxPrice("");
-    await fetchAll();
+    const data = await listingService.getAllListings(user?.id);
+    setListings(data);
   };
 
   const handleViewDetails = (id: number) => {
@@ -176,35 +176,6 @@ const ListingsPage: React.FC = () => {
     } catch (err) {
       console.error("Failed to delete listing", err);
       alert("Failed to delete listing. Please try again.");
-    }
-  };
-
-  const handleContact = async (id: number) => {
-    if (!user) {
-      alert("Please log in to contact the poster.");
-      return;
-    }
-
-    const listing = listings.find((l) => l.id === id);
-    if (!listing) return;
-
-    if (listing.posterId === user.id) {
-      alert("You cannot message yourself!");
-      return;
-    }
-
-    try {
-      const chat = await chatService.createDirectChat(listing.posterId);
-
-      setChatState({
-        chatId: Number(chat.chatId),
-        title: `Chat: ${listing.title}`, 
-        otherUserId: listing.posterId,
-      });
-      setChatOpen(true);
-    } catch (err) {
-      console.error("Failed to initiate chat", err);
-      alert("Failed to open chat. Please try again.");
     }
   };
 
@@ -383,23 +354,22 @@ const ListingsPage: React.FC = () => {
             Search
           </button>
 
-          {/* Dorm filter */}
+          {/* Dynamic Dorm filter */}
           <select
-            value={selectedDorm}
-            onChange={(e) => setSelectedDorm(e.target.value)}
+            value={selectedDormId}
+            onChange={(e) => setSelectedDormId(e.target.value)}
             style={{
-              padding: "0.65rem 0.9rem",
+              padding: "0.65rem",
               borderRadius: 12,
               border: "1px solid #ddd",
-              background: "white",
               cursor: "pointer",
               minWidth: 140,
             }}
           >
             <option value="all">All dorms</option>
-            {dormNames.slice(1).map((dormName) => (
-              <option key={dormName} value={dormName}>
-                {dormName}
+            {dorms.map((dorm) => (
+              <option key={dorm.id} value={dorm.id}>
+                {dorm.dormName}
               </option>
             ))}
           </select>
@@ -421,7 +391,7 @@ const ListingsPage: React.FC = () => {
           />
 
           {(searchTerm.trim() !== "" ||
-            selectedDorm !== "all" ||
+            selectedDormId !== "all" ||
             maxPrice !== "") && (
             <button
               type="button"
@@ -457,23 +427,11 @@ const ListingsPage: React.FC = () => {
                 onViewDetails={handleViewDetails}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
-                onContact={handleContact}
+                //onContact={handleContact}
               />
             )}
           </>
         )}
-        <ChatWindow
-          isOpen={chatOpen}
-          chatId={chatState?.chatId ?? null}
-          chatTitle={chatState?.title ?? "Chat"}
-          isGroup={false}
-          isAdmin={false}
-          otherUserId={chatState?.otherUserId ?? null}
-          onClose={() => {
-            setChatOpen(false);
-            setChatState(null);
-          }}
-        />
       </div>
     </>
   );

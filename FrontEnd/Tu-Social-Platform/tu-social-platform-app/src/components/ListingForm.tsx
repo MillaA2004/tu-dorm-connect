@@ -1,20 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; 
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../services/AuthContext";
 import { listingService } from "../services/ListingService";
-import type { ListingRequestDTO } from "../types";
+import type { ListingRequestDTO, DormSummary } from "../types";
 
 const ListingForm: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  // Form State
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [dormName, setDorm] = useState("");
+  const [dormId, setDormId] = useState(""); 
   const [price, setPrice] = useState<number | "">("");
   const [expiryDays, setExpiryDays] = useState<number | "">("");
 
+  // Data State
+  const [dorms, setDorms] = useState<DormSummary[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 1. Fetch Dorms on Load
+  useEffect(() => {
+    listingService
+      .getDormOptions()
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setDorms(data);
+        } else {
+          console.error("Expected array of dorms but got:", data);
+          setDorms([]);
+        }
+      })
+      .catch((err) => console.error("Failed to load dorms", err));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,26 +41,25 @@ const ListingForm: React.FC = () => {
 
     if (!title.trim()) return alert("Add a title");
     if (!description.trim()) return alert("Add a description");
-    if (!dormName.trim()) return alert("Select a dorm");
+    if (!dormId) return alert("Select a dorm");
     if (price === "" || price <= 0) return alert("Set a positive price");
 
     const payload: ListingRequestDTO = {
       title: title.trim(),
       description: description.trim(),
-      dormName: dormName.trim(),
       price: Number(price),
+      dormId: Number(dormId),
       expiryDays: expiryDays === "" ? null : Number(expiryDays),
     };
 
     try {
       setIsSubmitting(true);
-
       await listingService.createListing(user.id, payload);
 
       // Reset form
       setTitle("");
       setDescription("");
-      setDorm("");
+      setDormId("");
       setPrice("");
       setExpiryDays("");
 
@@ -125,14 +142,15 @@ const ListingForm: React.FC = () => {
             border: "1px solid #d4d4d8",
             fontSize: "0.95rem",
           }}
-          value={dormName}
-          onChange={(e) => setDorm(e.target.value)}
+          value={dormId}
+          onChange={(e) => setDormId(e.target.value)} 
         >
           <option value="">Select dorm</option>
-          <option value="Block 14">Block 14</option>
-          <option value="Block 3">Block 3</option>
-          <option value="Block 16">Block 16</option>
-          <option value="Block 54">Block 54</option>
+          {dorms.map((dorm) => (
+            <option key={dorm.id} value={dorm.id}>
+              {dorm.dormName}
+            </option>
+          ))}
         </select>
       </div>
 

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -47,7 +48,9 @@ public class Listing {
     @JoinColumn(name = "poster_id", nullable = false)
     private User poster;
 
-    private String dorm;
+    @ManyToOne
+    @JoinColumn(name = "dorm_id")
+    private Dorm dorm;
 
     public boolean isExpired() {
         return expiresAt != null && LocalDateTime.now().isAfter(expiresAt);

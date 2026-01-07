@@ -1,5 +1,7 @@
 import apiClient from "./apiClient";
 
+const API_BASE = "/api/questionnaires";
+
 export interface QuestionnaireData {
   smokes: boolean | null;
   drinks: boolean | null;
@@ -27,7 +29,7 @@ export interface QuestionnaireData {
 export const questionnaireService = {
   async hasCompleted(userId: number): Promise<boolean> {
     try {
-      const res = await apiClient.get(`/questionnaires/${userId}`);
+      const res = await apiClient.get(`${API_BASE}/${userId}`);
       return !!res.data;
     } catch (err) {
       console.error("Failed to check questionnaire status", err);
@@ -37,7 +39,7 @@ export const questionnaireService = {
 
   async getByUser(userId: number): Promise<QuestionnaireData | null> {
     try {
-      const res = await apiClient.get(`/questionnaires/${userId}`);
+      const res = await apiClient.get(`${API_BASE}/${userId}`);
       return res.data;
     } catch (err) {
       console.error("Failed to fetch questionnaire", err);
@@ -49,7 +51,7 @@ export const questionnaireService = {
     userId: number,
     data: QuestionnaireData
   ): Promise<QuestionnaireData> {
-    const res = await apiClient.post(`/questionnaires/${userId}`, data);
+    const res = await apiClient.post(`${API_BASE}/${userId}`, data);
     return res.data;
   },
 };

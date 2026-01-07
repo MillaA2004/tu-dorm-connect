@@ -25,7 +25,7 @@ import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/matches")
+@RequestMapping("/api/matches")
 public class MatchController {
 
     private final MatchService matchService;

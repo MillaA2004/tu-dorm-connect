@@ -1,8 +1,9 @@
 import React from "react";
-import type { ListingItem } from "../types";
+import { useNavigate } from "react-router-dom";
+import type { ListingResponseDTO } from "../types";
 
 interface ListingCardProps {
-  listing: ListingItem;
+  listing: ListingResponseDTO;
   isOwner: boolean;
   onViewDetails: () => void;
   onEdit?: () => void;
@@ -18,6 +19,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
   onDelete,
   onContact,
 }) => {
+  const navigate = useNavigate();
+
   const date = new Date(listing.createdAt);
   const formattedDate = isNaN(date.getTime())
     ? listing.createdAt
@@ -51,7 +54,6 @@ const ListingCard: React.FC<ListingCardProps> = ({
       }}
       onClick={onViewDetails}
     >
-      {/* Header with status and date */}
       <div
         style={{
           display: "flex",
@@ -60,11 +62,20 @@ const ListingCard: React.FC<ListingCardProps> = ({
         }}
       >
         <div
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/dorms/${listing.dorm.id}`); 
+          }}
           style={{
             display: "flex",
             alignItems: "center",
             gap: "0.6rem",
+            cursor: "pointer",
+            transition: "opacity 0.2s", 
           }}
+          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.75")}
+          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+          title="Go to Dorm Page"
         >
           {/* Listing type indicator */}
           <div
@@ -87,7 +98,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
           <div>
             <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>
-              {listing.dormName}
+              {listing.dorm.dormName}
             </div>
             <div style={{ fontSize: "0.8rem", color: "#6b7280" }}>
               {isOwner ? "Your Listing" : "Available"}
@@ -214,27 +225,27 @@ const ListingCard: React.FC<ListingCardProps> = ({
             </button>
           </div>
         ) : (
-        onContact && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onContact?.();
-            }}
-            style={{
-              padding: "0.45rem 0.95rem",
-              borderRadius: 999,
-              border: "none",
-              background:
-                "linear-gradient(135deg, rgb(37,99,235), rgb(56,189,248))",
-              color: "white",
-              cursor: "pointer",
-              fontSize: "0.85rem",
-              fontWeight: 500,
-            }}
-          >
-            Contact
-          </button>
-        )
+          onContact && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onContact?.();
+              }}
+              style={{
+                padding: "0.45rem 0.95rem",
+                borderRadius: 999,
+                border: "none",
+                background:
+                  "linear-gradient(135deg, rgb(37,99,235), rgb(56,189,248))",
+                color: "white",
+                cursor: "pointer",
+                fontSize: "0.85rem",
+                fontWeight: 500,
+              }}
+            >
+              Contact
+            </button>
+          )
         )}
       </div>
 
