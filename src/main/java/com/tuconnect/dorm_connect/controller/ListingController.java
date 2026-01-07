@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/listings")
+@RequestMapping("/api/listings")
 @Validated
 public class ListingController {
 

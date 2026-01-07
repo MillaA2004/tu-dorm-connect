@@ -1,7 +1,7 @@
 import apiClient from "./apiClient";
 import type {ListingResponseDTO, DormSummary } from "../types";
 
-const API_BASE = "/listings";
+const API_BASE = "/api/listings";
 
 class ListingService {
   async getAllListings(viewerId?: number): Promise<ListingResponseDTO[]> {

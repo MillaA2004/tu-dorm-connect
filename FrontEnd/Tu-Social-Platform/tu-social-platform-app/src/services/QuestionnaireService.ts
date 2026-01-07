@@ -1,6 +1,6 @@
 import apiClient from "./apiClient";
 
-const API_BASE = "/questionnaires";
+const API_BASE = "/api/questionnaires";
 
 export interface QuestionnaireData {
   smokes: boolean | null;
