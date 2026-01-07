@@ -31,8 +31,8 @@ public class DataSeeder implements CommandLineRunner {
                             .description("Family dorm.")
                             .price(76.0)
                             .address("Studentski Grad, Block 54")
-                            .latitude(42.6535)
-                            .longitude(23.3552)
+                            .latitude(42.6456)
+                            .longitude(23.3417)
                             .build(),
 
                     Dorm.builder()
@@ -40,8 +40,8 @@ public class DataSeeder implements CommandLineRunner {
                             .description("Renewed dorm of TU from 2015 with solar panels.")
                             .price(69.0)
                             .address("Studentski Grad, Block 14")
-                            .latitude(42.6550)
-                            .longitude(23.3600)
+                            .latitude(42.6503)
+                            .longitude(23.3422)
                             .build(),
 
                     Dorm.builder()
@@ -49,8 +49,8 @@ public class DataSeeder implements CommandLineRunner {
                             .description("TU dorm for the 6.00 GPA")
                             .price(96.0)
                             .address("Studentski Grad, Block 3")
-                            .latitude(42.6510)
-                            .longitude(23.3510)
+                            .latitude(42.6593)
+                            .longitude(23.3503)
                             .build()
             );
 

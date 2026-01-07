@@ -14,7 +14,7 @@ type Props = {
 
 const DormMap: React.FC<Props> = ({
   dorms,
-  defaultCenter = { lat: 42.6977, lng: 23.3219 },
+  defaultCenter = { lat: 42.6535, lng: 23.3478 },
   defaultZoom = 13,
 }) => {
   const navigate = useNavigate();
