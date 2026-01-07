@@ -41,7 +41,7 @@ class JwtTokenProviderTest {
         );
         String token = jwtTokenProvider.generateToken(authentication);
 
-        String username = jwtTokenProvider.getUsername(token);
+        String username = jwtTokenProvider.getEmail(token);
 
         assertEquals("test@example.com", username);
     }

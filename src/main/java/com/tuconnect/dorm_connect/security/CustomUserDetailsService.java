@@ -28,13 +28,12 @@ public class CustomUserDetailsService implements UserDetailsService {
                 new SimpleGrantedAuthority(user.getRole().name())
         );
 
-
         return new UserPrincipal(
                 user.getId(),
                 user.getEmail(),
                 user.getPassword(),
                 authorities,
-                null
+                user.getSuspendedUntil()
         );
     }
 }

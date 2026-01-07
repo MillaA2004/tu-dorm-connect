@@ -17,14 +17,15 @@ export interface JwtResponse {
   token: string;
 }
 
-
-
 export interface AuthJwtPayload {
-  sub: string; 
-  exp?: number;
-  firstName?: string;
-  lastName?: string;
-  role?: string;
+    sub: string;
+    exp?: number;
+    firstName?: string;
+    lastName?: string;
+    role?: string;
+    roles?: string;
+    suspended?: boolean;
+    suspendedUntil?: number | null;
 }
 
 

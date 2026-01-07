@@ -3,6 +3,7 @@ package com.tuconnect.dorm_connect.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.time.Instant;
 import java.util.List;
 
@@ -48,6 +49,9 @@ public class User {
     @Column(name = "role")
     private Roles role;
 
+    @Column(name = "suspended_until")
+    private LocalDateTime suspendedUntil;
+
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean deleted;
 
@@ -71,7 +75,6 @@ public class User {
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts;
-
 
     @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> receivedNotifications;

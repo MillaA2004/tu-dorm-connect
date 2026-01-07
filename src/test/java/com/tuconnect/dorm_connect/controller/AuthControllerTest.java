@@ -5,6 +5,7 @@ import com.tuconnect.dorm_connect.dto.User.UserDTO;
 import com.tuconnect.dorm_connect.dto.auth.LoginRequest;
 import com.tuconnect.dorm_connect.model.Roles;
 import com.tuconnect.dorm_connect.model.User;
+import com.tuconnect.dorm_connect.repository.UserRepository;
 import com.tuconnect.dorm_connect.security.JwtTokenProvider;
 import com.tuconnect.dorm_connect.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -43,11 +46,21 @@ class AuthControllerTest {
     @MockitoBean
     private UserService userService;
 
+    @MockitoBean
+    private UserRepository userRepository;
+
     @Autowired
     private ObjectMapper objectMapper;
 
     @Test
     void login_ShouldReturnToken_WhenCredentialsAreValid() throws Exception {
+        User user = User.builder()
+                .email("test@example.com")
+                .password("password")
+                .build();
+
+        when(userRepository.findByEmail(any())).thenReturn(Optional.ofNullable(user));
+
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail("test@example.com");
         loginRequest.setPassword("password");

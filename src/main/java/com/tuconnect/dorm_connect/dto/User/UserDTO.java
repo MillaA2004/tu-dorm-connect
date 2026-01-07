@@ -1,6 +1,5 @@
 package com.tuconnect.dorm_connect.dto.User;
 
-import com.tuconnect.dorm_connect.model.Questionnaire;
 import com.tuconnect.dorm_connect.model.Roles;
 import com.tuconnect.dorm_connect.model.User;
 
