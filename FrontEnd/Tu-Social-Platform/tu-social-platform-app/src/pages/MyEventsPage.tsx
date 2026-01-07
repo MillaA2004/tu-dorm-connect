@@ -31,7 +31,7 @@ const MyEventsPage: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await eventService.getEventsCreatedByUser(user.id);
+        const data = await eventService.getMyCreatedEvents();
         setEvents(data);
       } catch (err) {
         console.error(err);

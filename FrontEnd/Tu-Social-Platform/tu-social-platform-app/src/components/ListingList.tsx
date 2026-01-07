@@ -1,9 +1,9 @@
 import React from "react";
 import ListingCard from "./ListingCard";
-import type { ListingItem } from "../types";
+import type { ListingResponseDTO } from "../types";
 
 interface Props {
-  listings: ListingItem[];
+  listings: ListingResponseDTO[];
   currentUserId?: number;
   onViewDetails?: (id: number) => void;
   onEdit?: (id: number) => void;
@@ -30,7 +30,7 @@ const ListingList: React.FC<Props> = ({
         <ListingCard
           key={listing.id}
           listing={listing}
-          isOwner={currentUserId === listing.posterId}
+          isOwner={currentUserId === listing.poster.id}
           onViewDetails={() => onViewDetails?.(listing.id)}
           onEdit={onEdit ? () => onEdit(listing.id) : undefined}
           onDelete={onDelete ? () => onDelete(listing.id) : undefined}

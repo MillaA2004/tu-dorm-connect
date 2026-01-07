@@ -1,11 +1,14 @@
 package com.tuconnect.dorm_connect.service.implementations;
 
+import com.tuconnect.dorm_connect.dto.Dorm.DormSummaryDTO;
 import com.tuconnect.dorm_connect.dto.Listing.ListingRequestDTO;
 import com.tuconnect.dorm_connect.dto.Listing.ListingResponseDTO;
 import com.tuconnect.dorm_connect.mapper.ListingMapper;
+import com.tuconnect.dorm_connect.model.Dorm;
 import com.tuconnect.dorm_connect.model.Listing;
 import com.tuconnect.dorm_connect.model.Questionnaire;
 import com.tuconnect.dorm_connect.model.User;
+import com.tuconnect.dorm_connect.repository.DormRepository;
 import com.tuconnect.dorm_connect.repository.ListingRepository;
 import com.tuconnect.dorm_connect.repository.QuestionnaireRepository;
 import com.tuconnect.dorm_connect.repository.UserRepository;
@@ -25,6 +28,7 @@ public class ListingServiceImpl implements ListingService {
 
     private final ListingRepository listingRepository;
     private final UserRepository userRepository;
+    private final DormRepository dormRepository;
     private final ListingMapper listingMapper;
     private final QuestionnaireRepository questionnaireRepository;
 
@@ -34,11 +38,13 @@ public class ListingServiceImpl implements ListingService {
         User poster = userRepository.findById(posterId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
+        Dorm dorm = dormRepository.findById(dto.dormId())
+                .orElseThrow(() -> new EntityNotFoundException("Dorm not found with ID: " + dto.dormId()));
+
         List<Listing> existingListings = listingRepository.findByPosterIdAndIsActiveTrueAndExpiresAtAfter(
                 posterId,
                 LocalDateTime.now()
         );
-
         if (!existingListings.isEmpty()) {
             throw new IllegalStateException("You already have an active listing. Please wait for it to expire or delete it before creating a new one.");
         }
@@ -50,7 +56,9 @@ public class ListingServiceImpl implements ListingService {
 
         Listing listing = listingMapper.toEntity(dto);
         listing.setPoster(poster);
+        listing.setDorm(dorm);
         listing.setIsActive(true);
+
         if (dto.expiryDays() != null) {
             listing.setExpiresAt(LocalDateTime.now().plusDays(dto.expiryDays()));
         }
@@ -60,9 +68,9 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public ListingResponseDTO getListingById(Long id){
+    public ListingResponseDTO getListingById(Long id) {
         Listing listing = listingRepository.findById(id)
-                .orElseThrow(()-> new EntityNotFoundException("Listing not found."));
+                .orElseThrow(() -> new EntityNotFoundException("Listing not found with id: " + id));
         return listingMapper.toResponseDTO(listing);
     }
 
@@ -81,6 +89,7 @@ public class ListingServiceImpl implements ListingService {
                 LocalDateTime.now(),
                 viewer.getGender()
         );
+
         List<Listing> filtered = listings.stream()
                 .filter(l -> !l.getPoster().getId().equals(viewerId))
                 .toList();
@@ -90,15 +99,31 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public List<ListingResponseDTO> getListingsByUserId(Long userId){
-        List<Listing> listings = listingRepository.findByPosterIdAndIsActiveTrueAndExpiresAtAfter(userId, LocalDateTime.now());
+        List<Listing> listings = listingRepository.findByPosterIdAndIsActiveTrueAndExpiresAtAfter(
+                userId, LocalDateTime.now());
         return listingMapper.toResponseDTOList(listings);
     }
 
     @Override
-    public List<ListingResponseDTO> getListingsByDorm(String dormName){
-        List<Listing> listings = listingRepository
-                .findByDormAndIsActiveTrueAndExpiresAtAfter(dormName, LocalDateTime.now());
+    public List<ListingResponseDTO> getListingsByDormId(Long dormId) {
+        List<Listing> listings = listingRepository.findByDormIdAndIsActiveTrueAndExpiresAtAfter(
+                dormId, LocalDateTime.now());
         return listingMapper.toResponseDTOList(listings);
+    }
+
+    @Override
+    public List<ListingResponseDTO> getListingsByDormName(String dormName) {
+        List<Listing> listings = listingRepository.findByDorm_NameAndIsActiveTrueAndExpiresAtAfter(
+                dormName, LocalDateTime.now());
+        return listingMapper.toResponseDTOList(listings);
+    }
+
+    public List<DormSummaryDTO> getAllDormsForDropdown() {
+        List<Dorm> allDorms = dormRepository.findAll();
+
+        return allDorms.stream()
+                .map(listingMapper::toDormSummary)
+                .toList();
     }
 
     @Override
@@ -109,6 +134,12 @@ public class ListingServiceImpl implements ListingService {
 
         if (!listing.getPoster().getId().equals(currentPosterId)) {
             throw new IllegalArgumentException("Able to update only if it is your own listings");
+        }
+
+        if (!listing.getDorm().getId().equals(dto.dormId())) {
+            Dorm newDorm = dormRepository.findById(dto.dormId())
+                    .orElseThrow(() -> new EntityNotFoundException("Dorm not found"));
+            listing.setDorm(newDorm);
         }
 
         listingMapper.updateEntityFromDTO(dto, listing);

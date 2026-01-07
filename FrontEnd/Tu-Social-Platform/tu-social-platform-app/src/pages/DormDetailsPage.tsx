@@ -162,7 +162,7 @@ const DormDetailsPage: React.FC = () => {
   if (!dorm) return <div className="ddpPage ddpCentered">Dorm not found.</div>;
 
   const priceText =
-    dorm.price == null ? "—" : new Intl.NumberFormat(undefined, { style: "currency", currency: "EUR" }).format(dorm.price);
+    dorm.price == null ? "—" : new Intl.NumberFormat(undefined, { style: "currency", currency: "BGN" }).format(dorm.price);
 
   return (
     <>

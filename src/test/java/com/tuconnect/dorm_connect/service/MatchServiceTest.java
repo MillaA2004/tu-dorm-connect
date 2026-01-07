@@ -55,16 +55,23 @@ class MatchServiceTest {
         Long viewerId = 1L;
         User viewer = new User();
         viewer.setId(viewerId);
+        viewer.setGender(User.Gender.MALE); // Service filters by gender
 
         Questionnaire viewerQ = new Questionnaire();
         viewerQ.setUser(viewer);
 
         User poster = new User();
         poster.setId(2L);
+        poster.setGender(User.Gender.MALE);
+
         Questionnaire posterQ = new Questionnaire();
         posterQ.setUser(poster);
         poster.setQuestionnaire(posterQ);
-        poster.setListings(List.of(new Listing()));
+
+        Listing activeListing = new Listing();
+        activeListing.setIsActive(true);
+        activeListing.setExpiresAt(LocalDateTime.now().plusDays(7));
+        poster.setListings(List.of(activeListing));
 
         UserMatchDTO dto = new UserMatchDTO(null, 85.0);
 
@@ -72,7 +79,8 @@ class MatchServiceTest {
         when(questionnaireRepository.findByUser(viewer)).thenReturn(Optional.of(viewerQ));
         when(userRepository.findByQuestionnaireIsNotNullAndListingsIsNotEmpty())
                 .thenReturn(List.of(poster));
-        when(matchingService.calculateMatchScore(viewerQ, posterQ)).thenReturn(85.0);
+
+        when(matchingService.calculateMatchScore(any(), any())).thenReturn(85.0);
         when(userMatchMapper.toDTO(any(UserMatch.class))).thenReturn(dto);
 
         List<UserMatchDTO> result = matchService.generateMatchesForViewer(viewerId, 60.00);

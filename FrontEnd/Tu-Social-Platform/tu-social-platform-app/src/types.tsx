@@ -10,6 +10,11 @@ export interface UserSummary {
   profileImageUrl?: string | null;
 }
 
+export interface DormSummary {
+  id: number;
+  dormName: string;
+}
+
 export interface NewEvent {
   title: string;
   description: string;
@@ -26,39 +31,25 @@ export interface EventItem extends NewEvent {
   creator: UserSummary;
 }
 
-export interface NewListing {
-  title: string;
-  description: string;
-  price: number;
-  dormName: string;
-  posterId: number;
-  expiryDays: number;
-}
-export interface ListingItem extends NewListing {
-  id: number;
-  createdAt: string;
-  expiresAt: string;
-  isActive: boolean;
-}
-
 export interface ListingRequestDTO {
   title: string;
   description: string;
-  dormName: string;
   price: number;
-  expiryDays: number | null;
+  dormId: number;
+  expiryDays?: number;
 }
 
 export interface ListingResponseDTO {
   id: number;
   title: string;
   description: string;
-  dormName: string;
   price: number;
-  createdAt: string;
-  expiresAt: string | null;
+  dorm: DormSummary;
+  poster: UserSummary;
   isActive: boolean;
-  posterId: number;
+  preferencesJson?: string;
+  createdAt: string;
+  expiresAt: string; 
 }
 
 export interface QuestionnaireData {

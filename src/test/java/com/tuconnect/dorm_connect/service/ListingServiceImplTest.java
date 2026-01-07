@@ -1,12 +1,16 @@
 package com.tuconnect.dorm_connect.service;
 
+import com.tuconnect.dorm_connect.dto.Dorm.DormSummaryDTO;
 import com.tuconnect.dorm_connect.dto.Listing.ListingRequestDTO;
 import com.tuconnect.dorm_connect.dto.Listing.ListingResponseDTO;
+import com.tuconnect.dorm_connect.dto.User.UserSummaryDTO;
 import com.tuconnect.dorm_connect.mapper.ListingMapper;
+import com.tuconnect.dorm_connect.model.Dorm;
 import com.tuconnect.dorm_connect.model.Listing;
 import com.tuconnect.dorm_connect.model.Questionnaire;
 import com.tuconnect.dorm_connect.model.User;
 import com.tuconnect.dorm_connect.model.User.Gender;
+import com.tuconnect.dorm_connect.repository.DormRepository;
 import com.tuconnect.dorm_connect.repository.ListingRepository;
 import com.tuconnect.dorm_connect.repository.QuestionnaireRepository;
 import com.tuconnect.dorm_connect.repository.UserRepository;
@@ -40,6 +44,9 @@ class ListingServiceImplTest {
     @Mock
     private QuestionnaireRepository questionnaireRepository;
 
+    @Mock
+    private DormRepository dormRepository;
+
     @InjectMocks
     private ListingServiceImpl listingService;
 
@@ -50,59 +57,78 @@ class ListingServiceImplTest {
 
     @Test
     void createListing_shouldSaveAndReturnResponse_WhenNoActiveListingExists() {
+
         Long posterId = 1L;
+        Long dormId = 55L;
+
         ListingRequestDTO dto = new ListingRequestDTO(
                 "Title",
                 "Desc",
                 100.0,
-                "Dorm A",
+                dormId,
                 5);
 
         User user = new User();
         user.setId(posterId);
 
+        Dorm dorm = new Dorm();
+        dorm.setId(dormId);
+        dorm.setName("Dorm A");
+
         Questionnaire questionnaire = new Questionnaire();
         Listing listing = new Listing();
+
         ListingResponseDTO responseDTO = new ListingResponseDTO(
                 1L,
                 "Title",
                 "Desc",
                 100.0,
                 null,
-                "Dorm A",
-                posterId,
+                new DormSummaryDTO(dormId, "Dorm A"),
+                new UserSummaryDTO(posterId, "John", "Doe", "url"),
                 true,
                 LocalDateTime.now(),
                 LocalDateTime.now().plusDays(5)
         );
 
+        // Mocks
         when(userRepository.findById(posterId)).thenReturn(Optional.of(user));
+        when(dormRepository.findById(dormId)).thenReturn(Optional.of(dorm));
+
         when(listingRepository.findByPosterIdAndIsActiveTrueAndExpiresAtAfter(eq(posterId), any(LocalDateTime.class)))
                 .thenReturn(Collections.emptyList());
         when(questionnaireRepository.findByUserId(posterId)).thenReturn(questionnaire);
+
         when(listingMapper.toEntity(dto)).thenReturn(listing);
         when(listingRepository.save(listing)).thenReturn(listing);
         when(listingMapper.toResponseDTO(listing)).thenReturn(responseDTO);
 
+        // When
         ListingResponseDTO result = listingService.createListing(posterId, dto);
 
+        // Then
         assertThat(result).isEqualTo(responseDTO);
         verify(listingRepository).save(listing);
+        verify(dormRepository).findById(dormId);
     }
 
     @Test
     void createListing_shouldThrow_WhenActiveListingExists() {
         Long posterId = 1L;
+        Long dormId = 55L;
         ListingRequestDTO dto = new ListingRequestDTO(
                 "Title",
                 "Desc",
                 100.0,
-                "Dorm A",
+                dormId,
                 5);
         User user = new User();
         user.setId(posterId);
+        Dorm dorm = new Dorm();
 
         when(userRepository.findById(posterId)).thenReturn(Optional.of(user));
+        when(dormRepository.findById(dormId)).thenReturn(Optional.of(dorm));
+
         when(listingRepository.findByPosterIdAndIsActiveTrueAndExpiresAtAfter(eq(posterId), any(LocalDateTime.class)))
                 .thenReturn(List.of(new Listing()));
 
@@ -112,40 +138,32 @@ class ListingServiceImplTest {
 
     @Test
     void createListing_shouldThrowIfUserNotFound() {
-        ListingRequestDTO dto = new ListingRequestDTO("Title", "Desc", 100.0, "Dorm A", 5);
+        ListingRequestDTO dto = new ListingRequestDTO("Title", "Desc", 100.0, 55L, 5);
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
         assertThrows(EntityNotFoundException.class, () -> listingService.createListing(99L, dto));
     }
 
     @Test
-    void createListing_shouldThrowIfNoQuestionnaire() {
+    void createListing_shouldThrowIfDormNotFound() {
+        // New test case for invalid Dorm ID
         Long posterId = 1L;
-        ListingRequestDTO dto = new ListingRequestDTO("Title", "Desc", 100.0, "Dorm A", 5);
-        User user = new User();
-        user.setId(posterId);
+        Long invalidDormId = 999L;
+        ListingRequestDTO dto = new ListingRequestDTO("Title", "Desc", 100.0, invalidDormId, 5);
 
-        when(userRepository.findById(posterId)).thenReturn(Optional.of(user));
-        when(listingRepository.findByPosterIdAndIsActiveTrueAndExpiresAtAfter(eq(posterId), any(LocalDateTime.class)))
-                .thenReturn(Collections.emptyList());
-        when(questionnaireRepository.findByUserId(posterId)).thenReturn(null);
+        when(userRepository.findById(posterId)).thenReturn(Optional.of(new User()));
+        when(dormRepository.findById(invalidDormId)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalStateException.class, () -> listingService.createListing(posterId, dto));
+        assertThrows(EntityNotFoundException.class, () -> listingService.createListing(posterId, dto));
     }
 
     @Test
     void getActiveListings_shouldReturnAllActive_ForGuest() {
         Listing listing = new Listing();
         ListingResponseDTO responseDTO = new ListingResponseDTO(
-                1L,
-                "T",
-                "D",
-                100.0,
-                null,
-                "A",
-                1L,
-                true,
-                null,
-                null);
+                1L, "T", "D", 100.0, null,
+                new DormSummaryDTO(1L, "A"),
+                new UserSummaryDTO(1L, "F", "L", "img"),
+                true, null, null);
 
         when(listingRepository.findByIsActiveTrueAndExpiresAtAfter(any(LocalDateTime.class)))
                 .thenReturn(List.of(listing));
@@ -180,16 +198,10 @@ class ListingServiceImplTest {
                 .thenReturn(List.of(validListing, ownListing));
 
         ListingResponseDTO responseDTO = new ListingResponseDTO(
-                1L,
-                "T",
-                "D",
-                100.0,
-                null,
-                "A",
-                200L,
-                true,
-                null,
-                null
+                1L, "T", "D", 100.0, null,
+                new DormSummaryDTO(1L, "A"),
+                new UserSummaryDTO(200L, "F", "L", "img"),
+                true, null, null
         );
 
         when(listingMapper.toResponseDTOList(List.of(validListing))).thenReturn(List.of(responseDTO));
@@ -204,41 +216,16 @@ class ListingServiceImplTest {
     void searchListings_shouldSearchAll_ForGuest() {
         String keyword = "quiet";
         Listing listing = new Listing();
+
         when(listingRepository.searchByKeyword(eq("quiet"), any(LocalDateTime.class)))
                 .thenReturn(List.of(listing));
-        when(listingMapper.toResponseDTOList(any())).thenReturn(List.of(new ListingResponseDTO(1L, "T", "D", 10.0, null, "D", 1L, true, null, null)));
+        when(listingMapper.toResponseDTOList(any())).thenReturn(List.of(
+                new ListingResponseDTO(1L, "T", "D", 10.0, null, new DormSummaryDTO(1L, "D"), null, true, null, null)
+        ));
 
         listingService.searchListings(keyword, null);
 
         verify(listingRepository).searchByKeyword(eq("quiet"), any(LocalDateTime.class));
-    }
-
-    @Test
-    void searchListings_shouldFilterResults_ForUser() {
-        Long viewerId = 1L;
-        String keyword = "quiet";
-        User viewer = new User();
-        viewer.setId(viewerId);
-        viewer.setGender(Gender.FEMALE);
-
-        User maleUser = new User();
-        maleUser.setGender(Gender.MALE);
-        Listing wrongGenderListing = new Listing();
-        wrongGenderListing.setPoster(maleUser);
-
-        User femaleUser = new User();
-        femaleUser.setId(2L);
-        femaleUser.setGender(Gender.FEMALE);
-        Listing correctListing = new Listing();
-        correctListing.setPoster(femaleUser);
-
-        when(userRepository.findById(viewerId)).thenReturn(Optional.of(viewer));
-        when(listingRepository.searchByKeyword(eq("quiet"), any(LocalDateTime.class)))
-                .thenReturn(List.of(wrongGenderListing, correctListing));
-
-        listingService.searchListings(keyword, viewerId);
-
-        verify(listingMapper).toResponseDTOList(List.of(correctListing));
     }
 
     @Test

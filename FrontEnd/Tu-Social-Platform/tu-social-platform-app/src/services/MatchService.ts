@@ -1,6 +1,8 @@
 import apiClient from "./apiClient";
 import type { UserMatchDTO } from "../types";
 
+const API_BASE = "/api/matches";
+
 class MatchService {
   /**
    * Get matches for a specific viewer/user
@@ -18,7 +20,7 @@ class MatchService {
         params.minScore = minScore;
       }
 
-      const res = await apiClient.get(`/matches/${viewerId}`, { params });
+      const res = await apiClient.get(`${API_BASE}/${viewerId}`, { params });
       return res.data;
     } catch (err) {
       console.error("Failed to fetch matches", err);
@@ -38,7 +40,7 @@ class MatchService {
         params.minScore = minScore;
       }
 
-      const res = await apiClient.get(`/matches/all`, { params });
+      const res = await apiClient.get(`${API_BASE}/all`, { params });
       return res.data;
     } catch (err) {
       console.error("Failed to fetch all matches", err);

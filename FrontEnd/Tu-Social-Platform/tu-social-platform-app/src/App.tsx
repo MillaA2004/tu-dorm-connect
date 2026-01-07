@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { APIProvider } from "@vis.gl/react-google-maps";
 
 import EventsPage from "./pages/EventsPage";
@@ -29,6 +29,8 @@ import AddDorm from "./pages/AddDorm";
 import EditDorm from "./pages/EditDorm";
 import DormDetailsPage from "./pages/DormDetailsPage";
 import ReportsPage from "./pages/ReportsPage";
+import ProtectedRoute from "./services/ProtectedRoute";
+
 
 const App: React.FC = () => {
   return (
@@ -36,41 +38,55 @@ const App: React.FC = () => {
       <APIProvider apiKey={MAPS_API_KEY}>
         <BrowserRouter>
           <Routes>
-            {/* Home */}
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/" element={<LoginPage />} />{" "}
-            {/* Auth */}
-            <Route path="/register" element={<RegisterPage />} />
+
+            {/* 🔓 PUBLIC ROUTES */}
             <Route path="/login" element={<LoginPage />} />
-            {/* Profile */}
-            <Route path="/profile/:userId" element={<UserProfilePage />} />
-            <Route path="/profile/me" element={<UserProfilePage />} />
-            {/* Listings (Roommates) */}
-            <Route path="/listings" element={<ListingPage />} />
-            <Route path="/listings/new" element={<CreateListingPage />} />
-            <Route path="/listings/:id" element={<ListingDetailsPage />} />
-            <Route path="/listings/:id/edit" element={<EditListingPage />} />
-            <Route path="/listings/mine" element={<MyListingsPage />} />
-            {/* Matching */}
-            <Route path="/questionnaire" element={<QuestionnairePage />} />
-            <Route path="/matches/:viewerId" element={<MatchesPage />} />
-            {/* Events */}
-            <Route path="/events" element={<EventsPage />} />
-            <Route path="/events/new" element={<CreateEventPage />} />
-            <Route path="/events/:id" element={<EventDetailsPage />} />
-            <Route path="/events/:id/edit" element={<EditEventPage />} />
-            <Route path="/events/joined" element={<MyJoinedEventsPage />} />
-            <Route path="/events/mine" element={<MyEventsPage />} />
-            {/* Posts */}
-            <Route path="/posts" element={<PostPage />} />
-            <Route path="/posts/:postId" element={<PostDetailsPage />} />
-            {/* Dorms */}
-            <Route path="/dorms" element={<DormListPage />} />
-            <Route path="/dorms/add" element={<AddDorm />} />
-            <Route path="/dorms/:id" element={<DormDetailsPage />} />
-            <Route path="/dorms/:id/edit" element={<EditDorm />} />
-            {/* Admin */}
-            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+
+            
+            {/* 🔒 PROTECTED ROUTES */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/home" element={<HomePage />} />
+
+              {/* Profile */}
+              <Route path="/profile/:userId" element={<UserProfilePage />} />
+              <Route path="/profile/me" element={<UserProfilePage />} />
+
+              {/* Events */}
+              <Route path="/events" element={<EventsPage />} />
+              <Route path="/events/new" element={<CreateEventPage />} />
+              <Route path="/events/:id" element={<EventDetailsPage />} />
+              <Route path="/events/:id/edit" element={<EditEventPage />} />
+              <Route path="/events/joined" element={<MyJoinedEventsPage />} />
+              <Route path="/events/mine" element={<MyEventsPage />} />
+
+              {/* Posts */}
+              <Route path="/posts" element={<PostPage />} />
+              <Route path="/posts/:postId" element={<PostDetailsPage />} />
+
+              {/* Listings */}
+              <Route path="/listings" element={<ListingPage />} />
+              <Route path="/listings/new" element={<CreateListingPage />} />
+              <Route path="/listings/:id" element={<ListingDetailsPage />} />
+              <Route path="/listings/:id/edit" element={<EditListingPage />} />
+              <Route path="/listings/mine" element={<MyListingsPage />} />
+
+              {/* Matching */}
+              <Route path="/questionnaire" element={<QuestionnairePage />} />
+              <Route path="/matches/:viewerId" element={<MatchesPage />} />
+
+              {/* Dorms */}
+              <Route path="/dorms" element={<DormListPage />} />
+              <Route path="/dorms/add" element={<AddDorm />} />
+              <Route path="/dorms/:id" element={<DormDetailsPage />} />
+              <Route path="/dorms/:id/edit" element={<EditDorm />} />
+
+              {/* Admin */}
+              <Route path="/reports" element={<ReportsPage />} />
+            </Route>
+
+            {/* fallback */}
+            <Route path="*" element={<Link to="/login" replace />} />
 
           </Routes>
         </BrowserRouter>

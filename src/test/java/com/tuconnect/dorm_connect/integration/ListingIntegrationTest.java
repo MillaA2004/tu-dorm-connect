@@ -2,11 +2,9 @@ package com.tuconnect.dorm_connect.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tuconnect.dorm_connect.dto.Listing.ListingRequestDTO;
-import com.tuconnect.dorm_connect.model.Listing;
-import com.tuconnect.dorm_connect.model.Questionnaire;
-import com.tuconnect.dorm_connect.model.User;
-import com.tuconnect.dorm_connect.model.Roles;
+import com.tuconnect.dorm_connect.model.*;
 import com.tuconnect.dorm_connect.model.User.Gender;
+import com.tuconnect.dorm_connect.repository.DormRepository;
 import com.tuconnect.dorm_connect.repository.ListingRepository;
 import com.tuconnect.dorm_connect.repository.QuestionnaireRepository;
 import com.tuconnect.dorm_connect.repository.UserRepository;
@@ -48,13 +46,28 @@ class ListingIntegrationTest {
     @Autowired
     private QuestionnaireRepository questionnaireRepository;
 
+    @Autowired
+    private DormRepository dormRepository;
+
     private User poster;
+    private Dorm testDorm;
 
     @BeforeEach
     void setUp() {
         listingRepository.deleteAll();
         questionnaireRepository.deleteAll();
         userRepository.deleteAll();
+        dormRepository.deleteAll();
+
+        testDorm = Dorm.builder()
+                .name("Test Dorm Block 1")
+                .description("A test dorm description")
+                .price(100.0)
+                .address("123 Test St")
+                .latitude(42.6530)
+                .longitude(23.3512)
+                .build();
+        testDorm = dormRepository.save(testDorm);
 
         poster = new User();
         poster.setFirstName("Milla");
@@ -100,7 +113,7 @@ class ListingIntegrationTest {
                 "Title",
                 "Desc",
                 100.0,
-                "Dorm A",
+                testDorm.getId(),
                 5
         );
 
@@ -109,7 +122,8 @@ class ListingIntegrationTest {
                         .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value("Title"))
-                .andExpect(jsonPath("$.posterId").value(poster.getId()));
+                .andExpect(jsonPath("$.poster.id").value(poster.getId()))
+                .andExpect(jsonPath("$.dorm.dormName").value("Test Dorm Block 1"));
 
         assertThat(listingRepository.count()).isEqualTo(1);
     }
@@ -147,14 +161,14 @@ class ListingIntegrationTest {
         createActiveListing(maleUser, "Quiet Room (Male)");
 
         User femaleUser = createHelperUser("jane@test.com", Gender.FEMALE);
-        createActiveListing(femaleUser, "Quiet Room (Female)"); // Compatible
+        createActiveListing(femaleUser, "Quiet Room (Female)");
 
         // Act: Search for "Quiet" as the Female 'poster'
         mockMvc.perform(get("/listings/search")
                         .param("keyword", "Quiet")
                         .param("viewerId", poster.getId().toString()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1))) // Should only find 1
+                .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].title").value("Quiet Room (Female)"));
     }
 
@@ -190,7 +204,7 @@ class ListingIntegrationTest {
         listing.setTitle(title);
         listing.setDescription("Description");
         listing.setPrice(100.0);
-        listing.setDorm("Dorm A");
+        listing.setDorm(testDorm);
         listing.setPoster(owner);
         listing.setIsActive(true);
         listing.setCreatedAt(LocalDateTime.now());

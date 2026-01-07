@@ -14,6 +14,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -48,9 +49,9 @@ public class EventServiceImpl implements EventService {
 
 
     @Transactional
-    public EventResponseDTO createEvent(Long creatorId, EventRequestDTO dto) {
-        User creator = userRepository.findById(creatorId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + creatorId));
+    public EventResponseDTO createEvent(Authentication authentication, EventRequestDTO dto) {
+        User creator = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + authentication.getName()));
 
 
         Event event = eventMapper.toEntity(dto);
@@ -85,9 +86,9 @@ public class EventServiceImpl implements EventService {
 
 
     @Transactional
-    public EventResponseDTO updateEvent(Long creatorId, Long eventId, EventRequestDTO dto) {
-        User creator = userRepository.findById(creatorId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + creatorId));
+    public EventResponseDTO updateEvent(Authentication authentication, Long eventId, EventRequestDTO dto) {
+        User creator = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + authentication.getName()));
 
         Event currentEvent = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
@@ -110,13 +111,13 @@ public class EventServiceImpl implements EventService {
 
     }
 
-    public void deleteEvent(Long eventId, Long userId) {
+    public void deleteEvent(Long eventId, Authentication authentication) {
 
         Event currentEvent = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
 
-        User creator = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+        User creator = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + authentication.getName()));
 
         if (
                 !currentEvent.getCreator().equals(creator)
@@ -152,8 +153,12 @@ public class EventServiceImpl implements EventService {
 
 
     @Transactional
-    public List<EventResponseDTO> getAllEventsCreatedByUser(Long userId) {
-        return eventRepository.findAllByCreator_Id(userId)
+    public List<EventResponseDTO> getAllEventsByCreator(Authentication authentication) {
+
+        User creator = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + authentication.getName()));
+
+        return eventRepository.findAllByCreator_Id(creator.getId())
                 .stream()
                 .map(eventMapper::toDTO)
                 .toList();
@@ -161,8 +166,12 @@ public class EventServiceImpl implements EventService {
 
 
     @Transactional
-    public List<EventResponseDTO> getAllEventsAUserParticipatesIn(Long userId) {
-        return eventRepository.findAllByParticipants_Id(userId)
+    public List<EventResponseDTO> getAllEventsAUserParticipatesIn(Authentication authentication) {
+
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + authentication.getName()));
+
+        return eventRepository.findAllByParticipants_Id(user.getId())
                 .stream()
                 .map(eventMapper::toDTO)
                 .toList();
@@ -171,12 +180,12 @@ public class EventServiceImpl implements EventService {
 
 
     @Transactional
-    public EventResponseDTO joinEvent(Long eventId, Long userId) {
+    public EventResponseDTO joinEvent(Long eventId, Authentication authentication) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + authentication.getName()));
 
         if (event.getParticipants().contains(user)) {
             throw new IllegalArgumentException("User already joined this event.");
@@ -229,12 +238,12 @@ public class EventServiceImpl implements EventService {
 
 
     @Transactional
-    public EventResponseDTO leaveEvent(Long eventId, Long userId) {
+    public EventResponseDTO leaveEvent(Long eventId, Authentication authentication) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + authentication.getName()));
 
         if (!event.getParticipants().contains(user)) {
             throw new IllegalArgumentException("User is not a participant of this event.");
@@ -250,13 +259,15 @@ public class EventServiceImpl implements EventService {
     }
 
     @Transactional
-    public EventResponseDTO removeParticipant(Long eventId, Long participantId, Long requesterId) {
+    public EventResponseDTO removeParticipant(Long eventId, Long participantId, Authentication authentication) {
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
 
+        User requester = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + authentication.getName()));
 
-        if (event.getCreator() == null || !event.getCreator().getId().equals(requesterId)) {
+        if (event.getCreator() == null || !event.getCreator().getId().equals(requester.getId())) {
             throw new AccessDeniedException("Only the event creator can remove participants.");
         }
 
@@ -289,6 +300,14 @@ public class EventServiceImpl implements EventService {
         String query = q.trim();
 
         return eventRepository.searchByTitleOrAddress(query)
+                .stream()
+                .map(eventMapper::toDTO)
+                .toList();
+    }
+
+    @Transactional
+    public List<EventResponseDTO> getAllEventsCreatedByUser(Long userId) {
+        return eventRepository.findAllByCreator_Id(userId)
                 .stream()
                 .map(eventMapper::toDTO)
                 .toList();
