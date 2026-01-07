@@ -39,6 +39,7 @@ export interface ListingItem extends NewListing {
   createdAt: string;
   expiresAt: string;
   isActive: boolean;
+  poster: UserSummary;
 }
 
 export interface ListingRequestDTO {
@@ -58,7 +59,7 @@ export interface ListingResponseDTO {
   createdAt: string;
   expiresAt: string | null;
   isActive: boolean;
-  posterId: number;
+  poster: UserSummary;
 }
 
 export interface QuestionnaireData {

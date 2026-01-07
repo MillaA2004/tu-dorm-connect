@@ -73,34 +73,34 @@ const ListingDetailsPage: React.FC = () => {
     }
   };
 
-  const handleContact = async () => {
-    if (!user) {
-      alert("Please log in to contact the poster.");
-      return;
-    }
+  // const handleContact = async () => {
+  //   if (!user) {
+  //     alert("Please log in to contact the poster.");
+  //     return;
+  //   }
 
-    if (!listing) return;
+  //   if (!listing) return;
 
-    // Prevent messaging yourself
-    if (listing.posterId === user.id) {
-      alert("You cannot message yourself!");
-      return;
-    }
+  //   // Prevent messaging yourself
+  //   if (listing.posterId === user.id) {
+  //     alert("You cannot message yourself!");
+  //     return;
+  //   }
 
-    try {
-      const chat = await chatService.createDirectChat(listing.posterId);
+  //   try {
+  //     const chat = await chatService.createDirectChat(listing.posterId);
 
-      setChatState({
-        chatId: Number(chat.chatId),
-        title: `Chat: ${listing.title}`, 
-        otherUserId: listing.posterId,
-      });
-      setChatOpen(true);
-    } catch (err) {
-      console.error("Failed to initiate chat", err);
-      alert("Failed to open chat. Please try again.");
-    }
-  };
+  //     setChatState({
+  //       chatId: Number(chat.chatId),
+  //       title: `Chat: ${listing.title}`, 
+  //       otherUserId: listing.poster.id,
+  //     });
+  //     setChatOpen(true);
+  //   } catch (err) {
+  //     console.error("Failed to initiate chat", err);
+  //     alert("Failed to open chat. Please try again.");
+  //   }
+  // };
 
   if (loading) {
     return (
@@ -314,7 +314,7 @@ const ListingDetailsPage: React.FC = () => {
 
           {!isPoster && (
             <button
-              onClick={handleContact}
+              onClick={() => navigate(`/profile/${listing.poster.id}`)}
               style={{
                 border: "none",
                 background:
@@ -327,7 +327,7 @@ const ListingDetailsPage: React.FC = () => {
                 boxShadow: "0 10px 25px rgba(79,70,229,0.25)",
               }}
             >
-              Contact
+              View Poster Profile
             </button>
           )}
  

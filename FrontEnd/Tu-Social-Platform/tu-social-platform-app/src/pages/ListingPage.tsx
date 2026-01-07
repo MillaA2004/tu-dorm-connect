@@ -188,18 +188,18 @@ const ListingsPage: React.FC = () => {
     const listing = listings.find((l) => l.id === id);
     if (!listing) return;
 
-    if (listing.posterId === user.id) {
+    if (listing.poster.id === user.id) {
       alert("You cannot message yourself!");
       return;
     }
 
     try {
-      const chat = await chatService.createDirectChat(listing.posterId);
+      const chat = await chatService.createDirectChat(listing.poster.id);
 
       setChatState({
         chatId: Number(chat.chatId),
         title: `Chat: ${listing.title}`, 
-        otherUserId: listing.posterId,
+        otherUserId: listing.poster.id,
       });
       setChatOpen(true);
     } catch (err) {
@@ -457,23 +457,24 @@ const ListingsPage: React.FC = () => {
                 onViewDetails={handleViewDetails}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
-                onContact={handleContact}
+                //onContact={handleContact}
               />
             )}
           </>
         )}
-        <ChatWindow
+        {/* <ChatWindow
           isOpen={chatOpen}
           chatId={chatState?.chatId ?? null}
           chatTitle={chatState?.title ?? "Chat"}
           isGroup={false}
           isAdmin={false}
           otherUserId={chatState?.otherUserId ?? null}
+          otherAvatarUrl={listings.poster?.profileImageUrl ?? null}
           onClose={() => {
             setChatOpen(false);
             setChatState(null);
           }}
-        />
+        /> */}
       </div>
     </>
   );
