@@ -45,7 +45,7 @@ public class DataSeeder implements CommandLineRunner {
                             .build(),
 
                     Dorm.builder()
-                            .name("BLock 3")
+                            .name("Block 3")
                             .description("TU dorm for the 6.00 GPA")
                             .price(96.0)
                             .address("Studentski Grad, Block 3")
