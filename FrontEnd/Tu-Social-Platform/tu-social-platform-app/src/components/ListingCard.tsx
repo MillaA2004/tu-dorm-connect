@@ -1,8 +1,8 @@
 import React from "react";
-import type { ListingItem } from "../types";
+import type { ListingResponseDTO } from "../types";
 
 interface ListingCardProps {
-  listing: ListingItem;
+  listing: ListingResponseDTO;
   isOwner: boolean;
   onViewDetails: () => void;
   onEdit?: () => void;
@@ -87,7 +87,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
           <div>
             <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>
-              {listing.dormName}
+              {listing.dorm.dormName}
             </div>
             <div style={{ fontSize: "0.8rem", color: "#6b7280" }}>
               {isOwner ? "Your Listing" : "Available"}

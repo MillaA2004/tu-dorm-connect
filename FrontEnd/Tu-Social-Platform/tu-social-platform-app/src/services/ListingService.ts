@@ -1,11 +1,10 @@
 import apiClient from "./apiClient";
-import { type ListingItem } from "../types";
+import type {ListingResponseDTO, DormSummary } from "../types";
 
 const API_BASE = "/listings";
 
 class ListingService {
-  // Updated: Accepts optional viewerId for gender filtering
-  async getAllListings(viewerId?: number): Promise<ListingItem[]> {
+  async getAllListings(viewerId?: number): Promise<ListingResponseDTO[]> {
     const params: any = {};
     if (viewerId) params.viewerId = viewerId;
 
@@ -13,7 +12,6 @@ class ListingService {
     return res.data;
   }
 
-  // Updated: Replaced 'type' with 'viewerId' since filtering happens on Backend now
   async searchListings(
     keyword: string,
     viewerId?: number,
@@ -31,9 +29,14 @@ class ListingService {
     return res.data;
   }
 
-  async getListingsByUserId(userId: number): Promise<ListingItem[]> {
+  async getListingsByUserId(userId: number): Promise<ListingResponseDTO[]> {
     const res = await apiClient.get(`${API_BASE}/user/${userId}`);
     return res.data;
+  }
+
+  public async getDormOptions(): Promise<DormSummary[]> {
+    const response = await apiClient.get(`${API_BASE}/dorms`);
+    return response.data;
   }
 
   async createListing(posterId: number, dto: any) {

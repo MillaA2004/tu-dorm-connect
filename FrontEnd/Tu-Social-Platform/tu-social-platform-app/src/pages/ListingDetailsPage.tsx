@@ -1,10 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-import type { ListingItem } from "../types";
+import type { ListingResponseDTO } from "../types";
 import { listingService } from "../services/ListingService";
-import { chatService } from "../services/ChatService";
-import { ChatWindow } from "../components/ChatWindow";
 import { useAuth } from "../services/AuthContext";
 
 const ListingDetailsPage: React.FC = () => {
@@ -14,22 +12,32 @@ const ListingDetailsPage: React.FC = () => {
 
   const listingId = Number(id);
 
-  const [listing, setListing] = useState<ListingItem | null>(null);
+  const [listing, setListing] = useState<ListingResponseDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Define the pill style here to use in this component
+  const pillButtonStyle: React.CSSProperties = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "0.4rem",
+    padding: "0.5rem 1.2rem",
+    backgroundColor: "white",
+    border: "1px solid #d1d5db",
+    borderRadius: "9999px",
+    color: "#1f2937",
+    fontSize: "0.9rem",
+    fontWeight: 600,
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+  };
+
   const isPoster = useMemo(() => {
     if (!user || !listing) return false;
-    return listing.posterId === user.id;
+    // Compare as numbers
+    return Number(listing.poster.id) === Number(user.id);
   }, [user, listing]);
-
-  const [chatOpen, setChatOpen] = useState(false);
-  const [chatState, setChatState] = useState<{
-    chatId: number;
-    title: string;
-    otherUserId: number;
-  } | null>(null);
 
   useEffect(() => {
     if (!Number.isFinite(listingId)) {
@@ -57,7 +65,6 @@ const ListingDetailsPage: React.FC = () => {
 
   const handleDelete = async () => {
     if (!user || !listing) return;
-
     const ok = window.confirm("Are you sure you want to delete this listing?");
     if (!ok) return;
 
@@ -73,35 +80,6 @@ const ListingDetailsPage: React.FC = () => {
     }
   };
 
-  // const handleContact = async () => {
-  //   if (!user) {
-  //     alert("Please log in to contact the poster.");
-  //     return;
-  //   }
-
-  //   if (!listing) return;
-
-  //   // Prevent messaging yourself
-  //   if (listing.posterId === user.id) {
-  //     alert("You cannot message yourself!");
-  //     return;
-  //   }
-
-  //   try {
-  //     const chat = await chatService.createDirectChat(listing.posterId);
-
-  //     setChatState({
-  //       chatId: Number(chat.chatId),
-  //       title: `Chat: ${listing.title}`, 
-  //       otherUserId: listing.poster.id,
-  //     });
-  //     setChatOpen(true);
-  //   } catch (err) {
-  //     console.error("Failed to initiate chat", err);
-  //     alert("Failed to open chat. Please try again.");
-  //   }
-  // };
-
   if (loading) {
     return (
       <>
@@ -110,8 +88,10 @@ const ListingDetailsPage: React.FC = () => {
           style={{
             maxWidth: 1100,
             margin: "0 auto",
-            padding: "2rem 1.5rem",
             paddingTop: "8%",
+            paddingBottom: "2rem",
+            paddingLeft: "1.5rem",
+            paddingRight: "1.5rem",
           }}
         >
           <p>Loading listing...</p>
@@ -124,28 +104,29 @@ const ListingDetailsPage: React.FC = () => {
     return (
       <>
         <Header />
-
         <div
           style={{
             maxWidth: 1100,
             margin: "0 auto",
-            padding: "2rem 1.5rem",
             paddingTop: "8%",
+            paddingBottom: "2rem",
+            paddingLeft: "1.5rem",
+            paddingRight: "1.5rem",
           }}
         >
           <button
             onClick={() => navigate("/listings")}
-            style={{
-              border: "none",
-              background: "none",
-              color: "#4f46e5",
-              cursor: "pointer",
-              marginBottom: "1rem",
-            }}
+            style={pillButtonStyle}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.backgroundColor = "#f9fafb")
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.backgroundColor = "white")
+            }
           >
-            ← Back to listings
+            <span>←</span> Back to listings
           </button>
-          <p>{error ?? "Listing not found."}</p>
+          <p style={{ marginTop: "1rem" }}>{error ?? "Listing not found."}</p>
         </div>
       </>
     );
@@ -159,26 +140,28 @@ const ListingDetailsPage: React.FC = () => {
         style={{
           maxWidth: 1100,
           margin: "0 auto",
-          padding: "2rem 1.5rem 3rem",
           display: "grid",
-          paddingTop: "8%",
           gridTemplateColumns: "minmax(0, 2fr) minmax(0, 1.3fr)",
           gap: "1.75rem",
+          paddingTop: "8%",
+          paddingBottom: "3rem",
+          paddingLeft: "1.5rem",
+          paddingRight: "1.5rem",
         }}
       >
         {/* Back button */}
         <div style={{ gridColumn: "1 / -1" }}>
           <button
             onClick={() => navigate("/listings")}
-            style={{
-              border: "none",
-              background: "none",
-              color: "#4f46e5",
-              cursor: "pointer",
-              marginBottom: "1rem",
-            }}
+            style={pillButtonStyle}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.backgroundColor = "#f9fafb")
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.backgroundColor = "white")
+            }
           >
-            ← Back to listings
+            <span>←</span> Back to listings
           </button>
         </div>
 
@@ -201,11 +184,11 @@ const ListingDetailsPage: React.FC = () => {
 
             if (isLive) {
               label = "Active";
-              bg = "#dcfce7"; 
+              bg = "#dcfce7";
               color = "#16a34a";
             } else if (listing.isActive && isExpired) {
               label = "Expired";
-              bg = "#ffedd5"; 
+              bg = "#ffedd5";
               color = "#c2410c";
             }
 
@@ -252,7 +235,7 @@ const ListingDetailsPage: React.FC = () => {
               >
                 Dorm
               </span>
-              <span style={{ fontWeight: 500 }}>{listing.dormName}</span>
+              <span style={{ fontWeight: 500 }}>{listing.dorm.dormName}</span>
             </div>
 
             <div>
@@ -330,20 +313,6 @@ const ListingDetailsPage: React.FC = () => {
               View Poster Profile
             </button>
           )}
- 
-          <ChatWindow
-            isOpen={chatOpen}
-            chatId={chatState?.chatId ?? null}
-            chatTitle={chatState?.title ?? "Chat"}
-            isGroup={false}
-            isAdmin={false}
-            otherAvatarUrl={""} // da se opravi!
-            otherUserId={chatState?.otherUserId ?? null}
-            onClose={() => {
-              setChatOpen(false);
-              setChatState(null);
-            }}
-          />
 
           {isPoster && (
             <div
