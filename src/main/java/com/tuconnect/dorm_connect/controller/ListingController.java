@@ -1,5 +1,6 @@
 package com.tuconnect.dorm_connect.controller;
 
+import com.tuconnect.dorm_connect.dto.Dorm.DormSummaryDTO;
 import com.tuconnect.dorm_connect.dto.Listing.ListingRequestDTO;
 import com.tuconnect.dorm_connect.dto.Listing.ListingResponseDTO;
 import com.tuconnect.dorm_connect.repository.UserRepository;
@@ -21,7 +22,6 @@ import java.util.List;
 public class ListingController {
 
     private final ListingService listingService;
-    private final UserRepository userRepository;
 
     @PostMapping("/poster/{posterId}")
     public ResponseEntity<ListingResponseDTO> createListing(
@@ -53,9 +53,13 @@ public class ListingController {
         return ResponseEntity.ok(listingService.getListingsByUserId(userId));
     }
 
-    @GetMapping("/dormName/{dormName}")
-    public ResponseEntity<List<ListingResponseDTO>> getListingsByDorm(@PathVariable String dormName) {
-        return ResponseEntity.ok(listingService.getListingsByDorm(dormName));
+    @GetMapping("/dorm/{dormId}")
+    public ResponseEntity<List<ListingResponseDTO>> getListingsByDormId(@PathVariable @Positive Long dormId) {
+        return ResponseEntity.ok(listingService.getListingsByDormId(dormId));
+    }
+    @GetMapping("/dorms")
+    public ResponseEntity<List<DormSummaryDTO>> getDormOptions() {
+        return ResponseEntity.ok(listingService.getAllDormsForDropdown());
     }
 
     @PutMapping("/{id}")

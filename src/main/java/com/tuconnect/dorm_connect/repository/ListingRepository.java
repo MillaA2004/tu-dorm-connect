@@ -12,12 +12,18 @@ import java.util.List;
 
 @Repository
 public interface ListingRepository extends JpaRepository<Listing, Long> {
+
     boolean existsByPosterIdAndIsActiveTrue(Long posterId);
 
     List<Listing> findByIsActiveTrueAndExpiresAtAfter(LocalDateTime now);
 
     List<Listing> findByPosterIdAndIsActiveTrueAndExpiresAtAfter(
             Long posterId,
+            LocalDateTime now
+    );
+
+    List<Listing> findByDormIdAndIsActiveTrueAndExpiresAtAfter(
+            Long dormId,
             LocalDateTime now
     );
 
@@ -31,18 +37,18 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
             User.Gender gender
     );
 
+    List<Listing> findByIsActiveTrueAndExpiresAtAfterAndPriceLessThanEqual(
+            LocalDateTime now,
+            Double maxPrice
+    );
+
     @Query("SELECT l FROM Listing l WHERE " +
             "(LOWER(l.title) LIKE %:keyword% " +
             "OR LOWER(l.description) LIKE %:keyword% " +
-            "OR LOWER(l.dorm.name) LIKE %:keyword%) " + // <--- Fixed here
+            "OR LOWER(l.dorm.name) LIKE %:keyword%) " + // Traverses to Dorm.name
             "AND l.isActive = true AND l.expiresAt > :now")
     List<Listing> searchByKeyword(
             @Param("keyword") String keyword,
             @Param("now") LocalDateTime now
-    );
-
-    List<Listing> findByIsActiveTrueAndExpiresAtAfterAndPriceLessThanEqual(
-            LocalDateTime now,
-            Double maxPrice
     );
 }
