@@ -20,6 +20,7 @@ import type { EventItem } from "../types";
 import LocationModal from "../components/LocationModal";
 import { chatService } from "../services/ChatService";
 import { ChatWindow } from "../components/ChatWindow";
+import { AdminService } from "../services/AdminService";
 
 type Tab = "posts" | "events" | "listings";
 
@@ -99,7 +100,6 @@ const UserProfilePage: React.FC = () => {
     }
 
     loadUser();
-
     return () => {
       isCancelled = true;
     };
@@ -157,6 +157,7 @@ const UserProfilePage: React.FC = () => {
   const isAdmin =
     (user as any)?.role === "Admin" || (user as any)?.isAdmin === true;
   const canDelete = (isCurrentUser || isAdmin) && !!userDto?.userId;
+  const shownUserId = userDto?.userId;
 
   const handleSaveProfile = async (updated: UserProfileUpdate) => {
     if (!userDto) return;
@@ -220,7 +221,29 @@ const UserProfilePage: React.FC = () => {
 
   const handleCheckLocation = (event: EventItem) => setSelectedEvent(event);
   const handleCloseLocation = () => setSelectedEvent(null);
-  const shownUserId = userDto?.userId;
+
+  // Admin handlers
+  const handleSuspendUser = async (minutes: number) => {
+    if (!shownUserId) return;
+    try {
+      await AdminService.suspendUser(shownUserId, minutes);
+      alert(`User suspended for ${minutes} minutes`);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to suspend user");
+    }
+  };
+
+  const handleUnsuspendUser = async () => {
+    if (!shownUserId) return;
+    try {
+      await AdminService.unsuspendUser(shownUserId);
+      alert("User unsuspended");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to unsuspend user");
+    }
+  };
 
   return (
     <>
@@ -233,27 +256,20 @@ const UserProfilePage: React.FC = () => {
           <p style={{ color: "crimson", marginBottom: "12px" }}>{error}</p>
         )}
 
-        {/* <UserDetails
-          {...profile}
-          isCurrentUser={isCurrentUser}
-          canDelete={canDelete}
-          onSaveProfile={handleSaveProfile}
-          onMessage={handleMessage}
-          onDelete={handleDeleteProfile}
-        /> */}
         {shownUserId != null && (
-  <UserDetails
-    {...profile}
-    userId={shownUserId}
-    isCurrentUser={isCurrentUser}
-    canDelete={canDelete}
-    onSaveProfile={handleSaveProfile}
-    onMessage={handleMessage}
-    onDelete={handleDeleteProfile}
-  />
-)}
-
-
+          <UserDetails
+            {...profile}
+            userId={shownUserId}
+            isCurrentUser={isCurrentUser}
+            canDelete={canDelete}
+            isAdmin={isAdmin}
+            onSuspend={handleSuspendUser}
+            onUnsuspend={handleUnsuspendUser}
+            onSaveProfile={handleSaveProfile}
+            onMessage={handleMessage}
+            onDelete={handleDeleteProfile}
+          />
+        )}
 
         <div
           style={{
@@ -272,7 +288,6 @@ const UserProfilePage: React.FC = () => {
           >
             Posts
           </button>
-
           <button
             className={`hero-action-button ${
               activeTab === "events" ? "active" : ""
@@ -281,7 +296,6 @@ const UserProfilePage: React.FC = () => {
           >
             Events
           </button>
-
           <button
             className={`hero-action-button ${
               activeTab === "listings" ? "active" : ""
@@ -325,7 +339,7 @@ const UserProfilePage: React.FC = () => {
         isGroup={false}
         isAdmin={false}
         otherAvatarUrl={userDto?.profileImageUrl ?? ""}
-        otherUserId={isCurrentUser ? null : userDto?.userId ?? null} //ako neshto se scbupi gledai tuk!
+        otherUserId={isCurrentUser ? null : userDto?.userId ?? null}
         onClose={() => {
           setChatOpen(false);
           setChatState(null);

@@ -1,6 +1,17 @@
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 import type { AuthUser, RegisterFormValues } from "./authTypes";
-import { loginUser, logoutUser, registerUser, restoreSessionFromStoredToken } from "./AuthService";
+import {
+  loginUser,
+  logoutUser,
+  registerUser,
+  restoreSessionFromStoredToken,
+} from "./AuthService";
 import { chatSocket } from "../services/ChatSocket";
 
 interface AuthState {
@@ -17,14 +28,15 @@ interface AuthContextValue extends AuthState {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [state, setState] = useState<AuthState>({
     user: null,
     token: null,
     loading: true,
   });
 
-  
   useEffect(() => {
     let cancelled = false;
 
@@ -44,7 +56,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
   }, []);
 
-  
   useEffect(() => {
     if (state.loading) return;
 
@@ -64,12 +75,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const login = async (email: string, password: string) => {
-    const { token, user } = await loginUser({ email, password });
-    setState({ user, token, loading: false });
+    try {
+      const { token, user } = await loginUser({ email, password });
+      setState({ user, token, loading: false });
+    } catch (err: any) {
+      if (err?.response?.data?.suspendedUntil) {
+        const until = new Date(
+          err.response.data.suspendedUntil
+        ).toLocaleString();
+
+        throw new Error(`You have been suspended until: ${until}`);
+      }
+      throw err;
+    }
   };
 
   const logout = () => {
-    chatSocket.disconnect(); 
+    chatSocket.disconnect();
     logoutUser();
     setState({ user: null, token: null, loading: false });
   };
@@ -84,4 +106,3 @@ export const useAuth = (): AuthContextValue => {
   if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
   return ctx;
 };
-

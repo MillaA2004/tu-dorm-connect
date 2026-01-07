@@ -25,7 +25,8 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [isMessagesOpen, setIsMessagesOpen] = useState<boolean>(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState<boolean>(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] =
+    useState<boolean>(false);
 
   const [unreadNotifCount, setUnreadNotifCount] = useState<number>(0);
   const [unreadMsgCount, setUnreadMsgCount] = useState<number>(0);
@@ -40,7 +41,6 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
     return id == null ? null : Number(id);
   }, [auth.user]);
 
-  
   const notifUnreadSubRef = useRef<StompSubscription | null>(null);
   const msgSubsRef = useRef<Map<number, StompSubscription>>(new Map());
 
@@ -62,7 +62,10 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
   const loadUnreadMsgCount = async () => {
     try {
       const chats = await chatService.getMyChats();
-      const total = chats.reduce((sum, c: any) => sum + Number((c as any).unreadCount ?? 0), 0);
+      const total = chats.reduce(
+        (sum, c: any) => sum + Number((c as any).unreadCount ?? 0),
+        0
+      );
       setUnreadMsgCount(total);
     } catch (e) {
       console.error("Failed to load unread messages count", e);
@@ -85,18 +88,15 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
     if (next) await loadUnreadNotifCount();
   };
 
-  
   useEffect(() => {
     if (!showButtons) return;
     loadUnreadNotifCount();
     loadUnreadMsgCount();
   }, [showButtons]);
 
-  
   useEffect(() => {
     if (!showButtons) return;
-    if (!auth.token) return; 
-    
+    if (!auth.token) return;
 
     let cancelled = false;
 
@@ -126,55 +126,58 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
     };
   }, [showButtons]);
 
- 
   useEffect(() => {
-  if (!showButtons) return;
-  if (!auth.token) return; 
-  if (currentUserId == null) return;
+    if (!showButtons) return;
+    if (!auth.token) return;
+    if (currentUserId == null) return;
 
-  const token = auth.token; 
+    const token = auth.token;
 
-  msgSubsRef.current.forEach((s) => s.unsubscribe());
-  msgSubsRef.current.clear();
-
-  let cancelled = false;
-
-  (async () => {
-    try {
-      await chatSocket.connect(token); 
-
-      const chats = await chatService.getMyChats();
-       const chatIds = chats
-        .map((c: any) => Number(c.chatId))
-        .filter((id) => Number.isFinite(id) && id > 0);
-
-      for (const id of chatIds) {
-        if (msgSubsRef.current.has(id)) continue;
-
-        const sub = await chatSocket.subscribe(`/topic/chats/${id}`, (msg: MessageDTO) => {
-          if (cancelled) return;
-
-          
-          if (msg?.userId != null && Number(msg.userId) === Number(currentUserId)) return;
-
-          setUnreadMsgCount((prev) => prev + 1);
-        });
-
-        msgSubsRef.current.set(id, sub);
-      }
-    } catch (e) {
-      console.error("Failed to subscribe to chat topics for unread badge", e);
-    }
-  })();
-
-  return () => {
-    cancelled = true;
     msgSubsRef.current.forEach((s) => s.unsubscribe());
     msgSubsRef.current.clear();
-  };
-}, [showButtons, auth.token, currentUserId]);
 
+    let cancelled = false;
 
+    (async () => {
+      try {
+        await chatSocket.connect(token);
+
+        const chats = await chatService.getMyChats();
+        const chatIds = chats
+          .map((c: any) => Number(c.chatId))
+          .filter((id) => Number.isFinite(id) && id > 0);
+
+        for (const id of chatIds) {
+          if (msgSubsRef.current.has(id)) continue;
+
+          const sub = await chatSocket.subscribe(
+            `/topic/chats/${id}`,
+            (msg: MessageDTO) => {
+              if (cancelled) return;
+
+              if (
+                msg?.userId != null &&
+                Number(msg.userId) === Number(currentUserId)
+              )
+                return;
+
+              setUnreadMsgCount((prev) => prev + 1);
+            }
+          );
+
+          msgSubsRef.current.set(id, sub);
+        }
+      } catch (e) {
+        console.error("Failed to subscribe to chat topics for unread badge", e);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      msgSubsRef.current.forEach((s) => s.unsubscribe());
+      msgSubsRef.current.clear();
+    };
+  }, [showButtons, auth.token, currentUserId]);
 
   return (
     <>
@@ -204,7 +207,9 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
             >
               <MailOutlineIcon style={{ fontSize: 26 }} />
               {unreadMsgCount > 0 && (
-                <span className="notif-badge">{unreadMsgCount > 99 ? "99+" : unreadMsgCount}</span>
+                <span className="notif-badge">
+                  {unreadMsgCount > 99 ? "99+" : unreadMsgCount}
+                </span>
               )}
             </button>
 
@@ -281,6 +286,16 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
                     Reports
                   </Link>
                 </li>
+                <li>
+                  <Link to="/set-role" onClick={toggleSidebar}>
+                    Set Role
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/suspended-users" onClick={toggleSidebar}>
+                    Suspended Users
+                  </Link>
+                </li>
               </>
             )}
           </ul>
@@ -298,7 +313,7 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
         isOpen={isMessagesOpen}
         onClose={async () => {
           setIsMessagesOpen(false);
-          await loadUnreadMsgCount(); 
+          await loadUnreadMsgCount();
         }}
       />
 
@@ -306,7 +321,7 @@ const Header: React.FC<HeaderProps> = ({ showButtons = true }) => {
         isOpen={isNotificationsOpen}
         onClose={async () => {
           setIsNotificationsOpen(false);
-          await loadUnreadNotifCount(); 
+          await loadUnreadNotifCount();
         }}
       />
     </>

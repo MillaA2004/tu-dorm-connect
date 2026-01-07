@@ -29,6 +29,8 @@ import AddDorm from "./pages/AddDorm";
 import EditDorm from "./pages/EditDorm";
 import DormDetailsPage from "./pages/DormDetailsPage";
 import ReportsPage from "./pages/ReportsPage";
+import AdminSuspendedUsersPage from "./pages/AdminSuspendedUsersPage";
+import AdminSetRolePage from "./pages/AdminSetRolePage";
 
 const App: React.FC = () => {
   return (
@@ -38,8 +40,7 @@ const App: React.FC = () => {
           <Routes>
             {/* Home */}
             <Route path="/home" element={<HomePage />} />
-            <Route path="/" element={<LoginPage />} />{" "}
-            {/* Auth */}
+            <Route path="/" element={<LoginPage />} /> {/* Auth */}
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
             {/* Profile */}
@@ -71,7 +72,11 @@ const App: React.FC = () => {
             <Route path="/dorms/:id/edit" element={<EditDorm />} />
             {/* Admin */}
             <Route path="/reports" element={<ReportsPage />} />
-
+            <Route
+              path="/suspended-users"
+              element={<AdminSuspendedUsersPage />}
+            />
+            <Route path="/set-role" element={<AdminSetRolePage />} />
           </Routes>
         </BrowserRouter>
       </APIProvider>
