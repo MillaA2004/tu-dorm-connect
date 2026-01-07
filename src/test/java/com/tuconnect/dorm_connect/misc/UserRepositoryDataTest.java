@@ -1,5 +1,6 @@
 package com.tuconnect.dorm_connect.misc;
 
+import com.tuconnect.dorm_connect.model.Dorm;
 import com.tuconnect.dorm_connect.model.Listing;
 import com.tuconnect.dorm_connect.model.Questionnaire;
 import com.tuconnect.dorm_connect.model.User;
@@ -41,12 +42,14 @@ class UserRepositoryDataTest {
         q.setUser(poster);
         entityManager.persist(q);
 
+        Dorm dorm = new Dorm();
+
         Listing l = new Listing();
         l.setPoster(poster);
         l.setTitle("Room");
         l.setDescription("Desc");
         l.setPrice(10.0);
-        l.setDorm("Dorm");
+        l.setDorm(dorm);
         entityManager.persist(l);
 
         // User with questionnaire but NO listing
