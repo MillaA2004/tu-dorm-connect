@@ -214,6 +214,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         cancelEdit();
 
         await loadPage(0, "replace");
+
+        chatService.markAsRead(chatId).catch(console.error); //ako grumne e ot tuk!
+
         setTimeout(scrollToBottom, 0);
       } catch (e) {
         console.error("Failed to load messages", e);
@@ -236,14 +239,32 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         subRef.current?.unsubscribe();
         subRef.current = null;
 
-        subRef.current = await chatSocket.subscribeToChat(chatId, (msg) => {
-          if (cancelled) return;
+        // subRef.current = await chatSocket.subscribeToChat(chatId, (msg) => {
+        //   if (cancelled) return;
 
          
-          mergeMessages([msg as MessageDTO]);
+        //   mergeMessages([msg as MessageDTO]);
 
-          requestAnimationFrame(scrollToBottom);
-        });
+        //   requestAnimationFrame(scrollToBottom);
+        // });
+        subRef.current = await chatSocket.subscribeToChat(chatId, (msg) => {
+  if (cancelled) return;
+
+  const m = msg as MessageDTO;
+
+  mergeMessages([m]);
+  requestAnimationFrame(scrollToBottom);
+
+  // ✅ If it's not my message, mark chat as read immediately
+  const mine = currentUserId != null && Number(m.userId) === Number(currentUserId);
+  if (!mine) {
+    // fire-and-forget (don’t block UI)
+    chatService.markAsRead(chatId).catch((e) =>
+      console.error("Failed to mark chat as read on receive", e)
+    );
+  }
+});
+
       } catch (e) {
         console.error("WS subscribe failed", e);
       }

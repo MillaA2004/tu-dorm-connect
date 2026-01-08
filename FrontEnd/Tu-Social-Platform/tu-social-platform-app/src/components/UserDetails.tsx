@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "../styles/UserDetails.css";
 import ReportForm from "../components/ReportForm";
 
+
 export type UserProfileData = {
   userId: number;
   firstName: string;
@@ -44,6 +45,16 @@ const UserDetails: React.FC<UserDetailsProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+
+
+  const ACADEMIC_YEAR_OPTIONS = [
+  { value: 1, label: "1st Year" },
+  { value: 2, label: "2nd Year" },
+  { value: 3, label: "3rd Year" },
+  { value: 4, label: "4th Year" },
+  { value: 5, label: "Master" },
+] as const;
+
 
   const [draft, setDraft] = useState<UserProfileData>({
     userId,
@@ -186,14 +197,25 @@ const UserDetails: React.FC<UserDetailsProps> = ({
                   placeholder="Major"
                 />
                 <span className="user-details__dot">•</span>
-                <input
-                  className="user-details__input user-details__input--year"
-                  value={draft.academicYear}
-                  onChange={(e) =>
-                    handleChange("academicYear", e.target.value)
-                  }
-                  placeholder="Academic year"
-                />
+               
+             <select
+  className="user-details__input user-details__input--year"
+  value={draft.academicYear}
+  onChange={(e) =>
+    setDraft((prev) => ({
+      ...prev,
+      academicYear: Number(e.target.value),
+    }))
+  }
+>
+  {ACADEMIC_YEAR_OPTIONS.map((option) => (
+    <option key={option.value} value={option.value}>
+      {option.label}
+    </option>
+  ))}
+</select>
+
+
               </div>
             </>
           ) : (
@@ -247,7 +269,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({
           )
         ) : (
           <>
-          
+           
           <button
             className="user-details__button user-details__button--secondary"
             onClick={onMessage}

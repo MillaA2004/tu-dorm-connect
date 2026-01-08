@@ -293,9 +293,22 @@ const DormDetailsPage: React.FC = () => {
                   <article key={r.id} className="ddpReviewItem">
                     <div className="ddpReviewTop">
                       <div className="ddpReviewAuthor">
-                        <div className="ddpAvatar" aria-hidden="true">
+                        {/* <div className="ddpAvatar" aria-hidden="true">
                           {(r.author?.firstName?.[0] ?? "U").toUpperCase()}
-                        </div>
+                        </div> */} 
+                        <div className="ddpAvatar">
+  {r.author?.profileImageUrl ? (
+    <img
+      src={r.author.profileImageUrl}
+      alt={fullName(r.author)}
+      className="ddpAvatarImg"
+    />
+  ) : (
+    <span className="ddpAvatarFallback">
+      {(r.author?.firstName?.[0] ?? "U").toUpperCase()}
+    </span>
+  )}
+</div>
                         <div>
                          <div className="ddpReviewName">
   {r.author?.id ? (

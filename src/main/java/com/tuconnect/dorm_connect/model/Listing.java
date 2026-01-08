@@ -1,10 +1,7 @@
 package com.tuconnect.dorm_connect.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -46,10 +43,14 @@ public class Listing {
 
     @ManyToOne
     @JoinColumn(name = "poster_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User poster;
 
     @ManyToOne
     @JoinColumn(name = "dorm_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Dorm dorm;
 
     public boolean isExpired() {

@@ -13,6 +13,7 @@ interface RegisterFormState {
   lastName: string;
   email: string;
   password: string;
+  confirmPassword: string;
   gender: Gender | "";
   major: string;
   academicYear: AcademicYear | "";
@@ -26,6 +27,7 @@ const RegisterForm: React.FC = () => {
     lastName: "",
     email: "",
     password: "",
+    confirmPassword: "",
     gender: "",
     major: "",
     academicYear: "",
@@ -77,6 +79,13 @@ const RegisterForm: React.FC = () => {
     setImagePreview(previewUrl);
   };
 
+  const emailIsValid = formData.email.endsWith("@tu-sofia.bg");
+
+  const passwordsMatch =
+  formData.confirmPassword.length > 0 &&
+  formData.password === formData.confirmPassword;
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -85,6 +94,7 @@ const RegisterForm: React.FC = () => {
       !formData.lastName ||
       !formData.email ||
       !formData.password ||
+      !formData.confirmPassword ||
       !formData.gender ||
       !formData.major ||
       !formData.academicYear
@@ -92,6 +102,16 @@ const RegisterForm: React.FC = () => {
       setErrors("Please fill in all required fields.");
       return;
     }
+
+    if (!emailIsValid) {
+  setErrors("Email must end with @tu-sofia.bg");
+  return;
+}
+
+    if (formData.password !== formData.confirmPassword) {
+  setErrors("Passwords do not match.");
+  return;
+}
 
     setErrors(null);
     setSubmitting(true);
@@ -179,6 +199,30 @@ const RegisterForm: React.FC = () => {
             required
           />
         </div>
+
+        <div className="form-group">
+  <label htmlFor="confirmPassword">Confirm Password*</label>
+  <input
+    id="confirmPassword"
+    name="confirmPassword"
+    type="password"
+    value={formData.confirmPassword}
+    onChange={handleChange}
+    required
+  />
+
+  {formData.confirmPassword.length > 0 && (
+    <p
+      style={{
+        marginTop: "4px",
+        fontSize: "13px",
+        color: passwordsMatch ? "green" : "red",
+      }}
+    >
+      {passwordsMatch ? "Passwords match ✓" : "Passwords do not match"}
+    </p>
+  )}
+</div>
 
         <div className="form-row">
           <div className="form-group">
