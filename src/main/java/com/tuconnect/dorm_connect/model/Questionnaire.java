@@ -17,6 +17,8 @@ public class Questionnaire {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User user;
 
     // Lifestyle & Habits
