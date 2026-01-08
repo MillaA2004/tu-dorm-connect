@@ -59,9 +59,13 @@ public class User {
     private Instant deletedAt;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Questionnaire questionnaire;
 
     @OneToMany(mappedBy = "poster", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Listing> listings;
 
     @OneToMany(mappedBy = "user")
