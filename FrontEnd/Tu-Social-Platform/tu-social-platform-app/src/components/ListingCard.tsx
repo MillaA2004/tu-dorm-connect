@@ -64,14 +64,14 @@ const ListingCard: React.FC<ListingCardProps> = ({
         <div
           onClick={(e) => {
             e.stopPropagation();
-            navigate(`/dorms/${listing.dorm.id}`); 
+            navigate(`/dorms/${listing.dorm.id}`);
           }}
           style={{
             display: "flex",
             alignItems: "center",
             gap: "0.6rem",
             cursor: "pointer",
-            transition: "opacity 0.2s", 
+            transition: "opacity 0.2s",
           }}
           onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.75")}
           onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
@@ -128,7 +128,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
       {/* Price and details */}
       <div style={{ fontSize: "0.85rem", color: "#4b5563" }}>
         <p style={{ margin: "0.2rem 0" }}>
-          <strong>Price:</strong> {listing.price} BGN/month
+          <strong>Price:</strong> {listing.price} €/month
         </p>
         <p style={{ margin: "0.2rem 0", fontSize: "0.8rem", color: "#9ca3af" }}>
           Expires: {formattedExpiryDate}

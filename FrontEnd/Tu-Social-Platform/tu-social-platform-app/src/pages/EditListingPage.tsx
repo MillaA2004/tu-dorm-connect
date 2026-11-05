@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import { listingService } from "../services/ListingService";
-import { useAuth } from "../services/AuthContext";
 import type { ListingResponseDTO, DormSummary } from "../types";
 import BackButton from "../components/BackButton";
+import { useRequireAuth } from "../hooks/UseRequireAuth";
 
 const EditListingPage: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const user = useRequireAuth("/listings");
 
   const listingId = Number(id);
 
@@ -33,7 +33,6 @@ const EditListingPage: React.FC = () => {
       return;
     }
     if (!user) {
-      navigate("/listings");
       return;
     }
 
@@ -44,7 +43,7 @@ const EditListingPage: React.FC = () => {
 
         const [listingData, dormsData] = await Promise.all([
           listingService.getListingById(listingId),
-          listingService.getDormOptions(), 
+          listingService.getDormOptions(),
         ]);
 
         if (Number(listingData.poster.id) !== Number(user.id)) {
@@ -92,7 +91,7 @@ const EditListingPage: React.FC = () => {
         title: title.trim(),
         description: description.trim(),
         price: Number(price),
-        dormId: Number(dormId), 
+        dormId: Number(dormId),
         expiryDays: expiryDays ? Number(expiryDays) : null,
       };
 

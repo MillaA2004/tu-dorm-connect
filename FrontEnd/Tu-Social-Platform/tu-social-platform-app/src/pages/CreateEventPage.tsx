@@ -1,12 +1,9 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import EventForm from "../components/EventForm";
 import Header from "../components/Header";
 import BackButton from "../components/BackButton";
 
 const CreateEventPage: React.FC = () => {
-  const navigate = useNavigate();
-
   return (
     <>
       <Header />

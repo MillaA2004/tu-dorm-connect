@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { matchService } from "../services/MatchService";
 import { type UserMatchDTO } from "../types";
-import { useAuth } from "../services/AuthContext";
 import BackButton from "../components/BackButton";
+import { useRequireAuth } from "../hooks/UseRequireAuth";
 
 const MatchesPage: React.FC = () => {
   const [matches, setMatches] = useState<UserMatchDTO[]>([]);
@@ -12,14 +12,11 @@ const MatchesPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [minScore, setMinScore] = useState<number>(50);
 
-  const { user } = useAuth();
+  const user = useRequireAuth("/listings");
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
-      navigate("/listings");
-      return;
-    }
+    if (!user) return;
 
     const fetchMatches = async () => {
       try {
@@ -49,7 +46,7 @@ const MatchesPage: React.FC = () => {
     };
 
     fetchMatches();
-  }, [user, navigate, minScore]);
+  }, [user, minScore]);
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return "#16a34a"; // Green

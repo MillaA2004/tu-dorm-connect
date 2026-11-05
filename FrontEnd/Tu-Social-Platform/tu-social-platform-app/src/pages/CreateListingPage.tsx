@@ -1,12 +1,9 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import ListingForm from "../components/ListingForm";
 import Header from "../components/Header";
 import BackButton from "../components/BackButton";
 
 const CreateListingPage: React.FC = () => {
-  const navigate = useNavigate();
-
   return (
     <>
       <Header />

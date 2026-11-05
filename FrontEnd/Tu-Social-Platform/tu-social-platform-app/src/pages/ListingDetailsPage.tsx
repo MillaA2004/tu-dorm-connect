@@ -213,7 +213,7 @@ const ListingDetailsPage: React.FC = () => {
               >
                 Price
               </span>
-              <span style={{ fontWeight: 500 }}>{listing.price} BGN/month</span>
+              <span style={{ fontWeight: 500 }}>{listing.price} €/month</span>
             </div>
 
             <div>
@@ -360,7 +360,7 @@ const ListingDetailsPage: React.FC = () => {
                     color: "#2563eb",
                   }}
                 >
-                  {listing.price} BGN
+                  {listing.price} €
                 </span>
               </div>
 
