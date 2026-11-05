@@ -6,6 +6,7 @@ import type { DormResponseDTO, DormUpdateRequestDTO } from "../services/DormServ
 import "../styles/AddDorm.css"; 
 import { useAuth } from "../services/AuthContext";
 import Header from "../components/Header";
+import BackButton from "../components/BackButton";
 
 type LatLng = { lat: number; lng: number };
 
@@ -155,9 +156,7 @@ const EditDorm: React.FC = () => {
     return (
       <div style={{ padding: 16 }}>
         <div style={{ color: "crimson" }}>{error}</div>
-        <button className="btn btnGhost" type="button" onClick={() => navigate(-1)}>
-          Back
-        </button>
+        <BackButton fallbackPath="/dorms" />
       </div>
     );
   }

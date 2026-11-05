@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import { matchService } from "../services/MatchService";
 import { type UserMatchDTO } from "../types";
 import { useAuth } from "../services/AuthContext";
+import BackButton from "../components/BackButton";
 
 const MatchesPage: React.FC = () => {
   const [matches, setMatches] = useState<UserMatchDTO[]>([]);
@@ -108,31 +109,7 @@ const MatchesPage: React.FC = () => {
           </div>
 
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-            <button
-              onClick={() => navigate("/listings")}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.4rem",
-                padding: "0.5rem 1.2rem",
-                backgroundColor: "white",
-                border: "1px solid #d1d5db",
-                borderRadius: "9999px",
-                color: "#1f2937",
-                fontSize: "0.9rem",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-              }}
-              onMouseOver={(e) =>
-                (e.currentTarget.style.backgroundColor = "#f9fafb")
-              }
-              onMouseOut={(e) =>
-                (e.currentTarget.style.backgroundColor = "white")
-              }
-            >
-              <span>←</span> Back to listings
-            </button>
+            <BackButton fallbackPath="/listings" />
 
             <button
               onClick={() => navigate("/questionnaire")}
@@ -312,7 +289,9 @@ const MatchesPage: React.FC = () => {
                           }}
                         >
                           {getInitials(
-                            match.poster.firstName + " " + match.poster.lastName
+                            match.poster.firstName +
+                              " " +
+                              match.poster.lastName,
                           )}
                         </div>
                       )}

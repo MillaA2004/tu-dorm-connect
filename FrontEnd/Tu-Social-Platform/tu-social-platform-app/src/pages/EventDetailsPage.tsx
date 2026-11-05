@@ -6,6 +6,7 @@ import type { EventItem } from "../types";
 import { eventService } from "../services/eventService";
 import { useAuth } from "../services/AuthContext";
 import ReportForm from "../components/ReportForm";
+import BackButton from "../components/BackButton";
 
 
 const mapContainerStyle: React.CSSProperties = {
@@ -199,19 +200,15 @@ const handleRemoveParticipant = async (participantId: number) => {
     return (
       <>
         <Header />
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "2rem 1.5rem", paddingTop: "8%" }}>
-          <button
-            onClick={() => navigate("/events")}
-            style={{
-              border: "none",
-              background: "none",
-              color: "#4f46e5",
-              cursor: "pointer",
-              marginBottom: "1rem",
-            }}
-          >
-            ← Back to events
-          </button>
+        <div
+          style={{
+            maxWidth: 1100,
+            margin: "0 auto",
+            padding: "2rem 1.5rem",
+            paddingTop: "8%",
+          }}
+        >
+          <BackButton fallbackPath="/events" />
           <p>{error ?? "Event not found."}</p>
         </div>
       </>
@@ -235,18 +232,7 @@ const handleRemoveParticipant = async (participantId: number) => {
       >
         {/* LEFT COLUMN */}
         <div style={{ gridColumn: "1 / -1" }}>
-          <button
-            onClick={() => navigate("/events")}
-            style={{
-              border: "none",
-              background: "none",
-              color: "#4f46e5",
-              cursor: "pointer",
-              marginBottom: "1rem",
-            }}
-          >
-            ← Back to events
-          </button>
+          <BackButton fallbackPath="/events" />
         </div>
 
         <main
@@ -297,50 +283,56 @@ const handleRemoveParticipant = async (participantId: number) => {
               >
                 Host
               </span>
-              
+
               <div
-  onClick={() => goToProfile(event.creator.id)}
-  title="View profile"
-  style={{
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "0.55rem",
-    cursor: "pointer",
-    userSelect: "none",
-    fontWeight: 500,
-  }}
->
-  {event.creator.profileImageUrl ? (
-    <img
-      src={event.creator.profileImageUrl}
-      alt={`${event.creator.firstName} ${event.creator.lastName}`}
-      style={{ width: 28, height: 28, borderRadius: 999, objectFit: "cover" }}
-    />
-  ) : (
-    <div
-      style={{
-        width: 28,
-        height: 28,
-        borderRadius: 999,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: "0.75rem",
-        color: "white",
-        fontWeight: 700,
-        background: "#64748b",
-      }}
-    >
-      {getInitials(event.creator.firstName, event.creator.lastName)}
-    </div>
-  )}
+                onClick={() => goToProfile(event.creator.id)}
+                title="View profile"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.55rem",
+                  cursor: "pointer",
+                  userSelect: "none",
+                  fontWeight: 500,
+                }}
+              >
+                {event.creator.profileImageUrl ? (
+                  <img
+                    src={event.creator.profileImageUrl}
+                    alt={`${event.creator.firstName} ${event.creator.lastName}`}
+                    style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: 999,
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: 999,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "0.75rem",
+                      color: "white",
+                      fontWeight: 700,
+                      background: "#64748b",
+                    }}
+                  >
+                    {getInitials(
+                      event.creator.firstName,
+                      event.creator.lastName,
+                    )}
+                  </div>
+                )}
 
-  <span>
-    {event.creator.firstName} {event.creator.lastName}
-  </span>
-</div>
-
-               
+                <span>
+                  {event.creator.firstName} {event.creator.lastName}
+                </span>
+              </div>
             </div>
 
             <div>
@@ -402,105 +394,102 @@ const handleRemoveParticipant = async (participantId: number) => {
 
           {!isCreator && (
             <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-  <button
-    onClick={isParticipant ? handleLeave : handleJoin}
-    disabled={isUpdatingParticipation}
-    style={{
-      border: "none",
-      background:
-        "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #8b5cf6 100%)",
-      color: "white",
-      padding: "0.6rem 1.4rem",
-      borderRadius: 999,
-      fontWeight: 600,
-      cursor: isUpdatingParticipation ? "default" : "pointer",
-      boxShadow: "0 10px 25px rgba(79,70,229,0.25)",
-      opacity: isUpdatingParticipation ? 0.75 : 1,
-    }}
-  >
-    {isUpdatingParticipation
-      ? isParticipant
-        ? "Leaving..."
-        : "Joining..."
-      : isParticipant
-      ? "Leave event"
-      : "Join event"}
-  </button>
+              <button
+                onClick={isParticipant ? handleLeave : handleJoin}
+                disabled={isUpdatingParticipation}
+                style={{
+                  border: "none",
+                  background:
+                    "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #8b5cf6 100%)",
+                  color: "white",
+                  padding: "0.6rem 1.4rem",
+                  borderRadius: 999,
+                  fontWeight: 600,
+                  cursor: isUpdatingParticipation ? "default" : "pointer",
+                  boxShadow: "0 10px 25px rgba(79,70,229,0.25)",
+                  opacity: isUpdatingParticipation ? 0.75 : 1,
+                }}
+              >
+                {isUpdatingParticipation
+                  ? isParticipant
+                    ? "Leaving..."
+                    : "Joining..."
+                  : isParticipant
+                    ? "Leave event"
+                    : "Join event"}
+              </button>
 
-  
- <button
-      type="button"
-      onClick={() => setReportOpen(true)}
-      style={{
-        border: "1px solid #ef4444",
-        background: "white",
-        color: "#ef4444",
-        padding: "0.6rem 1.4rem",
-        borderRadius: 999,
-        fontWeight: 700,
-        cursor: "pointer",
-      }}
-    >
-      Report
-    </button>
+              <button
+                type="button"
+                onClick={() => setReportOpen(true)}
+                style={{
+                  border: "1px solid #ef4444",
+                  background: "white",
+                  color: "#ef4444",
+                  padding: "0.6rem 1.4rem",
+                  borderRadius: 999,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Report
+              </button>
+            </div>
+          )}
 
-  </div>
-)}
+          <ReportForm
+            isOpen={reportOpen}
+            onClose={() => setReportOpen(false)}
+            targetId={event.id}
+            targetType="EVENT"
+            title="Report this event"
+          />
 
-<ReportForm
-  isOpen={reportOpen}
-  onClose={() => setReportOpen(false)}
-  targetId={event.id}
-  targetType="EVENT"
-  title="Report this event"
-/>
+          {(isCreator || isAdmin) && (
+            <div
+              style={{ display: "flex", gap: "0.75rem", marginTop: "0.75rem" }}
+            >
+              {isCreator && (
+                <button
+                  onClick={() => navigate(`/events/${event.id}/edit`)}
+                  style={{
+                    border: "1px solid #d4d4d8",
+                    background: "white",
+                    color: "#374151",
+                    padding: "0.6rem 1.4rem",
+                    borderRadius: 999,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  Edit
+                </button>
+              )}
 
-
-
-{(isCreator || isAdmin) && (
-  <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.75rem" }}>
-    {isCreator && (
-      <button
-        onClick={() => navigate(`/events/${event.id}/edit`)}
-        style={{
-          border: "1px solid #d4d4d8",
-          background: "white",
-          color: "#374151",
-          padding: "0.6rem 1.4rem",
-          borderRadius: 999,
-          fontWeight: 600,
-          cursor: "pointer",
-        }}
-      >
-        Edit
-      </button>
-    )}
-
-    {(isCreator || isAdmin) && (
-      <button
-        onClick={handleDelete}
-        style={{
-          border: "none",
-          background: "#ef4444",
-          color: "white",
-          padding: "0.6rem 1.4rem",
-          borderRadius: 999,
-          fontWeight: 600,
-          cursor: "pointer",
-        }}
-      >
-        Delete
-      </button>
-    )}
-  </div>
-)}
-
-
-
+              {(isCreator || isAdmin) && (
+                <button
+                  onClick={handleDelete}
+                  style={{
+                    border: "none",
+                    background: "#ef4444",
+                    color: "white",
+                    padding: "0.6rem 1.4rem",
+                    borderRadius: 999,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+          )}
         </main>
 
         {/* RIGHT COLUMN */}
-        <aside style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+        <aside
+          style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}
+        >
           <div
             style={{
               background: "white",
@@ -526,27 +515,31 @@ const handleRemoveParticipant = async (participantId: number) => {
               </Map>
             </div>
 
-           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "0.75rem" }}>
-  <button
-    onClick={handleOpenGoogleMaps}
-    style={{
-      padding: "0.55rem 1.1rem",
-      borderRadius: 999,
-      border: "none",
-      background:
-        "linear-gradient(135deg, rgb(37,99,235), rgb(56,189,248))",
-      color: "white",
-      fontWeight: 600,
-      cursor: "pointer",
-      boxShadow: "0 6px 16px rgba(37,99,235,0.35)",
-      whiteSpace: "nowrap",
-    }}
-  >
-    Get directions
-  </button>
-</div>
-
-
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginTop: "0.75rem",
+              }}
+            >
+              <button
+                onClick={handleOpenGoogleMaps}
+                style={{
+                  padding: "0.55rem 1.1rem",
+                  borderRadius: 999,
+                  border: "none",
+                  background:
+                    "linear-gradient(135deg, rgb(37,99,235), rgb(56,189,248))",
+                  color: "white",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  boxShadow: "0 6px 16px rgba(37,99,235,0.35)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Get directions
+              </button>
+            </div>
           </div>
 
           <div
@@ -573,90 +566,101 @@ const handleRemoveParticipant = async (participantId: number) => {
               </span>
             </h2>
 
-            <ul style={{ listStyle: "none", padding: 0, margin: "0.3rem 0 0.9rem" }}>
-  {event.participants.map((p) => {
-    const name = `${p.firstName} ${p.lastName}`.trim();
-    const initials = name
-      .split(" ")
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((x) => x[0]?.toUpperCase())
-      .join("");
+            <ul
+              style={{
+                listStyle: "none",
+                padding: 0,
+                margin: "0.3rem 0 0.9rem",
+              }}
+            >
+              {event.participants.map((p) => {
+                const name = `${p.firstName} ${p.lastName}`.trim();
+                const initials = name
+                  .split(" ")
+                  .filter(Boolean)
+                  .slice(0, 2)
+                  .map((x) => x[0]?.toUpperCase())
+                  .join("");
 
-    return (
-      <li
-        key={p.id}
-        onClick={() => goToProfile(p.id)}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "0.6rem",
-          padding: "0.35rem 0",
-          cursor: "pointer",
-          userSelect: "none"
-        }}
-      >
-        {p.profileImageUrl ? (
-          <img
-            src={p.profileImageUrl}
-            alt={name}
-            style={{ width: 30, height: 30, borderRadius: 999, objectFit: "cover" }}
-          />
-        ) : (
-          <div
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: 999,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "0.8rem",
-              color: "white",
-              fontWeight: 600,
-              background: "#64748b",
-            }}
-          >
-            {initials}
-          </div>
-        )}
+                return (
+                  <li
+                    key={p.id}
+                    onClick={() => goToProfile(p.id)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.6rem",
+                      padding: "0.35rem 0",
+                      cursor: "pointer",
+                      userSelect: "none",
+                    }}
+                  >
+                    {p.profileImageUrl ? (
+                      <img
+                        src={p.profileImageUrl}
+                        alt={name}
+                        style={{
+                          width: 30,
+                          height: 30,
+                          borderRadius: 999,
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: 30,
+                          height: 30,
+                          borderRadius: 999,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "0.8rem",
+                          color: "white",
+                          fontWeight: 600,
+                          background: "#64748b",
+                        }}
+                      >
+                        {initials}
+                      </div>
+                    )}
 
-        <span>{name}</span>
-        {isCreator && p.id !== event.creator.id && (
-  <button
-    onClick={(e) => {
-      e.stopPropagation(); // don't navigate to profile
-      handleRemoveParticipant(p.id);
-    }}
-    disabled={removingParticipantId === p.id}
-    title="Remove participant"
-    style={{
-      marginLeft: "auto",
-      width: 28,
-      height: 28,
-      borderRadius: 999,
-      border: "none",
-      background: "#ef4444",
-      color: "white",
-      fontWeight: 800,
-      cursor: removingParticipantId === p.id ? "default" : "pointer",
-      opacity: removingParticipantId === p.id ? 0.7 : 1,
-      display: "inline-flex",
-      alignItems: "center",
-      justifyContent: "center",
-      lineHeight: 1,
-    }}
-  >
-    ×
-  </button>
-)}
-
-
-      </li>
-    );
-  })}
-</ul>
-
+                    <span>{name}</span>
+                    {isCreator && p.id !== event.creator.id && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // don't navigate to profile
+                          handleRemoveParticipant(p.id);
+                        }}
+                        disabled={removingParticipantId === p.id}
+                        title="Remove participant"
+                        style={{
+                          marginLeft: "auto",
+                          width: 28,
+                          height: 28,
+                          borderRadius: 999,
+                          border: "none",
+                          background: "#ef4444",
+                          color: "white",
+                          fontWeight: 800,
+                          cursor:
+                            removingParticipantId === p.id
+                              ? "default"
+                              : "pointer",
+                          opacity: removingParticipantId === p.id ? 0.7 : 1,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          lineHeight: 1,
+                        }}
+                      >
+                        ×
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
 
             <p style={{ fontSize: "0.85rem", color: "#6b7280" }}>
               Spots left:{" "}

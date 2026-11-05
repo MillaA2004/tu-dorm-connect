@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import { listingService } from "../services/ListingService";
 import { useAuth } from "../services/AuthContext";
 import type { ListingResponseDTO, DormSummary } from "../types";
+import BackButton from "../components/BackButton";
 
 const EditListingPage: React.FC = () => {
   const { id } = useParams();
@@ -151,18 +152,7 @@ const EditListingPage: React.FC = () => {
             paddingTop: "8%",
           }}
         >
-          <button
-            onClick={() => navigate("/listings")}
-            style={backButtonStyle}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = "#f9fafb")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = "white")
-            }
-          >
-            <span>←</span> Back to listings
-          </button>
+          <BackButton fallbackPath="/listings" label="Back to listings" />
           <div style={{ marginTop: "2rem", color: "#dc2626", fontWeight: 500 }}>
             {error}
           </div>
@@ -189,18 +179,7 @@ const EditListingPage: React.FC = () => {
             marginBottom: "1rem",
           }}
         >
-          <button
-            onClick={() => navigate(`/listings/${listingId}`)}
-            style={backButtonStyle}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = "#f9fafb")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = "white")
-            }
-          >
-            <span>←</span> Back to listing
-          </button>
+          <BackButton fallbackPath="/listings" />
         </div>
 
         <form
@@ -279,7 +258,7 @@ const EditListingPage: React.FC = () => {
             }}
           >
             <div style={{ display: "grid", gap: "0.35rem" }}>
-              <label style={{ fontWeight: 500 }}>Price (BGN)</label>
+              <label style={{ fontWeight: 500 }}>Price (€)</label>
               <input
                 type="number"
                 min={0}
@@ -310,7 +289,7 @@ const EditListingPage: React.FC = () => {
                 value={expiryDays}
                 onChange={(e) =>
                   setExpiryDays(
-                    e.target.value === "" ? "" : Number(e.target.value)
+                    e.target.value === "" ? "" : Number(e.target.value),
                   )
                 }
                 placeholder="30"
