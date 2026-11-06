@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Map, Marker } from "@vis.gl/react-google-maps";
 import { DEFAULT_CENTER } from "../config";
-import type { LatLng, NewEvent } from "../types";
 import { useAuth } from "../services/AuthContext";
-import { eventService, type EventRequestDTO } from "../services/eventService";
+
+import { useEventForm } from "../hooks/useEventForm";
+import { useEventLocation } from "../hooks/useEventLocation";
+import { useEventSubmit } from "../hooks/useEventSubmit";
 
 const mapContainerStyle: React.CSSProperties = {
   width: "100%",
@@ -15,82 +17,58 @@ const EventForm: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [address, setAddress] = useState("");
-  const [eventType, setEventType] = useState("party");
-  const [dateTime, setDateTime] = useState("");
-  const [capacity, setCapacity] = useState<number | "">("");
-  const [location, setLocation] = useState<LatLng | null>(null);
+  
+  const {
+    form,
+    updateField,
+    resetForm,
+    validate,
+    buildPayload,
+  } = useEventForm();
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const {
+    location,
+    setLocation,
+    handleMapClick,
+  } = useEventLocation();
 
-  const handleMapClick = (e: any) => {
-    const latLng = e?.detail?.latLng ?? e?.latLng;
-    if (!latLng) return;
-
-    const lat = typeof latLng.lat === "function" ? latLng.lat() : latLng.lat;
-    const lng = typeof latLng.lng === "function" ? latLng.lng() : latLng.lng;
-
-    setLocation({ lat, lng });
-  };
+  
+  const {
+    submitEvent,
+    isSubmitting,
+  } = useEventSubmit();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!user) return alert("You must be logged in to create an event.");
+    if (!user) {
+      alert("You must be logged in to create an event.");
+      return;
+    }
 
-    if (!title.trim()) return alert("Add a title");
-    if (!description.trim()) return alert("Add a description");
-    if (!address.trim()) return alert("Add an address");
-    if (!dateTime) return alert("Pick a date & time");
-    if (capacity === "" || capacity <= 0) return alert("Set a positive capacity");
-    if (!location) return alert("Pick a location on the map");
+   
+    const validationError = validate(location);
 
-    const newEvent: NewEvent = {
-      title: title.trim(),
-      description: description.trim(),
-      address: address.trim(),
-      eventType,
-      dateTime,
-      capacity: Number(capacity),
-      location,
-      participants: [],
-    };
+    if (validationError) {
+      alert(validationError);
+      return;
+    }
 
-    const payload: EventRequestDTO = {
-      title: newEvent.title,
-      description: newEvent.description,
-      address: newEvent.address,
-      // backend expects LocalDateTime. This usually works:
-      // if your backend needs seconds, use: `${newEvent.dateTime}:00`
-      dateTime: newEvent.dateTime.length === 16 ? `${newEvent.dateTime}:00` : newEvent.dateTime,
-      capacity: newEvent.capacity,
-      eventType: newEvent.eventType,
-      latitude: newEvent.location.lat,
-      longitude: newEvent.location.lng,
-    };
+    if (!location) return;
 
-    try {
-      setIsSubmitting(true);
+    
+    const payload = buildPayload(location);
 
-      await eventService.createEvent(payload);
+    
+    const success = await submitEvent(payload, "create");
 
-      
-      setTitle("");
-      setDescription("");
-      setAddress("");
-      setEventType("party");
-      setDateTime("");
-      setCapacity("");
+    if (success) {
+      resetForm();
       setLocation(null);
-
       navigate("/events");
-    } catch (err) {
-      console.error(err);
+    } else {
       alert("Failed to create event. Please try again.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -107,9 +85,11 @@ const EventForm: React.FC = () => {
         boxShadow: "0 10px 25px rgba(15, 23, 42, 0.08)",
       }}
     >
-      <h2 style={{ margin: 0, fontSize: "1.5rem" }}>Create Event</h2>
+      <h2 style={{ margin: 0, fontSize: "1.5rem" }}>
+        Create Event
+      </h2>
 
-     
+      {/* Title */}
       <div style={{ display: "grid", gap: "0.35rem" }}>
         <label style={{ fontWeight: 500 }}>Title</label>
         <input
@@ -120,15 +100,19 @@ const EventForm: React.FC = () => {
             border: "1px solid #d4d4d8",
             fontSize: "0.95rem",
           }}
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={form.title}
+          onChange={(e) =>
+            updateField("title", e.target.value)
+          }
           placeholder="My cool event"
         />
       </div>
 
-      
+      {/* Description */}
       <div style={{ display: "grid", gap: "0.35rem" }}>
-        <label style={{ fontWeight: 500 }}>Description</label>
+        <label style={{ fontWeight: 500 }}>
+          Description
+        </label>
         <textarea
           style={{
             width: "100%",
@@ -139,15 +123,19 @@ const EventForm: React.FC = () => {
             minHeight: 80,
             resize: "vertical",
           }}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={form.description}
+          onChange={(e) =>
+            updateField("description", e.target.value)
+          }
           placeholder="What is this event about?"
         />
       </div>
 
       {/* Address */}
       <div style={{ display: "grid", gap: "0.35rem" }}>
-        <label style={{ fontWeight: 500 }}>Address</label>
+        <label style={{ fontWeight: 500 }}>
+          Address
+        </label>
         <input
           style={{
             width: "100%",
@@ -156,8 +144,10 @@ const EventForm: React.FC = () => {
             border: "1px solid #d4d4d8",
             fontSize: "0.95rem",
           }}
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
+          value={form.address}
+          onChange={(e) =>
+            updateField("address", e.target.value)
+          }
           placeholder="Street, city, etc."
         />
       </div>
@@ -170,8 +160,16 @@ const EventForm: React.FC = () => {
           gap: "1rem",
         }}
       >
-        <div style={{ display: "grid", gap: "0.35rem" }}>
-          <label style={{ fontWeight: 500 }}>Event type</label>
+        {/* Event type */}
+        <div
+          style={{
+            display: "grid",
+            gap: "0.35rem",
+          }}
+        >
+          <label style={{ fontWeight: 500 }}>
+            Event type
+          </label>
           <select
             style={{
               padding: "0.6rem 0.75rem",
@@ -179,8 +177,10 @@ const EventForm: React.FC = () => {
               border: "1px solid #d4d4d8",
               fontSize: "0.95rem",
             }}
-            value={eventType}
-            onChange={(e) => setEventType(e.target.value)}
+            value={form.eventType}
+            onChange={(e) =>
+              updateField("eventType", e.target.value)
+            }
           >
             <option value="party">Party</option>
             <option value="meetup">Meetup</option>
@@ -190,8 +190,16 @@ const EventForm: React.FC = () => {
           </select>
         </div>
 
-        <div style={{ display: "grid", gap: "0.35rem" }}>
-          <label style={{ fontWeight: 500 }}>Capacity</label>
+        {/* Capacity */}
+        <div
+          style={{
+            display: "grid",
+            gap: "0.35rem",
+          }}
+        >
+          <label style={{ fontWeight: 500 }}>
+            Capacity
+          </label>
           <input
             type="number"
             min={1}
@@ -201,18 +209,25 @@ const EventForm: React.FC = () => {
               border: "1px solid #d4d4d8",
               fontSize: "0.95rem",
             }}
-            value={capacity}
+            value={form.capacity}
             onChange={(e) =>
-              setCapacity(e.target.value === "" ? "" : Number(e.target.value))
+              updateField(
+                "capacity",
+                e.target.value === ""
+                  ? ""
+                  : Number(e.target.value)
+              )
             }
             placeholder="e.g. 50"
           />
         </div>
       </div>
 
-      
+      {/* Date & time */}
       <div style={{ display: "grid", gap: "0.35rem" }}>
-        <label style={{ fontWeight: 500 }}>Date & time</label>
+        <label style={{ fontWeight: 500 }}>
+          Date & time
+        </label>
         <input
           type="datetime-local"
           style={{
@@ -221,14 +236,21 @@ const EventForm: React.FC = () => {
             border: "1px solid #d4d4d8",
             fontSize: "0.95rem",
           }}
-          value={dateTime}
-          onChange={(e) => setDateTime(e.target.value)}
+          value={form.dateTime}
+          onChange={(e) =>
+            updateField("dateTime", e.target.value)
+          }
         />
       </div>
 
-      
+      {/* Google Maps */}
       <div>
-        <p style={{ marginBottom: "0.5rem", fontWeight: 500 }}>
+        <p
+          style={{
+            marginBottom: "0.5rem",
+            fontWeight: 500,
+          }}
+        >
           Pick a location on the map (click anywhere):
         </p>
 
@@ -241,24 +263,42 @@ const EventForm: React.FC = () => {
           }}
         >
           <Map
-            style={{ width: "100%", height: "100%" }}
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
             defaultZoom={location ? 14 : 11}
             defaultCenter={DEFAULT_CENTER}
             center={location || DEFAULT_CENTER}
             onClick={handleMapClick}
           >
-            {location && <Marker position={location} />}
+            {location && (
+              <Marker position={location} />
+            )}
           </Map>
         </div>
       </div>
 
+      {/* Selected location */}
       {location && (
-        <p style={{ fontSize: "0.85rem", color: "#6b7280" }}>
-          Selected: <strong>{location.lat.toFixed(5)}</strong>,{" "}
-          <strong>{location.lng.toFixed(5)}</strong>
+        <p
+          style={{
+            fontSize: "0.85rem",
+            color: "#6b7280",
+          }}
+        >
+          Selected:{" "}
+          <strong>
+            {location.lat.toFixed(5)}
+          </strong>
+          ,{" "}
+          <strong>
+            {location.lng.toFixed(5)}
+          </strong>
         </p>
       )}
 
+      {/* Submit button */}
       <button
         type="submit"
         disabled={isSubmitting}
@@ -274,11 +314,14 @@ const EventForm: React.FC = () => {
           justifySelf: "flex-start",
           fontWeight: 600,
           fontSize: "0.95rem",
-          boxShadow: "0 8px 20px rgba(37,99,235,0.35)",
+          boxShadow:
+            "0 8px 20px rgba(37,99,235,0.35)",
           opacity: isSubmitting ? 0.75 : 1,
         }}
       >
-        {isSubmitting ? "Creating..." : "Create Event"}
+        {isSubmitting
+          ? "Creating..."
+          : "Create Event"}
       </button>
     </form>
   );
