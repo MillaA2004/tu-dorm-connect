@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../services/AuthContext";
 import { listingService } from "../services/ListingService";
@@ -11,7 +11,7 @@ const ListingForm: React.FC = () => {
   // Form State
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [dormId, setDormId] = useState(""); 
+  const [dormId, setDormId] = useState("");
   const [price, setPrice] = useState<number | "">("");
   const [expiryDays, setExpiryDays] = useState<number | "">("");
 
@@ -69,7 +69,7 @@ const ListingForm: React.FC = () => {
 
       if (err?.response?.data?.message?.includes("questionnaire")) {
         alert(
-          "You must complete your questionnaire before creating a listing."
+          "You must complete your questionnaire before creating a listing.",
         );
         navigate("/questionnaire");
         return;
@@ -143,7 +143,7 @@ const ListingForm: React.FC = () => {
             fontSize: "0.95rem",
           }}
           value={dormId}
-          onChange={(e) => setDormId(e.target.value)} 
+          onChange={(e) => setDormId(e.target.value)}
         >
           <option value="">Select dorm</option>
           {dorms.map((dorm) => (
@@ -163,7 +163,7 @@ const ListingForm: React.FC = () => {
         }}
       >
         <div style={{ display: "grid", gap: "0.35rem" }}>
-          <label style={{ fontWeight: 500 }}>Price (BGN/month)</label>
+          <label style={{ fontWeight: 500 }}>Price (€/month)</label>
           <input
             type="number"
             min={1}

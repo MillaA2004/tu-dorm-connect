@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import type { ListingResponseDTO } from "../types";
 import { listingService } from "../services/ListingService";
 import { useAuth } from "../services/AuthContext";
+import BackButton from "../components/BackButton";
 
 const ListingDetailsPage: React.FC = () => {
   const { id } = useParams();
@@ -16,22 +17,6 @@ const ListingDetailsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Define the pill style here to use in this component
-  const pillButtonStyle: React.CSSProperties = {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "0.4rem",
-    padding: "0.5rem 1.2rem",
-    backgroundColor: "white",
-    border: "1px solid #d1d5db",
-    borderRadius: "9999px",
-    color: "#1f2937",
-    fontSize: "0.9rem",
-    fontWeight: 600,
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-  };
 
   const isPoster = useMemo(() => {
     if (!user || !listing) return false;
@@ -114,18 +99,7 @@ const ListingDetailsPage: React.FC = () => {
             paddingRight: "1.5rem",
           }}
         >
-          <button
-            onClick={() => navigate("/listings")}
-            style={pillButtonStyle}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = "#f9fafb")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = "white")
-            }
-          >
-            <span>←</span> Back to listings
-          </button>
+          <BackButton fallbackPath="/listings" />
           <p style={{ marginTop: "1rem" }}>{error ?? "Listing not found."}</p>
         </div>
       </>
@@ -151,18 +125,7 @@ const ListingDetailsPage: React.FC = () => {
       >
         {/* Back button */}
         <div style={{ gridColumn: "1 / -1" }}>
-          <button
-            onClick={() => navigate("/listings")}
-            style={pillButtonStyle}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = "#f9fafb")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = "white")
-            }
-          >
-            <span>←</span> Back to listings
-          </button>
+          <BackButton fallbackPath="/listings" />
         </div>
 
         {/* LEFT COLUMN */}
@@ -250,7 +213,7 @@ const ListingDetailsPage: React.FC = () => {
               >
                 Price
               </span>
-              <span style={{ fontWeight: 500 }}>{listing.price} BGN/month</span>
+              <span style={{ fontWeight: 500 }}>{listing.price} €/month</span>
             </div>
 
             <div>
@@ -397,7 +360,7 @@ const ListingDetailsPage: React.FC = () => {
                     color: "#2563eb",
                   }}
                 >
-                  {listing.price} BGN
+                  {listing.price} €
                 </span>
               </div>
 

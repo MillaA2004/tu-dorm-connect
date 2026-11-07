@@ -6,6 +6,7 @@ import type { EventItem, LatLng } from "../types";
 import { eventService, type EventRequestDTO } from "../services/eventService";
 import { useAuth } from "../services/AuthContext";
 import Header from "../components/Header";
+import BackButton from "../components/BackButton";
 
 const mapContainerStyle: React.CSSProperties = {
   width: "100%",
@@ -132,19 +133,10 @@ const EditEventPage: React.FC = () => {
 
   if (!event) {
     return (
-      <div style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1.5rem 3rem" }}>
-        <button
-          onClick={() => navigate("/events")}
-          style={{
-            border: "none",
-            background: "none",
-            color: "#4f46e5",
-            cursor: "pointer",
-            marginBottom: "1rem",
-          }}
-        >
-          ← Back to events
-        </button>
+      <div
+        style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1.5rem 3rem" }}
+      >
+        <BackButton fallbackPath="/events" />
         <p>Event not found.</p>
       </div>
     );
@@ -152,239 +144,235 @@ const EditEventPage: React.FC = () => {
 
   if (!isCreator) {
     return (
-      <div style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1.5rem 3rem" }}>
-        <button
-          onClick={() => navigate(`/events/${event.id}`)}
-          style={{
-            border: "none",
-            background: "none",
-            color: "#4f46e5",
-            cursor: "pointer",
-            marginBottom: "1rem",
-          }}
-        >
-          ← Back to event
-        </button>
+      <div
+        style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1.5rem 3rem" }}
+      >
+        <BackButton
+          fallbackPath={`/events/${event.id}`}
+        />
         <p>You are not allowed to edit this event.</p>
       </div>
     );
   }
 
   return (
-
     <>
-    <Header/>
-    
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1.5rem 3rem" }}>
-      <button
-        onClick={() => navigate(`/events/${event.id}`)}
-        style={{
-          border: "none",
-          background: "none",
-          color: "#4f46e5",
-          cursor: "pointer",
-          marginBottom: "1rem",
-        }}
+      <Header />
+
+      <div
+        style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1.5rem 3rem" }}
       >
-        ← Back to event
-      </button>
+        <BackButton
+          fallbackPath={`/events/${event.id}`}
+          label="Back to event"
+        />
 
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          display: "grid",
-          gap: "1rem",
-          borderRadius: 16,
-          padding: "1.5rem",
-          marginBottom: "2rem",
-          background: "#ffffff",
-          boxShadow: "0 10px 25px rgba(15, 23, 42, 0.08)",
-        }}
-      >
-        <h2 style={{ margin: 0, fontSize: "1.5rem" }}>Edit Event</h2>
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            display: "grid",
+            gap: "1rem",
+            borderRadius: 16,
+            padding: "1.5rem",
+            marginBottom: "2rem",
+            background: "#ffffff",
+            boxShadow: "0 10px 25px rgba(15, 23, 42, 0.08)",
+          }}
+        >
+          <h2 style={{ margin: 0, fontSize: "1.5rem" }}>Edit Event</h2>
 
-        {/* Title */}
-        <div style={{ display: "grid", gap: "0.35rem" }}>
-          <label style={{ fontWeight: 500 }}>Title</label>
-          <input
-            style={{
-              width: "100%",
-              padding: "0.6rem 0.75rem",
-              borderRadius: 8,
-              border: "1px solid #d4d4d8",
-              fontSize: "0.95rem",
-            }}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="My cool event"
-          />
-        </div>
-
-        {/* Description */}
-        <div style={{ display: "grid", gap: "0.35rem" }}>
-          <label style={{ fontWeight: 500 }}>Description</label>
-          <textarea
-            style={{
-              width: "100%",
-              padding: "0.6rem 0.75rem",
-              borderRadius: 8,
-              border: "1px solid #d4d4d8",
-              fontSize: "0.95rem",
-              minHeight: 80,
-              resize: "vertical",
-            }}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="What is this event about?"
-          />
-        </div>
-
-        {/* Address */}
-        <div style={{ display: "grid", gap: "0.35rem" }}>
-          <label style={{ fontWeight: 500 }}>Address</label>
-          <input
-            style={{
-              width: "100%",
-              padding: "0.6rem 0.75rem",
-              borderRadius: 8,
-              border: "1px solid #d4d4d8",
-              fontSize: "0.95rem",
-            }}
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="Street, city, etc."
-          />
-        </div>
-
-        {/* Event type + Capacity */}
-        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "1rem" }}>
+          {/* Title */}
           <div style={{ display: "grid", gap: "0.35rem" }}>
-            <label style={{ fontWeight: 500 }}>Event type</label>
-            <select
-              style={{
-                padding: "0.6rem 0.75rem",
-                borderRadius: 8,
-                border: "1px solid #d4d4d8",
-                fontSize: "0.95rem",
-              }}
-              value={eventType}
-              onChange={(e) => setEventType(e.target.value)}
-            >
-              <option value="party">Party</option>
-              <option value="meetup">Meetup</option>
-              <option value="conference">Conference</option>
-              <option value="workshop">Workshop</option>
-            </select>
-          </div>
-
-          <div style={{ display: "grid", gap: "0.35rem" }}>
-            <label style={{ fontWeight: 500 }}>Capacity</label>
+            <label style={{ fontWeight: 500 }}>Title</label>
             <input
-              type="number"
-              min={1}
               style={{
+                width: "100%",
                 padding: "0.6rem 0.75rem",
                 borderRadius: 8,
                 border: "1px solid #d4d4d8",
                 fontSize: "0.95rem",
               }}
-              value={capacity}
-              onChange={(e) => setCapacity(e.target.value === "" ? "" : Number(e.target.value))}
-              placeholder="e.g. 50"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="My cool event"
             />
           </div>
-        </div>
 
-        {/* Date & time */}
-        <div style={{ display: "grid", gap: "0.35rem" }}>
-          <label style={{ fontWeight: 500 }}>Date & time</label>
-          <input
-            type="datetime-local"
-            style={{
-              padding: "0.6rem 0.75rem",
-              borderRadius: 8,
-              border: "1px solid #d4d4d8",
-              fontSize: "0.95rem",
-            }}
-            value={dateTime}
-            onChange={(e) => setDateTime(e.target.value)}
-          />
-        </div>
+          {/* Description */}
+          <div style={{ display: "grid", gap: "0.35rem" }}>
+            <label style={{ fontWeight: 500 }}>Description</label>
+            <textarea
+              style={{
+                width: "100%",
+                padding: "0.6rem 0.75rem",
+                borderRadius: 8,
+                border: "1px solid #d4d4d8",
+                fontSize: "0.95rem",
+                minHeight: 80,
+                resize: "vertical",
+              }}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="What is this event about?"
+            />
+          </div>
 
-        {/* Map */}
-        <div>
-          <p style={{ marginBottom: "0.5rem", fontWeight: 500 }}>
-            Update location on the map:
-          </p>
+          {/* Address */}
+          <div style={{ display: "grid", gap: "0.35rem" }}>
+            <label style={{ fontWeight: 500 }}>Address</label>
+            <input
+              style={{
+                width: "100%",
+                padding: "0.6rem 0.75rem",
+                borderRadius: 8,
+                border: "1px solid #d4d4d8",
+                fontSize: "0.95rem",
+              }}
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Street, city, etc."
+            />
+          </div>
 
+          {/* Event type + Capacity */}
           <div
             style={{
-              ...mapContainerStyle,
-              borderRadius: 12,
-              overflow: "hidden",
-              border: "1px solid #e4e4e7",
+              display: "grid",
+              gridTemplateColumns: "1.2fr 0.8fr",
+              gap: "1rem",
             }}
           >
-            <Map
-              style={{ width: "100%", height: "100%" }}
-              defaultZoom={location ? 14 : 11}
-              defaultCenter={location || DEFAULT_CENTER}
-              center={location || DEFAULT_CENTER}
-              onClick={handleMapClick}
-            >
-              {location && <Marker position={location} />}
-            </Map>
+            <div style={{ display: "grid", gap: "0.35rem" }}>
+              <label style={{ fontWeight: 500 }}>Event type</label>
+              <select
+                style={{
+                  padding: "0.6rem 0.75rem",
+                  borderRadius: 8,
+                  border: "1px solid #d4d4d8",
+                  fontSize: "0.95rem",
+                }}
+                value={eventType}
+                onChange={(e) => setEventType(e.target.value)}
+              >
+                <option value="party">Party</option>
+                <option value="meetup">Meetup</option>
+                <option value="conference">Conference</option>
+                <option value="workshop">Workshop</option>
+              </select>
+            </div>
+
+            <div style={{ display: "grid", gap: "0.35rem" }}>
+              <label style={{ fontWeight: 500 }}>Capacity</label>
+              <input
+                type="number"
+                min={1}
+                style={{
+                  padding: "0.6rem 0.75rem",
+                  borderRadius: 8,
+                  border: "1px solid #d4d4d8",
+                  fontSize: "0.95rem",
+                }}
+                value={capacity}
+                onChange={(e) =>
+                  setCapacity(
+                    e.target.value === "" ? "" : Number(e.target.value),
+                  )
+                }
+                placeholder="e.g. 50"
+              />
+            </div>
           </div>
-        </div>
 
-        {location && (
-          <p style={{ fontSize: "0.85rem", color: "#6b7280" }}>
-            Selected: <strong>{location.lat.toFixed(5)}</strong>,{" "}
-            <strong>{location.lng.toFixed(5)}</strong>
-          </p>
-        )}
+          {/* Date & time */}
+          <div style={{ display: "grid", gap: "0.35rem" }}>
+            <label style={{ fontWeight: 500 }}>Date & time</label>
+            <input
+              type="datetime-local"
+              style={{
+                padding: "0.6rem 0.75rem",
+                borderRadius: 8,
+                border: "1px solid #d4d4d8",
+                fontSize: "0.95rem",
+              }}
+              value={dateTime}
+              onChange={(e) => setDateTime(e.target.value)}
+            />
+          </div>
 
-        {/* Buttons */}
-        <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.75rem" }}>
-          <button
-            type="submit"
-            disabled={saving}
-            style={{
-              padding: "0.6rem 1.3rem",
-              borderRadius: 999,
-              border: "none",
-              background:
-                "linear-gradient(135deg, rgb(37,99,235), rgb(56,189,248))",
-              color: "white",
-              cursor: "pointer",
-              fontWeight: 600,
-              fontSize: "0.95rem",
-              boxShadow: "0 8px 20px rgba(37,99,235,0.35)",
-              opacity: saving ? 0.75 : 1,
-            }}
-          >
-            {saving ? "Saving..." : "Save changes"}
-          </button>
+          {/* Map */}
+          <div>
+            <p style={{ marginBottom: "0.5rem", fontWeight: 500 }}>
+              Update location on the map:
+            </p>
 
-          <button
-            type="button"
-            onClick={handleCancel}
-            style={{
-              padding: "0.6rem 1.3rem",
-              borderRadius: 999,
-              border: "1px solid #d4d4d8",
-              background: "white",
-              color: "#374151",
-              cursor: "pointer",
-              fontWeight: 500,
-              fontSize: "0.95rem",
-            }}
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
+            <div
+              style={{
+                ...mapContainerStyle,
+                borderRadius: 12,
+                overflow: "hidden",
+                border: "1px solid #e4e4e7",
+              }}
+            >
+              <Map
+                style={{ width: "100%", height: "100%" }}
+                defaultZoom={location ? 14 : 11}
+                defaultCenter={location || DEFAULT_CENTER}
+                center={location || DEFAULT_CENTER}
+                onClick={handleMapClick}
+              >
+                {location && <Marker position={location} />}
+              </Map>
+            </div>
+          </div>
+
+          {location && (
+            <p style={{ fontSize: "0.85rem", color: "#6b7280" }}>
+              Selected: <strong>{location.lat.toFixed(5)}</strong>,{" "}
+              <strong>{location.lng.toFixed(5)}</strong>
+            </p>
+          )}
+
+          {/* Buttons */}
+          <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.75rem" }}>
+            <button
+              type="submit"
+              disabled={saving}
+              style={{
+                padding: "0.6rem 1.3rem",
+                borderRadius: 999,
+                border: "none",
+                background:
+                  "linear-gradient(135deg, rgb(37,99,235), rgb(56,189,248))",
+                color: "white",
+                cursor: "pointer",
+                fontWeight: 600,
+                fontSize: "0.95rem",
+                boxShadow: "0 8px 20px rgba(37,99,235,0.35)",
+                opacity: saving ? 0.75 : 1,
+              }}
+            >
+              {saving ? "Saving..." : "Save changes"}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleCancel}
+              style={{
+                padding: "0.6rem 1.3rem",
+                borderRadius: 999,
+                border: "1px solid #d4d4d8",
+                background: "white",
+                color: "#374151",
+                cursor: "pointer",
+                fontWeight: 500,
+                fontSize: "0.95rem",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </>
   );
 };

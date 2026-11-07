@@ -24,7 +24,7 @@ export const chatSocket = {
 
     connectPromise = new Promise((resolve, reject) => {
       client = new Client({
-        webSocketFactory: () => new SockJS("http://localhost:8080/ws-chat"),
+        webSocketFactory: () => new SockJS("http://localhost:8084/ws-chat"),
         reconnectDelay: 3000,
         debug: () => {},
 

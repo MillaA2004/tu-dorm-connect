@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { questionnaireService } from "../services/QuestionnaireService";
-import { useAuth } from "../services/AuthContext";
+import BackButton from "../components/BackButton";
+import { useRequireAuth } from "../hooks/useRequireAuth";
 
 interface QuestionnaireData {
   smokes: boolean | null;
@@ -30,11 +31,11 @@ interface QuestionnaireData {
 
 const QuestionnairePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const user = useRequireAuth("/listings");
 
   const [loading, setLoading] = useState(false);
   const [existingData, setExistingData] = useState<QuestionnaireData | null>(
-    null
+    null,
   );
 
   const [formData, setFormData] = useState<QuestionnaireData>({
@@ -62,10 +63,7 @@ const QuestionnairePage: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!user) {
-      navigate("/listings");
-      return;
-    }
+    if (!user) return;
 
     const fetchExisting = async () => {
       try {
@@ -108,21 +106,21 @@ const QuestionnairePage: React.FC = () => {
 
   const handleBooleanChange = (
     field: keyof QuestionnaireData,
-    value: boolean
+    value: boolean,
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleNumberChange = (
     field: keyof QuestionnaireData,
-    value: number
+    value: number,
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleStringChange = (
     field: keyof QuestionnaireData,
-    value: string
+    value: string,
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -138,18 +136,7 @@ const QuestionnairePage: React.FC = () => {
           paddingTop: "8%",
         }}
       >
-        <button
-          onClick={() => navigate("/listings")}
-          style={{
-            border: "none",
-            background: "none",
-            color: "#4f46e5",
-            cursor: "pointer",
-            marginBottom: "1rem",
-          }}
-        >
-          ← Back to listings
-        </button>
+        <BackButton fallbackPath="/listings" />
 
         <div
           style={{
@@ -531,8 +518,8 @@ const QuestionnairePage: React.FC = () => {
                 {loading
                   ? "Saving..."
                   : existingData
-                  ? "Update & Continue"
-                  : "Save & Continue"}
+                    ? "Update & Continue"
+                    : "Save & Continue"}
               </button>
 
               <button
