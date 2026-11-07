@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import { matchService } from "../services/MatchService";
 import { type UserMatchDTO } from "../types";
 import BackButton from "../components/BackButton";
-import { useRequireAuth } from "../hooks/UseRequireAuth";
+import { useRequireAuth } from "../hooks/useRequireAuth";
 
 const MatchesPage: React.FC = () => {
   const [matches, setMatches] = useState<UserMatchDTO[]>([]);

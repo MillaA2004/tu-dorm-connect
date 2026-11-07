@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import { listingService } from "../services/ListingService";
 import type { ListingResponseDTO, DormSummary } from "../types";
 import BackButton from "../components/BackButton";
-import { useRequireAuth } from "../hooks/UseRequireAuth";
+import { useRequireAuth } from "../hooks/useRequireAuth";
 
 const EditListingPage: React.FC = () => {
   const { id } = useParams();
