@@ -5,6 +5,7 @@ import ListingList from "../components/ListingList";
 import { type ListingItem } from "../types";
 import { listingService } from "../services/ListingService";
 import { useAuth } from "../services/AuthContext";
+import BackButton from "../components/BackButton";
 
 const MyListingsPage: React.FC = () => {
   const [listings, setListings] = useState<ListingItem[]>([]);
@@ -88,32 +89,7 @@ const MyListingsPage: React.FC = () => {
           }}
         >
           <h1 style={{ margin: 0, fontSize: "2rem" }}>My Listing</h1>
-
-          <button
-            onClick={() => navigate("/listings")}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              padding: "0.5rem 1.2rem",
-              backgroundColor: "white",
-              border: "1px solid #d1d5db",
-              borderRadius: "9999px",
-              color: "#1f2937",
-              fontSize: "0.9rem",
-              fontWeight: 600,
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-            }}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = "#f9fafb")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = "white")
-            }
-          >
-            <span>←</span> Back to listings
-          </button>
+          <BackButton fallbackPath="/listings" />
         </div>
 
         {/* CONTENT SECTION */}

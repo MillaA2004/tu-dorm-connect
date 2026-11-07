@@ -6,6 +6,7 @@ import type { EventItem } from "../types";
 import { eventService } from "../services/eventService";
 import { useAuth } from "../services/AuthContext";
 import Header from "../components/Header";
+import BackButton from "../components/BackButton";
 
 import { useEventForm } from "../hooks/useEventForm";
 import { useEventLocation } from "../hooks/useEventLocation";
@@ -175,25 +176,9 @@ const EditEventPage: React.FC = () => {
   if (!event) {
     return (
       <div
-        style={{
-          maxWidth: 900,
-          margin: "0 auto",
-          padding: "2rem 1.5rem 3rem",
-        }}
+        style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1.5rem 3rem" }}
       >
-        <button
-          onClick={() => navigate("/events")}
-          style={{
-            border: "none",
-            background: "none",
-            color: "#4f46e5",
-            cursor: "pointer",
-            marginBottom: "1rem",
-          }}
-        >
-          ← Back to events
-        </button>
-
+        <BackButton fallbackPath="/events" />
         <p>Event not found.</p>
       </div>
     );
@@ -203,25 +188,11 @@ const EditEventPage: React.FC = () => {
   if (!isCreator) {
     return (
       <div
-        style={{
-          maxWidth: 900,
-          margin: "0 auto",
-          padding: "2rem 1.5rem 3rem",
-        }}
+        style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1.5rem 3rem" }}
       >
-        <button
-          onClick={() => navigate(`/events/${event.id}`)}
-          style={{
-            border: "none",
-            background: "none",
-            color: "#4f46e5",
-            cursor: "pointer",
-            marginBottom: "1rem",
-          }}
-        >
-          ← Back to event
-        </button>
-
+        <BackButton
+          fallbackPath={`/events/${event.id}`}
+        />
         <p>You are not allowed to edit this event.</p>
       </div>
     );
@@ -232,25 +203,12 @@ const EditEventPage: React.FC = () => {
       <Header />
 
       <div
-        style={{
-          maxWidth: 900,
-          margin: "0 auto",
-          padding: "2rem 1.5rem 3rem",
-        }}
+        style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 1.5rem 3rem" }}
       >
-        {/* Back button */}
-        <button
-          onClick={() => navigate(`/events/${event.id}`)}
-          style={{
-            border: "none",
-            background: "none",
-            color: "#4f46e5",
-            cursor: "pointer",
-            marginBottom: "1rem",
-          }}
-        >
-          ← Back to event
-        </button>
+        <BackButton
+          fallbackPath={`/events/${event.id}`}
+          label="Back to event"
+        />
 
         <form
           onSubmit={handleSubmit}
